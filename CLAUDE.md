@@ -8,3 +8,4 @@
 - Belirsizlik varsa tahmin etme; en küçük varsayımı docs/ASSUMPTIONS.md'ye yaz ve devam et.
 - Bir kilometre taşının (PRD 14.4) testleri geçmeden sonrakine geçme.
 - Faz 2 (Bölüm 11) Faz 1 bitmeden başlamaz.
+- Çalışma kaydı: docs/PROGRESS.md. Başlamadan önce oku; her kilometre taşı veya düzeltme turu bittiğinde güncelle (kısa, madde madde).
