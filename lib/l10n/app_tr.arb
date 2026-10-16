@@ -1,0 +1,15 @@
+{
+  "@@locale": "tr",
+  "tutorialAim": "Herhangi bir yere bas, geri çek ve atmak için bırak",
+  "gameOverTitle": "Oyun Bitti",
+  "scoreLabel": "Skor",
+  "playAgain": "Tekrar Oyna",
+  "starBonusPopup": "+{n}",
+  "themeOrbitfall": "Orbitfall",
+  "themeCandyBurst": "Candy Burst",
+  "themePixelDrop": "Pixel Drop",
+  "themeAbyss": "Abyss",
+  "themeInkPaper": "Ink & Paper",
+  "themePickerTitle": "Tema",
+  "themePlaceholderTag": "yer tutucu"
+}

@@ -153,3 +153,136 @@ const double kOverlayButtonTextSize = 20;
 
 /// Sistem yazı ölçeğinin üst sınırı.
 const double kMaxTextScale = 1.15;
+
+// --- Temalar (PRD 7.4.1) -----------------------------------------------------
+
+/// v1'de tüm temalar açık (kilit sorusunun tek kapısı ThemeAccess).
+const bool kAllThemesUnlocked = true;
+
+/// Ücretsiz ve varsayılan tema; bilinmeyen/kilitli seçim buna düşer.
+const String kDefaultThemeId = 'orbitfall';
+
+/// Yalnızca debug yapıdaki tema seçici düğmesi (gu, zemin çubuğunun sağı).
+const double kDebugPickerX = 386;
+const double kDebugPickerY = 669;
+const double kDebugPickerSize = 36;
+
+// --- Efekt havuzları (PRD 7.3) — her biri ayrı, doluysa en eskisi yeniden kullanılır
+
+/// Yalnızca kıvılcım parçacıkları.
+const int kParticlePool = 64;
+
+/// Yok olma (madeni para dönüşü) animasyonları: tahtadaki en fazla hedef.
+const int kBreakAnimPool = kCols * kPlayableRows;
+
+/// Halka/yıldız toplama ve oyun sonu şok halkası "pop" animasyonları.
+const int kPopAnimPool = 16;
+
+/// Yıldız "+3" yazıları.
+const int kFloatTextPool = 8;
+
+/// Hızlanmada (karede ≤32 adım) olay yağmuruna karşı karede yeni üretim sınırı.
+const int kMaxSparksPerFrame = 24;
+const int kMaxAnimsPerFrame = 12;
+
+/// Görsel rastgelelik tohumu (oyun tohumunu tüketmez, PRD 7.2.1).
+const int kVisualRandomSeed = 0x0B1026;
+
+// --- Animasyonlar (PRD 7.2, 7.2.1, 5.11) -------------------------------------
+
+/// Vuruş: hedef ölçeği 1 → 1.12 → 1.
+const double kHitPulseSec = 0.10;
+const double kHitPulseScale = 1.12;
+
+/// Yok olma: 0.7 sn; ölçek Y = |cos(1.5·π·u)|, X = 1 + 0.1·sin(π·u),
+/// dönme −0.6·u rad, yerçekimi 600 gu/sn², yatay ±35 gu/sn; u ≥ 0.5'te solar.
+const double kBreakAnimSec = 0.7;
+const double kBreakFlipTurns = 1.5;
+const double kBreakWobbleX = 0.1;
+const double kBreakRotation = -0.6;
+const double kBreakGravity = 600;
+const double kBreakDriftSpeed = 35;
+const double kBreakFadeStart = 0.5;
+
+/// Halka/yıldız toplama: 1.0 → 1.6 büyüyüp solma, 0.25 sn.
+const double kPopSec = 0.25;
+const double kPopScale = 1.6;
+
+/// Oyun sonu şok halkası: süre ve büyüme.
+const double kShockSec = 0.45;
+const double kShockScale = 2.2;
+const double kShockStroke = 3;
+
+/// Kıvılcım: boyut 3, hız 120 → 0 gu/sn, ömür 0.35 sn (PRD 7.2 halka satırı).
+const double kSparkSize = 3;
+const double kSparkSpeed = 120;
+const double kSparkLife = 0.35;
+
+/// "+3" yazısı: 0.6 sn yukarı süzülür.
+const double kFloatTextSec = 0.6;
+const double kFloatTextRise = 30;
+const double kFloatTextSize = 20;
+
+/// Yıldız nabzı: 0.95–1.05, 1.2 sn.
+const double kStarPulseSec = 1.2;
+const double kStarPulseMin = 0.95;
+const double kStarPulseMax = 1.05;
+
+/// Tehlike uyarısı: 7. satırda hedef varken zemin kenarı nefes alır (1.2 sn döngü).
+const double kDangerPulseSec = 1.2;
+const double kDangerGlowHeight = 6;
+
+/// Satır ilerleme: zemin çubuğu kenarında ışık süpürmesi.
+const double kAdvanceSweepSec = 0.3;
+const double kAdvanceSweepWidth = 80;
+
+/// Skor nabzı (satır ilerlemede).
+const double kScorePulseSec = 0.2;
+const double kScorePulseScale = 1.15;
+
+// --- Ses (PRD 8) — sınırlar duvar saatiyle çalışır, simülasyon adımıyla değil
+
+const int kSfxMinGapMs = 50;
+const int kSfxMaxConcurrent = 8;
+const double kMusicVolume = 0.35;
+const double kSfxVolume = 1.0;
+
+/// SFX başına önceden açılan oynatıcı sayısı (AudioPool).
+const int kSfxPoolPlayers = 4;
+
+/// Vuruş sesi varyant sayısı; simülasyondan bağımsız bir sayaçla sırayla döner (8.1).
+const int kHitVariants = 3;
+
+// --- Orbitfall arka planı ----------------------------------------------------
+
+/// Kayan yıldız tozu: iki parallaks katman.
+const int kStarDustPerLayer = 30;
+const double kStarDustSpeedFar = 5;
+const double kStarDustSpeedNear = 12;
+const double kStarDustSizeFar = 1.2;
+const double kStarDustSizeNear = 2;
+const double kStarDustAlphaFar = 0.35;
+const double kStarDustAlphaNear = 0.6;
+
+// --- Orbitfall çizimi --------------------------------------------------------
+
+/// Hedefin iç halka vurgusu.
+const double kTargetRimStroke = 2;
+const double kTargetRimInset = 4;
+const double kTargetRimAlpha = 0.22;
+
+/// Rakam gölgesi (PRD 7.1 "hafif gölge").
+const double kNumberShadowBlur = 2;
+const double kNumberShadowOffset = 1;
+const double kNumberShadowAlpha = 0.45;
+
+/// HUD/zemin çubuğu kenarı: ince açık çizgi ve ortasında tema vurgusu (gu).
+const double kHudEdgeStroke = 1.5;
+const double kHudAccentWidth = 96;
+const double kHudAccentStroke = 2.5;
+const double kHudAccentGlowBlur = 3;
+
+/// Tehlike ve süpürme parlaklıkları.
+const double kDangerGlowAlpha = 0.8;
+const double kSweepAlpha = 0.8;
+const double kSweepHeight = 4;

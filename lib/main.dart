@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'app/app.dart';
+import 'core/services/audio_service.dart';
+import 'core/services/flame_audio_backend.dart';
 import 'core/services/prefs_service.dart';
 
 Future<void> main() async {
@@ -16,6 +18,7 @@ Future<void> main() async {
     ProviderScope(
       overrides: [
         prefsRepositoryProvider.overrideWithValue(PrefsRepository(prefs)),
+        audioBackendProvider.overrideWithValue(FlameAudioBackend()),
       ],
       child: const App(),
     ),

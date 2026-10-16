@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:ui';
 
 import 'package:flame/components.dart';
@@ -5,18 +6,22 @@ import 'package:flame/game.dart';
 import 'package:flutter/foundation.dart';
 
 import '../core/config/game_config.dart';
-import '../core/theme/palette.dart';
+import '../core/services/audio_service.dart';
 import '../game_core/constants.dart';
 import '../game_core/engine/aim.dart';
 import '../game_core/engine/events.dart';
 import '../game_core/rules/round_state_machine.dart';
+import '../themes/game_theme.dart';
+import '../themes/theme_registry.dart';
 import 'aim_controller.dart';
 import 'ball_merge_animator.dart';
+import 'effects/effects_controller.dart';
 import 'game_loop.dart';
 import 'guide_path.dart';
 import 'painters/background_component.dart';
 import 'painters/balls_component.dart';
 import 'painters/board_component.dart';
+import 'painters/effects_component.dart';
 import 'painters/guide_component.dart';
 import 'painters/hud_component.dart';
 
@@ -27,11 +32,29 @@ import 'painters/hud_component.dart';
 /// Dünya koordinatları gu'dur; kamera 416×703'lük sabit çözünürlükle tuvali
 /// doldurur (widget zaten tuval oranında yerleştirilir, bkz. CanvasFit).
 class BallGame extends FlameGame {
-  BallGame({required int seed})
+  BallGame({required int seed, GameTheme? theme, this.audio})
       : _session = GameSession(seed),
-        super(camera: CameraComponent.withFixedResolution(width: kVirtualW, height: kVirtualH));
+        _theme = theme ?? ThemeRegistry.fallback,
+        super(camera: CameraComponent.withFixedResolution(width: kVirtualW, height: kVirtualH)) {
+    _renderer = _theme.createRenderer(_theme);
+    effects = EffectsController(theme: _theme);
+    final audio = this.audio;
+    if (audio != null) unawaited(audio.setTheme(_theme.sounds));
+  }
 
   GameSession _session;
+
+  /// Ses servisi; null ise ses yok (testler).
+  final AudioService? audio;
+
+  GameTheme _theme;
+  late ThemeRenderer _renderer;
+
+  /// Olay → görsel efekt ve ses anahtarı (yalnızca görünüm).
+  late final EffectsController effects;
+
+  String Function(int)? _starBonusFormat;
+  final Map<int, String> _starBonusLabels = {};
   final AimController aim = AimController();
   final GuidePath guide = GuidePath();
   final GameLoop _loop = GameLoop();
@@ -55,6 +78,34 @@ class BallGame extends FlameGame {
 
   GameSession get session => _session;
 
+  GameTheme get theme => _theme;
+
+  ThemeRenderer get renderer => _renderer;
+
+  /// Tema değişimi: yalnızca görünüm ve ses (çekirdek etkilenmez).
+  set theme(GameTheme value) {
+    if (identical(value, _theme)) return;
+    _renderer.dispose();
+    _theme = value;
+    _renderer = value.createRenderer(value);
+    effects.theme = value;
+    final audio = this.audio;
+    if (audio != null) unawaited(audio.setTheme(value.sounds));
+  }
+
+  /// Yıldız "+n" yazısının yerelleştirilmiş biçimi (ekrandan verilir).
+  set starBonusFormat(String Function(int n)? format) {
+    _starBonusFormat = format;
+    _starBonusLabels.clear();
+  }
+
+  /// Önbellekli "+n" etiketi; biçim verilmemişse null.
+  String? starBonusLabel(int n) {
+    final format = _starBonusFormat;
+    if (format == null) return null;
+    return _starBonusLabels.putIfAbsent(n, () => format(n));
+  }
+
   /// Son adımdan bu yana geçen süre / adım süresi.
   double get alpha => _loop.alpha;
 
@@ -74,17 +125,20 @@ class BallGame extends FlameGame {
   }
 
   @override
-  Color backgroundColor() => Palette.bgGradientBottom;
+  Color backgroundColor() => _theme.palette.bgBottom;
 
   @override
   Future<void> onLoad() async {
     camera.viewfinder.anchor = Anchor.topLeft;
-    // Çizim sırası PRD 4.5.1.
+    // Çizim sırası PRD 4.5.1: arka plan, halka+hedef, yok olma, atılan toplar,
+    // nişan çizgisi, parçacıklar, HUD.
     await world.addAll([
       BackgroundComponent(),
       BoardComponent(),
+      BreakEffectsComponent(),
       BallsComponent(),
       GuideComponent(),
+      ParticleEffectsComponent(),
       HudComponent(),
     ]);
   }
@@ -92,6 +146,7 @@ class BallGame extends FlameGame {
   @override
   void update(double dt) {
     super.update(dt);
+    effects.beginFrame();
     if (_gameOver) {
       _gameOverElapsed += dt;
       if (_gameOverElapsed >= kGameOverHighlightSec && gameOverScore.value == null) {
@@ -101,14 +156,20 @@ class BallGame extends FlameGame {
       _loop.advance(_session, dt);
       _handleEvents();
     }
-    // Birleşme ve kılavuz gerçek zamanla çalışır (hızlanmadan etkilenmez).
+    // Birleşme, efektler, arka plan ve kılavuz gerçek zamanla çalışır
+    // (hızlanmadan etkilenmez).
     merge.update(dt);
+    effects.update(dt, danger: _session.board.hasTargetInRow(kPlayableRows - 1));
+    _renderer.update(dt);
     _updateGuide();
   }
 
   void _handleEvents() {
+    final audio = this.audio;
     for (final event in _session.drainEvents()) {
       merge.onEvent(event, _session.simulation);
+      final sfx = effects.onEvent(event, _session.board);
+      if (sfx != null) audio?.play(sfx);
       switch (event) {
         case RowAdvanced(:final step):
           _advanceStartStep = step;
@@ -116,7 +177,7 @@ class BallGame extends FlameGame {
           _gameOver = true;
           aim.cancel();
         default:
-          // Ses, parçacık ve titreşim olayları M3'te kullanılacak.
+          // Titreşim M4/M5'te.
           break;
       }
     }
@@ -178,6 +239,7 @@ class BallGame extends FlameGame {
     _gameOverElapsed = 0;
     _advanceStartStep = 0;
     merge.reset();
+    effects.reset();
     _guideShot = null;
     _guideSession = null;
     gameOverScore.value = null;
@@ -186,15 +248,24 @@ class BallGame extends FlameGame {
   @override
   void lifecycleStateChange(AppLifecycleState state) {
     super.lifecycleStateChange(state);
+    final audio = this.audio;
     switch (state) {
       case AppLifecycleState.resumed:
         // Arka planda geçen süre oyuna eklenmez (PRD 10.2).
         _loop.clock.reset();
+        if (audio != null) unawaited(audio.setBackgrounded(false));
       case AppLifecycleState.inactive:
       case AppLifecycleState.paused:
       case AppLifecycleState.hidden:
       case AppLifecycleState.detached:
         aim.cancel();
+        if (audio != null) unawaited(audio.setBackgrounded(true));
     }
+  }
+
+  @override
+  void onRemove() {
+    _renderer.dispose();
+    super.onRemove();
   }
 }

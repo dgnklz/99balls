@@ -1,20 +1,25 @@
 import 'package:flame/game.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/canvas_fit.dart';
 import '../../core/config/game_config.dart';
+import '../../core/services/audio_service.dart';
 import '../../core/services/prefs_service.dart';
-import '../../core/theme/palette.dart';
 import '../../game_core/constants.dart';
 import '../../game_view/game_view.dart';
+import '../../l10n/app_localizations.dart';
+import '../../themes/game_theme.dart';
+import '../../themes/theme_providers.dart';
 import 'game_seed.dart';
+import 'widgets/debug_theme_picker.dart';
 import 'widgets/game_over_overlay.dart';
 import 'widgets/letterbox_painter.dart';
 import 'widgets/tutorial_overlay.dart';
 
-/// Oyun ekranı (M2 prototipi). Tuval Bölüm 3.1'e göre tek ölçekle ortalanır;
-/// dokunma tüm ekranda dinlenir (PRD 3.2, 5.1).
+/// Oyun ekranı. Tuval Bölüm 3.1'e göre tek ölçekle ortalanır; dokunma tüm
+/// ekranda dinlenir (PRD 3.2, 5.1). Tema ve ses Riverpod'dan gelir.
 class GameScreen extends ConsumerStatefulWidget {
   /// Testlerde oyun nesnesine erişmek için; null ise yeni tohumla oluşturulur.
   @visibleForTesting
@@ -27,8 +32,14 @@ class GameScreen extends ConsumerStatefulWidget {
 }
 
 class _GameScreenState extends ConsumerState<GameScreen> {
-  late final BallGame _game =
-      widget.gameFactory?.call() ?? BallGame(seed: newGameSeed());
+  late final AudioService _audio = ref.read(audioServiceProvider);
+  late final BallGame _game = widget.gameFactory?.call() ??
+      BallGame(
+        seed: newGameSeed(),
+        theme: ref.read(selectedThemeProvider),
+        audio: _audio,
+      );
+  final LetterboxShaderCache _letterbox = LetterboxShaderCache();
   late bool _tutorialVisible;
   bool _tutorialFading = false;
 
@@ -45,12 +56,21 @@ class _GameScreenState extends ConsumerState<GameScreen> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final l10n = AppLocalizations.of(context);
+    _game.starBonusFormat = l10n.starBonusPopup;
+  }
+
+  @override
   void dispose() {
     _game.gameOverScore.dispose();
     super.dispose();
   }
 
   void _onPointerDown(PointerDownEvent event) {
+    // Müzik ilk dokunuştan sonra başlar (PRD 8.3).
+    _audio.onUserInteraction();
     if (!_game.acceptsInput) return;
     if (_tutorialVisible && !_tutorialFading) {
       setState(() => _tutorialFading = true);
@@ -73,18 +93,23 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     }
   }
 
-  void _playAgain() => _game.restart(newGameSeed());
+  void _playAgain() {
+    _audio.play(SfxKey.click);
+    _game.restart(newGameSeed());
+  }
 
   /// 416×703 gu düzenindeki bir katmanı tuvalin üstüne aynı ölçekle yerleştirir.
   Widget _onCanvas(CanvasFit fit, Widget child) => Positioned.fromRect(
-    rect: fit.canvasRect,
-    child: FittedBox(
-      child: SizedBox(width: kVirtualW, height: kVirtualH, child: child),
-    ),
-  );
+        rect: fit.canvasRect,
+        child: FittedBox(
+          child: SizedBox(width: kVirtualW, height: kVirtualH, child: child),
+        ),
+      );
 
   @override
   Widget build(BuildContext context) {
+    final theme = ref.watch(selectedThemeProvider);
+    _game.theme = theme;
     final insets = MediaQuery.paddingOf(context);
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -94,13 +119,13 @@ class _GameScreenState extends ConsumerState<GameScreen> {
         // (yoksa Flutter'ın sarı çift alt çizgili hata stili görünür).
         return Material(
           type: MaterialType.transparency,
-          child: _buildLayers(fit),
+          child: _buildLayers(fit, theme.palette),
         );
       },
     );
   }
 
-  Widget _buildLayers(CanvasFit fit) {
+  Widget _buildLayers(CanvasFit fit, ThemePalette palette) {
     return Listener(
       behavior: HitTestBehavior.opaque,
       onPointerDown: _onPointerDown,
@@ -109,11 +134,10 @@ class _GameScreenState extends ConsumerState<GameScreen> {
       onPointerCancel: (_) => _game.pointerCancel(),
       child: Stack(
         children: [
-          Positioned.fill(child: CustomPaint(painter: LetterboxPainter(fit))),
-          Positioned.fromRect(
-            rect: fit.canvasRect,
-            child: GameWidget(game: _game),
+          Positioned.fill(
+            child: CustomPaint(painter: LetterboxPainter(fit, palette, _letterbox)),
           ),
+          Positioned.fromRect(rect: fit.canvasRect, child: GameWidget(game: _game)),
           if (_tutorialVisible)
             _onCanvas(
               fit,
@@ -121,13 +145,26 @@ class _GameScreenState extends ConsumerState<GameScreen> {
                 child: AnimatedOpacity(
                   opacity: _tutorialFading ? 0 : 1,
                   duration: Duration(
-                    milliseconds:
-                        (kTutorialFadeSec * Duration.millisecondsPerSecond)
-                            .round(),
+                    milliseconds: (kTutorialFadeSec * Duration.millisecondsPerSecond).round(),
                   ),
                   onEnd: () => setState(() => _tutorialVisible = false),
-                  child: const TutorialOverlay(),
+                  child: TutorialOverlay(color: palette.textPrimary),
                 ),
+              ),
+            ),
+          if (kDebugMode)
+            _onCanvas(
+              fit,
+              const Stack(
+                children: [
+                  Positioned(
+                    left: kDebugPickerX - kDebugPickerSize / 2,
+                    top: kDebugPickerY - kDebugPickerSize / 2,
+                    width: kDebugPickerSize,
+                    height: kDebugPickerSize,
+                    child: DebugThemePicker(),
+                  ),
+                ],
               ),
             ),
           ValueListenableBuilder<int?>(
@@ -138,19 +175,14 @@ class _GameScreenState extends ConsumerState<GameScreen> {
                 child: TweenAnimationBuilder<double>(
                   tween: Tween(begin: 0, end: 1),
                   duration: Duration(
-                    milliseconds:
-                        (kGameOverFadeSec * Duration.millisecondsPerSecond)
-                            .round(),
+                    milliseconds: (kGameOverFadeSec * Duration.millisecondsPerSecond).round(),
                   ),
-                  builder: (context, opacity, child) =>
-                      Opacity(opacity: opacity, child: child),
+                  builder: (context, opacity, child) => Opacity(opacity: opacity, child: child),
                   child: Stack(
                     children: [
                       Positioned.fill(
                         child: ColoredBox(
-                          color: Palette.scrim.withValues(
-                            alpha: kOverlayScrimOpacity,
-                          ),
+                          color: palette.scrim.withValues(alpha: kOverlayScrimOpacity),
                         ),
                       ),
                       _onCanvas(
@@ -158,6 +190,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
                         Center(
                           child: GameOverCard(
                             score: score,
+                            palette: palette,
                             onPlayAgain: _playAgain,
                           ),
                         ),

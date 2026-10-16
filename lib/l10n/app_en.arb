@@ -15,5 +15,42 @@
   "playAgain": "Play Again",
   "@playAgain": {
     "description": "Game over button that starts a new game"
+  },
+  "starBonusPopup": "+{n}",
+  "@starBonusPopup": {
+    "description": "Floating text when a star is collected (PRD 5.11)",
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "themeOrbitfall": "Orbitfall",
+  "@themeOrbitfall": {
+    "description": "Theme name (PRD 7.4.1)"
+  },
+  "themeCandyBurst": "Candy Burst",
+  "@themeCandyBurst": {
+    "description": "Theme name (PRD 7.4.1)"
+  },
+  "themePixelDrop": "Pixel Drop",
+  "@themePixelDrop": {
+    "description": "Theme name (PRD 7.4.1)"
+  },
+  "themeAbyss": "Abyss",
+  "@themeAbyss": {
+    "description": "Theme name (PRD 7.4.1)"
+  },
+  "themeInkPaper": "Ink & Paper",
+  "@themeInkPaper": {
+    "description": "Theme name (PRD 7.4.1)"
+  },
+  "themePickerTitle": "Theme",
+  "@themePickerTitle": {
+    "description": "Title of the theme picker (debug build only in M3a)"
+  },
+  "themePlaceholderTag": "placeholder",
+  "@themePlaceholderTag": {
+    "description": "Marks a theme that is not finished yet"
   }
 }

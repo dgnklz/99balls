@@ -20,4 +20,30 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get playAgain => 'Play Again';
+
+  @override
+  String starBonusPopup(int n) {
+    return '+$n';
+  }
+
+  @override
+  String get themeOrbitfall => 'Orbitfall';
+
+  @override
+  String get themeCandyBurst => 'Candy Burst';
+
+  @override
+  String get themePixelDrop => 'Pixel Drop';
+
+  @override
+  String get themeAbyss => 'Abyss';
+
+  @override
+  String get themeInkPaper => 'Ink & Paper';
+
+  @override
+  String get themePickerTitle => 'Theme';
+
+  @override
+  String get themePlaceholderTag => 'placeholder';
 }

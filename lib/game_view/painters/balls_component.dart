@@ -2,8 +2,6 @@ import 'dart:ui';
 
 import 'package:flame/components.dart';
 
-import '../../core/config/game_config.dart';
-import '../../core/theme/palette.dart';
 import '../../game_core/constants.dart';
 import '../../game_core/model/ball.dart';
 import '../../game_core/rules/round_state_machine.dart';
@@ -14,13 +12,6 @@ import '../game_view.dart';
 /// kestirilir (x + vx·alpha), böylece kare hızı adım hızından farklı olsa da
 /// hareket akıcı görünür. İnen toplar [BallGame.merge] ile ilk inen topa kayar.
 class BallsComponent extends Component with HasGameReference<BallGame> {
-  static const double _drawRadius = kBallRadius - kBallStroke / 2;
-
-  final Paint _paint = Paint()
-    ..style = PaintingStyle.stroke
-    ..strokeWidth = kBallStroke
-    ..color = Palette.accent;
-
   @override
   void render(Canvas canvas) {
     final session = game.session;
@@ -59,8 +50,7 @@ class BallsComponent extends Component with HasGameReference<BallGame> {
     }
   }
 
-  void _draw(Canvas canvas, double x, double y) =>
-      canvas.drawCircle(Offset(x, y), _drawRadius, _paint);
+  void _draw(Canvas canvas, double x, double y) => game.renderer.paintBall(canvas, x, y);
 
   static double _clamp(double v, double lo, double hi) => v < lo ? lo : (v > hi ? hi : v);
 }

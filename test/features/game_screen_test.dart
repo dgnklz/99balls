@@ -1,5 +1,5 @@
 import 'package:balls_99/core/services/prefs_service.dart';
-import 'package:balls_99/core/theme/palette.dart';
+import 'package:balls_99/themes/orbitfall/orbitfall_theme.dart';
 import 'package:balls_99/features/game/game_screen.dart';
 import 'package:balls_99/game_view/game_view.dart';
 import 'package:balls_99/l10n/app_localizations.dart';
@@ -49,7 +49,7 @@ void main() {
             find.descendant(of: find.text(tutorial), matching: find.byType(RichText)))
         .text
         .style!;
-    expect(tutorialStyle.color, Palette.textPrimary);
+    expect(tutorialStyle.color, orbitfallPalette.textPrimary);
 
     game.gameOverScore.value = 42;
     await tester.pump();

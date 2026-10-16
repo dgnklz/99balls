@@ -26,7 +26,47 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0
+  flutter_native_splash: ^2.4.8
+  flutter_launcher_icons: ^0.14.4
 
 flutter:
   uses-material-design: true
   generate: true
+  # Yalnızca oyun içinde çalınan sesler gömülür. assets/brand, assets/icon ve
+  # assets/store yalnızca splash/ikon üreticilerinin kaynağıdır (gömülmez).
+  assets:
+    - assets/audio/orbitfall/
+
+# Native splash: marka kimliği, tüm oyunlarda ortak. SudokuPure v2.0.0
+# yapılandırmasından birebir uyarlandı (yalnızca dosya yolları değişti).
+# Üretmek için: dart run flutter_native_splash:create
+flutter_native_splash:
+  color: "#000000"
+  image: "assets/brand/splash-logo-circular.png"
+  android: true
+  ios: true
+  # PRD: web desteklenmiyor.
+  web: false
+  android_12:
+    image: "assets/brand/splash-logo-circular.png"
+    icon_background_color: "#000000"
+
+# Uygulama ikonu: kaynak assets/brand/app-icon-master.png; platform dosyaları
+# tools/icon/make_icon.py ile üretilir, sonra `dart run flutter_launcher_icons`.
+# Mağaza ikonları assets/store/ altındadır ve uygulamaya gömülmez.
+flutter_launcher_icons:
+  # Android: adaptive (ayrı ön plan + degrade arka plan) ve eski cihazlar için tam kare.
+  android: true
+  image_path_android: "assets/icon/android_legacy.png"
+  adaptive_icon_background: "assets/icon/android_background.png"
+  adaptive_icon_foreground: "assets/icon/android_foreground.png"
+  # Ön plan zaten %78 ölçekle üretildi; ek iç boşluk verme.
+  adaptive_icon_foreground_inset: 0
+  min_sdk_android: 24
+  # iOS: 1024, alfa yok, köşe yuvarlama yok (iOS kendisi yuvarlar).
+  ios: true
+  image_path_ios: "assets/icon/ios.png"
+  remove_alpha_ios: true
+  # PRD: web desteklenmiyor.
+  web:
+    generate: false

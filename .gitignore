@@ -52,3 +52,9 @@ app.*.map.json
 /docs/reference/*.mp4
 /docs/reference/*.mov
 /docs/reference/*.webm
+# Python araçları (tools/): sanal ortam ve geçici dosyalar
+tools/.venv/
+tools/**/__pycache__/
+*.pyc
+tools/**/*.tmp
+tools/**/_build/

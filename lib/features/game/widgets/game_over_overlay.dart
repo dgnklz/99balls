@@ -1,16 +1,22 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/config/game_config.dart';
-import '../../../core/theme/palette.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../../themes/game_theme.dart';
 
 /// Geçici oyun sonu kartı (M2): başlık, skor ve "Play Again".
 /// Gerçek oyun sonu ekranı (en iyi skor, rekor, ana menü) M4'te gelecek.
 class GameOverCard extends StatelessWidget {
   final int score;
+  final ThemePalette palette;
   final VoidCallback onPlayAgain;
 
-  const GameOverCard({super.key, required this.score, required this.onPlayAgain});
+  const GameOverCard({
+    super.key,
+    required this.score,
+    required this.palette,
+    required this.onPlayAgain,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +25,7 @@ class GameOverCard extends StatelessWidget {
       width: kOverlayCardWidth,
       padding: const EdgeInsets.all(kOverlayCardPadding),
       decoration: BoxDecoration(
-        color: Palette.popupSurface,
+        color: palette.popupSurface,
         borderRadius: BorderRadius.circular(kOverlayCardRadius),
       ),
       child: Column(
@@ -27,8 +33,8 @@ class GameOverCard extends StatelessWidget {
         children: [
           Text(
             l10n.gameOverTitle,
-            style: const TextStyle(
-              color: Palette.textPrimary,
+            style: TextStyle(
+              color: palette.textPrimary,
               fontSize: kOverlayTitleSize,
               fontWeight: FontWeight.bold,
             ),
@@ -36,12 +42,12 @@ class GameOverCard extends StatelessWidget {
           const SizedBox(height: kOverlayGap),
           Text(
             l10n.scoreLabel,
-            style: const TextStyle(color: Palette.textSecondary, fontSize: kOverlayLabelSize),
+            style: TextStyle(color: palette.textSecondary, fontSize: kOverlayLabelSize),
           ),
           Text(
             score.toString(),
-            style: const TextStyle(
-              color: Palette.textPrimary,
+            style: TextStyle(
+              color: palette.textPrimary,
               fontSize: kOverlayScoreSize,
               fontWeight: FontWeight.bold,
             ),
@@ -52,8 +58,8 @@ class GameOverCard extends StatelessWidget {
             height: kOverlayButtonHeight,
             child: FilledButton(
               style: FilledButton.styleFrom(
-                backgroundColor: Palette.buttonPrimary,
-                foregroundColor: Palette.textPrimary,
+                backgroundColor: palette.buttonPrimary,
+                foregroundColor: palette.textPrimary,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(kOverlayCardRadius),
                 ),

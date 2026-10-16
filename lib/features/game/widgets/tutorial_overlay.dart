@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/config/game_config.dart';
-import '../../../core/theme/palette.dart';
 import '../../../game_core/constants.dart';
 import '../../../l10n/app_localizations.dart';
 
@@ -9,7 +8,10 @@ import '../../../l10n/app_localizations.dart';
 /// El ikonu beyaz noktayı aşağı-sola çeker ve bırakır; döngü 2.4 sn.
 /// Geçici sürüm: yalnızca metin ve basit ikon (çizim M3'te).
 class TutorialOverlay extends StatefulWidget {
-  const TutorialOverlay({super.key});
+  /// Metin, nokta ve ikon rengi (temanın textPrimary).
+  final Color color;
+
+  const TutorialOverlay({super.key, required this.color});
 
   @override
   State<TutorialOverlay> createState() => _TutorialOverlayState();
@@ -43,8 +45,8 @@ class _TutorialOverlayState extends State<TutorialOverlay>
             child: Text(
               l10n.tutorialAim,
               textAlign: TextAlign.center,
-              style: const TextStyle(
-                color: Palette.textPrimary,
+              style: TextStyle(
+                color: widget.color,
                 fontSize: kTutorialTextSize,
                 fontWeight: FontWeight.bold,
               ),
@@ -66,8 +68,8 @@ class _TutorialOverlayState extends State<TutorialOverlay>
                     child: Container(
                       width: kTutorialDotRadius * 2,
                       height: kTutorialDotRadius * 2,
-                      decoration: const BoxDecoration(
-                        color: Palette.textPrimary,
+                      decoration: BoxDecoration(
+                        color: widget.color,
                         shape: BoxShape.circle,
                       ),
                     ),
@@ -77,10 +79,10 @@ class _TutorialOverlayState extends State<TutorialOverlay>
                     top: y,
                     child: Opacity(
                       opacity: pulling ? 1 : 0,
-                      child: const Icon(
+                      child: Icon(
                         Icons.touch_app,
                         size: kTutorialIconSize,
-                        color: Palette.textPrimary,
+                        color: widget.color,
                       ),
                     ),
                   ),

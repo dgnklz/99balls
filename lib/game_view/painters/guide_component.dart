@@ -4,7 +4,6 @@ import 'dart:ui';
 import 'package:flame/components.dart';
 
 import '../../core/config/game_config.dart';
-import '../../core/theme/palette.dart';
 import '../dash_walker.dart';
 import '../game_view.dart';
 
@@ -37,7 +36,7 @@ class GuideComponent extends Component with HasGameReference<BallGame> {
     final mid = (from + to) / 2;
     final fade = min(1.0, (_total - mid) / kGuideFadeLength);
     if (fade <= 0) return;
-    _paint.color = Palette.accent.withValues(alpha: kGuideOpacity * fade);
+    _paint.color = game.theme.palette.guide.withValues(alpha: kGuideOpacity * fade);
     _canvas!.drawLine(Offset(x0, y0), Offset(x1, y1), _paint);
   }
 }

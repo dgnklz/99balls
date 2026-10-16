@@ -6,6 +6,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/intl.dart' as intl;
 
 import 'app_localizations_en.dart';
+import 'app_localizations_tr.dart';
 
 // ignore_for_file: type=lint
 
@@ -92,7 +93,10 @@ abstract class AppLocalizations {
       ];
 
   /// A list of this localizations delegate's supported locales.
-  static const List<Locale> supportedLocales = <Locale>[Locale('en')];
+  static const List<Locale> supportedLocales = <Locale>[
+    Locale('en'),
+    Locale('tr'),
+  ];
 
   /// In-game first-run tutorial (PRD 5.8)
   ///
@@ -117,6 +121,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Play Again'**
   String get playAgain;
+
+  /// Floating text when a star is collected (PRD 5.11)
+  ///
+  /// In en, this message translates to:
+  /// **'+{n}'**
+  String starBonusPopup(int n);
+
+  /// Theme name (PRD 7.4.1)
+  ///
+  /// In en, this message translates to:
+  /// **'Orbitfall'**
+  String get themeOrbitfall;
+
+  /// Theme name (PRD 7.4.1)
+  ///
+  /// In en, this message translates to:
+  /// **'Candy Burst'**
+  String get themeCandyBurst;
+
+  /// Theme name (PRD 7.4.1)
+  ///
+  /// In en, this message translates to:
+  /// **'Pixel Drop'**
+  String get themePixelDrop;
+
+  /// Theme name (PRD 7.4.1)
+  ///
+  /// In en, this message translates to:
+  /// **'Abyss'**
+  String get themeAbyss;
+
+  /// Theme name (PRD 7.4.1)
+  ///
+  /// In en, this message translates to:
+  /// **'Ink & Paper'**
+  String get themeInkPaper;
+
+  /// Title of the theme picker (debug build only in M3a)
+  ///
+  /// In en, this message translates to:
+  /// **'Theme'**
+  String get themePickerTitle;
+
+  /// Marks a theme that is not finished yet
+  ///
+  /// In en, this message translates to:
+  /// **'placeholder'**
+  String get themePlaceholderTag;
 }
 
 class _AppLocalizationsDelegate
@@ -130,7 +182,7 @@ class _AppLocalizationsDelegate
 
   @override
   bool isSupported(Locale locale) =>
-      <String>['en'].contains(locale.languageCode);
+      <String>['en', 'tr'].contains(locale.languageCode);
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;
@@ -141,6 +193,8 @@ AppLocalizations lookupAppLocalizations(Locale locale) {
   switch (locale.languageCode) {
     case 'en':
       return AppLocalizationsEn();
+    case 'tr':
+      return AppLocalizationsTr();
   }
 
   throw FlutterError(

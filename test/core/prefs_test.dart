@@ -25,4 +25,35 @@ void main() {
     final repo = PrefsRepository(await SharedPreferences.getInstance());
     expect(repo.tutorialSeen, isFalse);
   });
+
+  test('music_on and sfx_on default to true and persist', () async {
+    SharedPreferences.setMockInitialValues({});
+    final prefs = await SharedPreferences.getInstance();
+    final repo = PrefsRepository(prefs);
+    expect(repo.musicOn, isTrue);
+    expect(repo.sfxOn, isTrue);
+    await repo.setMusicOn(false);
+    await repo.setSfxOn(false);
+    expect(PrefsRepository(prefs).musicOn, isFalse);
+    expect(PrefsRepository(prefs).sfxOn, isFalse);
+  });
+
+  test('corrupt music_on / sfx_on / theme_id fall back without throwing', () async {
+    SharedPreferences.setMockInitialValues({
+      PrefsRepository.keyMusicOn: 'off',
+      PrefsRepository.keySfxOn: 0,
+      PrefsRepository.keyThemeId: 42,
+    });
+    final repo = PrefsRepository(await SharedPreferences.getInstance());
+    expect(repo.musicOn, isTrue);
+    expect(repo.sfxOn, isTrue);
+    expect(repo.themeId, isNull);
+  });
+
+  test('theme_id is persisted', () async {
+    SharedPreferences.setMockInitialValues({});
+    final prefs = await SharedPreferences.getInstance();
+    await PrefsRepository(prefs).setThemeId('abyss');
+    expect(PrefsRepository(prefs).themeId, 'abyss');
+  });
 }

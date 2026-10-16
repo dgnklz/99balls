@@ -1,0 +1,4 @@
+# Ses ve ikon üretim betikleri için Python bağımlılıkları.
+# Kurulum: python -m venv tools/.venv && tools/.venv/Scripts/pip install -r tools/requirements.txt
+numpy==2.3.3
+Pillow==12.2.0
