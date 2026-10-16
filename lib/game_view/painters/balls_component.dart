@@ -1,7 +1,6 @@
 import 'dart:ui';
 
 import 'package:flame/components.dart';
-import 'package:flutter/animation.dart';
 
 import '../../core/config/game_config.dart';
 import '../../core/theme/palette.dart';
@@ -13,7 +12,7 @@ import '../game_view.dart';
 /// Atılan topları `session.simulation.balls`'tan doğrudan çizer (PRD 4.5.1,
 /// katman 5). Havadaki toplar son adımdan bu yana geçen süre kadar ileri
 /// kestirilir (x + vx·alpha), böylece kare hızı adım hızından farklı olsa da
-/// hareket akıcı görünür.
+/// hareket akıcı görünür. İnen toplar [BallGame.merge] ile ilk inen topa kayar.
 class BallsComponent extends Component with HasGameReference<BallGame> {
   static const double _drawRadius = kBallRadius - kBallStroke / 2;
 
@@ -35,8 +34,12 @@ class BallsComponent extends Component with HasGameReference<BallGame> {
         _draw(canvas, launchX, kLaunchY);
       case GamePhase.firing:
       case GamePhase.flying:
-        if (session.counterDisplay > 0) _draw(canvas, launchX, kLaunchY);
+      case GamePhase.collecting:
+        if (session.phase == GamePhase.firing && session.counterDisplay > 0) {
+          _draw(canvas, launchX, kLaunchY);
+        }
         final alpha = game.alpha;
+        final merge = game.merge;
         for (var i = 0; i < sim.launchedCount; i++) {
           final ball = sim.balls[i];
           switch (ball.state) {
@@ -47,16 +50,11 @@ class BallsComponent extends Component with HasGameReference<BallGame> {
                 _clamp(ball.y + ball.vy * alpha, kBallMinY, kLaunchY),
               );
             case BallState.landed:
-              _draw(canvas, ball.x, kLaunchY);
+              // İnen top ilk inen topa kayar; birleşince çizilmez.
+              if (merge.isVisible(i)) _draw(canvas, merge.xOf(i), kLaunchY);
             case BallState.idle:
               break;
           }
-        }
-      case GamePhase.collecting:
-        final t = Curves.easeInOut.transform(game.collectProgress);
-        for (var i = 0; i < sim.launchedCount; i++) {
-          final x = sim.balls[i].x;
-          _draw(canvas, x + (launchX - x) * t, kLaunchY);
         }
     }
   }

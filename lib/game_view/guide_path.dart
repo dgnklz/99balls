@@ -7,6 +7,15 @@ import '../game_core/engine/collisions.dart';
 import '../game_core/model/board.dart';
 import '../game_core/model/cell.dart';
 
+/// Sürükleme uzunluğuna göre çizgi boyu: ölü bölgede [kGuideMinLength],
+/// ölü bölgeden [kGuideRampDistance] gu sonra [kGuideLength]; arası doğrusal.
+double guideLengthFor(double dragDistance) {
+  var t = (dragDistance - kAimDeadZone) / kGuideRampDistance;
+  if (!(t > 0)) t = 0;
+  if (t > 1) t = 1;
+  return kGuideMinLength + (kGuideLength - kGuideMinLength) * t;
+}
+
 /// Nişan çizgisinin izlediği yol (PRD 5.2).
 ///
 /// Fırlatma noktasından başlar; duvar, tavan ve sayılı toplardan yansır,

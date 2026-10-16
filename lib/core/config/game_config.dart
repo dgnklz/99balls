@@ -4,6 +4,8 @@
 /// koordinatlar 416×703 gu sanal tuvalindedir.
 library;
 
+import '../../game_core/constants.dart';
+
 // --- Kare döngüsü (PRD 2.3, 10.2) --------------------------------------------
 
 /// Bir karede işlenecek en fazla simülasyon adımı; fazlası atılır.
@@ -28,6 +30,33 @@ const int kGuideMaxSegments = 64;
 
 /// Bir segmentte üretilecek en fazla kesik parça (490 gu ≈ 21 parça).
 const int kGuideMaxDashesPerSegment = 100;
+
+/// Çizgi boyu rampası: ölü bölgeden çıkışta [kGuideMinLength], ölü bölgeden
+/// [kGuideRampDistance] gu sonra tam [kGuideLength].
+const double kGuideMinLength = 60;
+const double kGuideRampDistance = 120;
+
+// --- İnce nişan (görünüm katmanı, PRD 5.1 üzerine) ---------------------------
+
+/// Ölü bölge histerezisi: nişan [kAimEnterDistance]'ta başlar, ancak
+/// [kAimExitDistance]'ın altına inince kaybolur (sınırda yanıp sönmesin).
+const double kAimEnterDistance = kAimDeadZone;
+const double kAimExitDistance = 6;
+
+/// Etkin nişan yarıçapının alt sınırı: kısa çekişte açı değişimi
+/// L / kAimMinRadius kazancıyla uygulanır; 1 gu hareket ≤ atan(1/120) ≈ 0.48°.
+const double kAimMinRadius = 120;
+
+/// Nişan açısı `aimFromDrag`'a bu uzunlukta bir vektörle verilir
+/// (shot = round(a·100) → yön çözünürlüğü ≈ 0.006°).
+const double kAimShotLength = 100;
+
+// --- Topların birleşmesi -----------------------------------------------------
+
+/// İnen topların ilk inen topa kayma hızı (gu/sn). 1600 ile en uzak mesafe
+/// (390 gu) collecting süresinden (0.25 sn) kısa sürer; yetişemeyen top
+/// collecting bitince hedefe oturur.
+const double kMergeSpeed = 1600;
 
 // --- Nesne çizimi (PRD 4.3, 5.11, 7.1) ---------------------------------------
 

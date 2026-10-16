@@ -10,6 +10,8 @@ import '../game_core/constants.dart';
 import '../game_core/engine/aim.dart';
 import '../game_core/engine/events.dart';
 import '../game_core/rules/round_state_machine.dart';
+import 'aim_controller.dart';
+import 'ball_merge_animator.dart';
 import 'fixed_step_clock.dart';
 import 'guide_path.dart';
 import 'painters/background_component.dart';
@@ -30,15 +32,17 @@ class BallGame extends FlameGame {
         super(camera: CameraComponent.withFixedResolution(width: kVirtualW, height: kVirtualH));
 
   GameSession _session;
-  final AimTracker aim = AimTracker();
+  final AimController aim = AimController();
   final GuidePath guide = GuidePath();
   final FixedStepClock _clock = FixedStepClock();
+
+  /// İnen topların ilk topa kayması (yalnızca görsel durum).
+  final BallMergeAnimator merge = BallMergeAnimator();
 
   /// Oyun sonu katmanı açılacağı an skor yazılır; yeniden başlatınca null olur.
   /// Sahibi olan ekran dispose eder (dinleyiciler ondan önce sökülür).
   final ValueNotifier<int?> gameOverScore = ValueNotifier<int?>(null);
 
-  int _collectStartStep = 0;
   int _advanceStartStep = 0;
   bool _gameOver = false;
   double _gameOverElapsed = 0;
@@ -47,6 +51,7 @@ class BallGame extends FlameGame {
   Shot? _guideShot;
   GameSession? _guideSession;
   int _guideRound = -1;
+  double _guideLength = -1;
 
   GameSession get session => _session;
 
@@ -57,9 +62,6 @@ class BallGame extends FlameGame {
 
   /// Girdi yalnızca ready'de ve oyun sonu sürecinde değilken kabul edilir (5.1).
   bool get acceptsInput => _session.phase == GamePhase.ready && !_gameOver;
-
-  /// collecting ilerlemesi [0, 1].
-  double get collectProgress => _progress(_collectStartStep, kCollectSteps);
 
   /// advancing ilerlemesi [0, 1].
   double get advanceProgress => _progress(_advanceStartStep, kAdvanceSteps);
@@ -102,14 +104,14 @@ class BallGame extends FlameGame {
       }
       _handleEvents();
     }
+    merge.update(dt);
     _updateGuide();
   }
 
   void _handleEvents() {
     for (final event in _session.drainEvents()) {
+      merge.onEvent(event, _session.simulation);
       switch (event) {
-        case CollectStarted(:final step):
-          _collectStartStep = step;
         case RowAdvanced(:final step):
           _advanceStartStep = step;
         case GameOver():
@@ -122,17 +124,22 @@ class BallGame extends FlameGame {
     }
   }
 
-  /// Kılavuz yalnızca atış yönü, tur veya oturum değişince yeniden hesaplanır
-  /// (karede en fazla bir kez).
+  /// Kılavuz yalnızca atış yönü, boyu, tur veya oturum değişince yeniden
+  /// hesaplanır (karede en fazla bir kez). Boy sürükleme uzunluğuyla uzar.
   void _updateGuide() {
     final shot = aim.current;
     _guideVisible = shot != null && acceptsInput;
     if (!_guideVisible) return;
-    if (shot == _guideShot && _guideRound == _session.round && identical(_guideSession, _session)) {
+    final length = guideLengthFor(aim.dragDistance);
+    if (shot == _guideShot &&
+        length == _guideLength &&
+        _guideRound == _session.round &&
+        identical(_guideSession, _session)) {
       return;
     }
-    guide.compute(_session.board, _session.launchX, shot!.vx, shot.vy);
+    guide.compute(_session.board, _session.launchX, shot!.vx, shot.vy, maxLength: length);
     _guideShot = shot;
+    _guideLength = length;
     _guideRound = _session.round;
     _guideSession = _session;
   }
@@ -169,8 +176,8 @@ class BallGame extends FlameGame {
     aim.cancel();
     _gameOver = false;
     _gameOverElapsed = 0;
-    _collectStartStep = 0;
     _advanceStartStep = 0;
+    merge.reset();
     _guideShot = null;
     _guideSession = null;
     gameOverScore.value = null;
