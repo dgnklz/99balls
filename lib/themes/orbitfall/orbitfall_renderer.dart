@@ -28,7 +28,6 @@ class OrbitfallRenderer extends BaseThemeRenderer {
   final Paint _fill = Paint();
   final Paint _rim;
   final Paint _ring;
-  final Paint _ringGlow;
   final Paint _starPaint;
   final Paint _ball;
   final Path _starPath = BaseThemeRenderer.buildStar();
@@ -57,10 +56,6 @@ class OrbitfallRenderer extends BaseThemeRenderer {
         _ring = Paint()
           ..style = PaintingStyle.stroke
           ..strokeWidth = kPickupStroke,
-        _ringGlow = Paint()
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = kPickupStroke
-          ..maskFilter = const MaskFilter.blur(BlurStyle.normal, kPickupGlowBlur),
         _starPaint = Paint(),
         _ball = Paint()
           ..style = PaintingStyle.stroke
@@ -121,12 +116,9 @@ class OrbitfallRenderer extends BaseThemeRenderer {
   @override
   void paintRing(Canvas canvas, double x, double y, {double scale = 1, double opacity = 1}) {
     final color = theme.palette.pickupGlow.withValues(alpha: opacity);
-    _ringGlow.color = color;
     _ring.color = color;
-    final r = _ringRadius * scale;
-    canvas
-      ..drawCircle(Offset(x, y), r, _ringGlow)
-      ..drawCircle(Offset(x, y), r, _ring);
+    paintRingGlow(canvas, x, y, scale: scale, opacity: opacity);
+    canvas.drawCircle(Offset(x, y), _ringRadius * scale, _ring);
   }
 
   @override

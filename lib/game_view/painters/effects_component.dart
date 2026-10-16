@@ -4,6 +4,7 @@ import 'package:flame/components.dart';
 
 import '../../core/config/game_config.dart';
 import '../../game_core/constants.dart';
+import '../../themes/render_batches.dart';
 import '../effects/anim_pools.dart';
 import '../game_view.dart';
 
@@ -35,6 +36,7 @@ class BreakEffectsComponent extends Component with HasGameReference<BallGame> {
 /// Kıvılcımlar, halka/yıldız pop'ları, şok halkaları ve "+3" yazıları
 /// (PRD 4.5.1 katman 7): nişan çizgisinin üstünde, HUD'un altında.
 class ParticleEffectsComponent extends Component with HasGameReference<BallGame> {
+  final SparkBatch _sparks = SparkBatch();
   final Paint _shock = Paint()
     ..style = PaintingStyle.stroke
     ..strokeWidth = kShockStroke;
@@ -67,12 +69,14 @@ class ParticleEffectsComponent extends Component with HasGameReference<BallGame>
     }
 
     final sparks = effects.sparks;
+    _sparks.clear();
     for (var i = 0; i < sparks.capacity; i++) {
       if (!sparks.isAlive(i)) continue;
       final fade = 1 - sparks.age[i] / sparks.life[i];
-      renderer.paintSpark(canvas, sparks.x[i], sparks.y[i], sparks.vx[i], sparks.vy[i],
-          sparks.size[i], Color(sparks.color[i]).withValues(alpha: fade));
+      _sparks.add(sparks.x[i], sparks.y[i], sparks.vx[i], sparks.vy[i], sparks.size[i],
+          Color(sparks.color[i]).withValues(alpha: fade).toARGB32());
     }
+    renderer.paintSparks(canvas, _sparks);
 
     final texts = effects.texts;
     for (var i = 0; i < texts.capacity; i++) {

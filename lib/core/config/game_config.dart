@@ -102,9 +102,18 @@ const double kMergeSpeed = 1600;
 /// Atılan topun çizgi kalınlığı.
 const double kBallStroke = 4.5;
 
-/// Toplanabilir halkanın çizgi kalınlığı ve parlama bulanıklığı.
+/// Toplanabilir halkanın çizgi kalınlığı ve parlama bulanıklığı. Bulanıklık
+/// karede değil, bir kez pişirilen parıltı resminde uygulanır (BakedSprite).
 const double kPickupStroke = 5;
 const double kPickupGlowBlur = 4;
+
+/// Önceden pişirilen sprite'ların çözünürlüğü (piksel/gu): oyun gerçek
+/// değeri (tuval genişliği × devicePixelRatio / kVirtualW) verene kadar ve
+/// testlerde kullanılır.
+const double kSpritePxPerGu = 3;
+
+/// Parıltı resminde bulanıklığın kesilmeden sığması için kenar payı (sigma katı).
+const double kGlowSpriteSigmas = 3;
 
 /// Yıldızın dış yarıçapı / hedef yarıçapı ve iç köşe oranı.
 const double kStarSizeRatio = 0.7;
@@ -331,8 +340,10 @@ const double kTargetRimStroke = 2;
 const double kTargetRimInset = 4;
 const double kTargetRimAlpha = 0.22;
 
-/// Rakam gölgesi (PRD 7.1 "hafif gölge").
-const double kNumberShadowBlur = 2;
+/// Rakam gölgesi (PRD 7.1 "hafif gölge"): bulanıksız, [kNumberShadowOffset]
+/// kadar aşağıda yarı saydam koyu kopya. Bulanıklık Impeller'da (J8, OpenGLES)
+/// 56 rakamda ~110 ms raster tutuyordu (M3p ölçümü); 0 = bulanıklık yok.
+const double kNumberShadowBlur = 0;
 const double kNumberShadowOffset = 1;
 const double kNumberShadowAlpha = 0.45;
 
@@ -453,6 +464,17 @@ const int kPixelRingCells = 2;
 /// ve sönük karede parıltı saydamlığı.
 const double kPixelBlinkSec = 0.5;
 const double kPixelBlinkDimAlpha = 0.45;
+
+/// Halkanın 1 hücrelik yarı saydam piksel halesi (bulanık parıltı yerine) ve
+/// HUD vurgusunun üst/alt 1 hücrelik yarı saydam şeridi.
+const double kPixelHaloAlpha = 0.35;
+
+/// Pixel Drop sabit zemin resminin (degrade + tarama çizgisi) en yüksek
+/// çözünürlüğü (piksel/gu): yumuşak içerik, bellek sınırı (~4.7 MB).
+const double kPixelBackdropMaxPxPerGu = 2;
+
+/// Tek drawRawAtlas çağrısındaki en çok sprite (56+ hedef × 6 parça).
+const int kPixelAtlasBatchCapacity = 400;
 
 /// Yıldızın parlak karede beyaz yanan hücresi (sol üst köşesi, merkeze göre gu).
 const double kPixelStarGlintX = -4;

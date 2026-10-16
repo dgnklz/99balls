@@ -5,15 +5,25 @@ import 'package:flame/components.dart';
 import '../../game_core/constants.dart';
 import '../../game_core/model/ball.dart';
 import '../../game_core/rules/round_state_machine.dart';
+import '../../themes/render_batches.dart';
 import '../game_view.dart';
 
 /// Atılan topları `session.simulation.balls`'tan doğrudan çizer (PRD 4.5.1,
 /// katman 5). Havadaki toplar son adımdan bu yana geçen süre kadar ileri
 /// kestirilir (x + vx·alpha), böylece kare hızı adım hızından farklı olsa da
 /// hareket akıcı görünür. İnen toplar [BallGame.merge] ile ilk inen topa kayar.
+/// Konumlar bir [BallBatch]'te toplanır, çizici tek seferde çizer.
 class BallsComponent extends Component with HasGameReference<BallGame> {
+  final BallBatch _batch = BallBatch();
+
   @override
   void render(Canvas canvas) {
+    _batch.clear();
+    _collect();
+    game.renderer.paintBalls(canvas, _batch);
+  }
+
+  void _collect() {
     final session = game.session;
     final sim = session.simulation;
     final launchX = session.launchX;
@@ -22,12 +32,12 @@ class BallsComponent extends Component with HasGameReference<BallGame> {
       case GamePhase.ready:
       case GamePhase.advancing:
       case GamePhase.gameOver:
-        _draw(canvas, launchX, kLaunchY);
+        _batch.add(launchX, kLaunchY);
       case GamePhase.firing:
       case GamePhase.flying:
       case GamePhase.collecting:
         if (session.phase == GamePhase.firing && session.counterDisplay > 0) {
-          _draw(canvas, launchX, kLaunchY);
+          _batch.add(launchX, kLaunchY);
         }
         final alpha = game.alpha;
         final merge = game.merge;
@@ -35,22 +45,19 @@ class BallsComponent extends Component with HasGameReference<BallGame> {
           final ball = sim.balls[i];
           switch (ball.state) {
             case BallState.flying:
-              _draw(
-                canvas,
+              _batch.add(
                 _clamp(ball.x + ball.vx * alpha, kBallMinX, kBallMaxX),
                 _clamp(ball.y + ball.vy * alpha, kBallMinY, kLaunchY),
               );
             case BallState.landed:
               // İnen top ilk inen topa kayar; birleşince çizilmez.
-              if (merge.isVisible(i)) _draw(canvas, merge.xOf(i), kLaunchY);
+              if (merge.isVisible(i)) _batch.add(merge.xOf(i), kLaunchY);
             case BallState.idle:
               break;
           }
         }
     }
   }
-
-  void _draw(Canvas canvas, double x, double y) => game.renderer.paintBall(canvas, x, y);
 
   static double _clamp(double v, double lo, double hi) => v < lo ? lo : (v > hi ? hi : v);
 }

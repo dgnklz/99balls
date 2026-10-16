@@ -2,8 +2,10 @@ import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
 
+import '../core/config/game_config.dart';
 import '../l10n/app_localizations.dart';
 import 'hp_ramp.dart';
+import 'render_batches.dart';
 
 /// Temaya bağlı ses olayları (PRD 8.2 anahtarları).
 enum SfxKey { shoot, wall, hit, breakTarget, pickup, star, collect, advance, record, gameOver, click }
@@ -113,8 +115,24 @@ class ThemeSounds {
 /// Tüm koordinatlar gu'dur.
 abstract class ThemeRenderer {
   final GameTheme theme;
+  double _pxPerGu = kSpritePxPerGu;
 
   ThemeRenderer(this.theme);
+
+  /// Cihaz pikseli / gu: önceden pişirilen sprite'ların çözünürlüğü.
+  double get pxPerGu => _pxPerGu;
+
+  /// Oyun, tuval boyutu ya da tema değişince çağırır. Değer değişirse
+  /// [onPixelRatioChanged] çalışır (sprite'lar yeniden üretilir).
+  void setPixelRatio(double pxPerGu) {
+    if (!(pxPerGu > 0) || (pxPerGu - _pxPerGu).abs() < 1e-6) return;
+    _pxPerGu = pxPerGu;
+    onPixelRatioChanged();
+  }
+
+  /// Piksel oranı değişti: pişmiş sprite'lar bırakılır, ilk çizimde yenilenir.
+  @protected
+  void onPixelRatioChanged() {}
 
   /// Arka plan animasyonu (gerçek zaman).
   void update(double dt);
@@ -151,6 +169,30 @@ abstract class ThemeRenderer {
 
   /// "+3" gibi yüzen yazı.
   void paintFloatText(Canvas canvas, String text, double x, double y, double opacity);
+
+  /// Toplu çizim (M3p). Varsayılanlar tek tek çağrılara düşer; bir tema tek
+  /// çağrıda çizmek için (ör. drawRawAtlas) ezebilir. Görünüm aynı olmalıdır.
+  void paintBalls(Canvas canvas, BallBatch balls) {
+    for (var i = 0; i < balls.length; i++) {
+      paintBall(canvas, balls.x[i], balls.y[i]);
+    }
+  }
+
+  void paintSparks(Canvas canvas, SparkBatch sparks) {
+    for (var i = 0; i < sparks.length; i++) {
+      paintSpark(canvas, sparks.x[i], sparks.y[i], sparks.vx[i], sparks.vy[i], sparks.size[i],
+          Color(sparks.color[i]));
+    }
+  }
+
+  /// Hedefler sırayla çizilir; [TargetBatch.fill] 0 değilse dolgu odur.
+  void paintTargets(Canvas canvas, TargetBatch targets) {
+    for (var i = 0; i < targets.length; i++) {
+      final fill = targets.fill[i];
+      paintTarget(canvas, targets.x[i], targets.y[i], targets.hp[i],
+          scale: targets.scale[i], fill: fill == 0 ? null : Color(fill));
+    }
+  }
 
   void dispose();
 }

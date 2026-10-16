@@ -8,6 +8,7 @@ import '../../core/config/game_config.dart';
 import '../../game_core/constants.dart';
 import '../game_theme.dart';
 import '../text_cache.dart';
+import 'baked_sprite.dart';
 
 /// Temaların ortak çizim parçaları: HUD ve zemin çubuğu, HP rakamları, "+3"
 /// yazısı, varsayılan yok olma diski ve kıvılcım. Temaya özgü olan (arka plan,
@@ -18,6 +19,8 @@ import '../text_cache.dart';
 /// vurgusu. Üst vurgu ortada sabit (süs); zemin vurgusu atış noktasını izler.
 ///
 /// Paint'ler ve metinler bir kez üretilir; karede yeni Paint/Path/liste yok.
+/// Bulanık parıltılar (HUD vurgusu, halka) karede MaskFilter ile değil, bir kez
+/// pişirilmiş resimden ([BakedSprite]) basılır; piksel oranı değişince yenilenir.
 abstract class BaseThemeRenderer extends ThemeRenderer {
   static const Rect canvasRect = Rect.fromLTWH(0, 0, kVirtualW, kVirtualH);
   static const Rect _hudRect = Rect.fromLTWH(0, 0, kVirtualW, kCeilingY);
@@ -28,8 +31,10 @@ abstract class BaseThemeRenderer extends ThemeRenderer {
   final Paint _hud;
   final Paint _floor;
   final Paint _edge;
-  final Paint _accentGlow;
   final Paint _accentLine;
+  final Paint _sprite = Paint()..filterQuality = FilterQuality.low;
+  BakedSprite? _accentGlowSprite;
+  BakedSprite? _ringGlowSprite;
   final Paint _overlay = Paint();
   final Paint _layer = Paint();
   final Paint _icon = Paint();
@@ -47,11 +52,6 @@ abstract class BaseThemeRenderer extends ThemeRenderer {
         _edge = Paint()
           ..strokeWidth = kHudEdgeStroke
           ..color = theme.palette.hudEdge,
-        _accentGlow = Paint()
-          ..strokeWidth = kHudAccentStroke
-          ..strokeCap = StrokeCap.round
-          ..color = theme.palette.hudAccent
-          ..maskFilter = const MaskFilter.blur(BlurStyle.normal, kHudAccentGlowBlur),
         _accentLine = Paint()
           ..strokeWidth = kHudAccentStroke
           ..strokeCap = StrokeCap.round
@@ -150,7 +150,8 @@ abstract class BaseThemeRenderer extends ThemeRenderer {
       ..drawRect(_floorRect, _floor)
       ..drawLine(const Offset(0, kCeilingY), const Offset(kVirtualW, kCeilingY), _edge)
       ..drawLine(const Offset(0, kFloorY), const Offset(kVirtualW, kFloorY), _edge);
-    _paintAccents(canvas, _accentGlow, floorAccentX);
+    paintAccentGlow(canvas, kVirtualW / 2, kCeilingY);
+    paintAccentGlow(canvas, floorAccentX, kFloorY);
     _paintAccents(canvas, _accentLine, floorAccentX);
     if (dangerGlow > 0) {
       _overlay.color = theme.palette.danger.withValues(alpha: kDangerGlowAlpha * dangerGlow);
@@ -183,6 +184,66 @@ abstract class BaseThemeRenderer extends ThemeRenderer {
     _hudNumbers.paintNumber(canvas, counter, kHudCounterX, kHudCounterY);
   }
 
+  /// Vurgu çizgisinin parıltısı, (cx, y) merkezli. Varsayılan: bir kez
+  /// bulanıklaştırılıp pişirilmiş çizgi resmi.
+  @protected
+  void paintAccentGlow(Canvas canvas, double cx, double y) {
+    final sprite = _accentGlowSprite ??= _bakeAccentGlow();
+    _sprite.color = const Color(0xFFFFFFFF);
+    sprite.draw(canvas, cx, y, _sprite);
+  }
+
+  BakedSprite _bakeAccentGlow() {
+    const pad = kHudAccentStroke / 2 + kGlowSpriteSigmas * kHudAccentGlowBlur;
+    final paint = Paint()
+      ..strokeWidth = kHudAccentStroke
+      ..strokeCap = StrokeCap.round
+      ..color = theme.palette.hudAccent
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, kHudAccentGlowBlur);
+    return BakedSprite.record(
+      const Rect.fromLTRB(-_accentHalf - pad, -pad, _accentHalf + pad, pad),
+      pxPerGu,
+      (c) => c.drawLine(const Offset(-_accentHalf, 0), const Offset(_accentHalf, 0), paint),
+    );
+  }
+
+  /// Halkanın parıltısı (halka yarıçapında, kPickupStroke kalınlığında,
+  /// kPickupGlowBlur bulanık), bir kez pişirilmiş resimden; [opacity] saydamlık,
+  /// [scale] pop büyümesi.
+  @protected
+  void paintRingGlow(Canvas canvas, double x, double y, {double scale = 1, double opacity = 1}) {
+    final sprite = _ringGlowSprite ??= _bakeRingGlow();
+    _sprite.color = Color.fromRGBO(0, 0, 0, opacity);
+    sprite.draw(canvas, x, y, _sprite, scale: scale);
+  }
+
+  static const double _ringGlowRadius = kPickupRadius - kPickupStroke / 2;
+
+  BakedSprite _bakeRingGlow() {
+    const extent = _ringGlowRadius + kPickupStroke / 2 + kGlowSpriteSigmas * kPickupGlowBlur;
+    final paint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = kPickupStroke
+      ..color = theme.palette.pickupGlow
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, kPickupGlowBlur);
+    return BakedSprite.record(
+      Rect.fromCircle(center: Offset.zero, radius: extent),
+      pxPerGu,
+      (c) => c.drawCircle(Offset.zero, _ringGlowRadius, paint),
+    );
+  }
+
+  @override
+  @mustCallSuper
+  void onPixelRatioChanged() => _disposeSprites();
+
+  void _disposeSprites() {
+    _accentGlowSprite?.dispose();
+    _accentGlowSprite = null;
+    _ringGlowSprite?.dispose();
+    _ringGlowSprite = null;
+  }
+
   static const double _accentLeft = (kVirtualW - kHudAccentWidth) / 2;
   static const double _accentRight = (kVirtualW + kHudAccentWidth) / 2;
   static const double _accentHalf = kHudAccentWidth / 2;
@@ -211,6 +272,7 @@ abstract class BaseThemeRenderer extends ThemeRenderer {
   @override
   @mustCallSuper
   void dispose() {
+    _disposeSprites();
     _hp2.dispose();
     _hp3.dispose();
     _hudNumbers.dispose();

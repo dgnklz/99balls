@@ -75,6 +75,25 @@ abstract final class PixelGeometry {
     ];
   }
 
+  /// Şeklin dışına bitişik 1 hücrelik çerçeve: şekle 4 yönden komşu olup
+  /// şekilde olmayan ve merkezi orijinden en az [minRadius] uzak hücreler
+  /// (halkada yalnızca dış taraf).
+  static List<Rect> outlineCells(List<Rect> cells, double minRadius, {double cell = kPixelCell}) {
+    final keys = {for (final r in cells) _key(r, cell)};
+    final out = <(int, int)>{};
+    for (final k in keys) {
+      for (final (dx, dy) in const [(1, 0), (-1, 0), (0, 1), (0, -1)]) {
+        final n = (k.$1 + dx, k.$2 + dy);
+        if (!keys.contains(n)) out.add(n);
+      }
+    }
+    return [
+      for (final (i, j) in out)
+        if (_length(Offset((i + 0.5) * cell, (j + 0.5) * cell)) >= minRadius)
+          Rect.fromLTWH(i * cell, j * cell, cell, cell),
+    ];
+  }
+
   /// Şeklin kenar hücreleri: dört komşusundan en az biri şekilde olmayanlar.
   static List<Rect> edgeCells(List<Rect> cells, {double cell = kPixelCell}) {
     final keys = {for (final r in cells) _key(r, cell)};
@@ -107,6 +126,16 @@ abstract final class PixelGeometry {
   /// [value]'nun rakam pikselleri, orijin (hedef merkezi) merkezli. Her
   /// glif satırındaki bitişik pikseller tek dikdörtgende birleşir.
   static List<Rect> numberPixels(int value) {
+    final px = digitStroke(value);
+    return [
+      for (final (digit, topLeft) in digitLayout(value))
+        for (final r in glyphPixels(digit, px)) r.shift(topLeft),
+    ];
+  }
+
+  /// [value]'nun her hanesi ve glifinin sol üst köşesi (gu, orijin = hedef
+  /// merkezi). Glifler merkeze hizalıdır; boyut [digitStroke]'tan.
+  static List<(int, Offset)> digitLayout(int value) {
     final text = value.abs().toString();
     final threeDigits = text.length >= 3;
     final px = threeDigits ? kPixelDigitPx3 : kPixelDigitPx;
@@ -115,24 +144,30 @@ abstract final class PixelGeometry {
     final width = text.length * glyphW + (text.length - 1) * gap;
     final left = -width / 2;
     final top = -kPixelGlyphRows * px / 2;
+    return [
+      for (var d = 0; d < text.length; d++)
+        (text.codeUnitAt(d) - 0x30, Offset(left + d * (glyphW + gap), top)),
+    ];
+  }
+
+  /// Tek glifin pikselleri, sol üst köşesi orijinde; satırdaki bitişik
+  /// pikseller birleşik.
+  static List<Rect> glyphPixels(int digit, double px) {
+    final mask = digitMasks[digit];
     final rects = <Rect>[];
-    for (var d = 0; d < text.length; d++) {
-      final mask = digitMasks[text.codeUnitAt(d) - 0x30];
-      final x0 = left + d * (glyphW + gap);
-      for (var row = 0; row < kPixelGlyphRows; row++) {
-        final bits = mask[row];
-        var col = 0;
-        while (col < kPixelGlyphCols) {
-          if (!_bit(bits, col)) {
-            col++;
-            continue;
-          }
-          final start = col;
-          while (col < kPixelGlyphCols && _bit(bits, col)) {
-            col++;
-          }
-          rects.add(Rect.fromLTWH(x0 + start * px, top + row * px, (col - start) * px, px));
+    for (var row = 0; row < kPixelGlyphRows; row++) {
+      final bits = mask[row];
+      var col = 0;
+      while (col < kPixelGlyphCols) {
+        if (!_bit(bits, col)) {
+          col++;
+          continue;
         }
+        final start = col;
+        while (col < kPixelGlyphCols && _bit(bits, col)) {
+          col++;
+        }
+        rects.add(Rect.fromLTWH(start * px, row * px, (col - start) * px, px));
       }
     }
     return rects;

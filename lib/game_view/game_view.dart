@@ -92,6 +92,20 @@ class BallGame extends FlameGame {
 
   GameSession get session => _session;
 
+  /// Cihaz pikseli / gu (tuval genişliği × devicePixelRatio / kVirtualW);
+  /// çizicinin pişirdiği sprite'ların çözünürlüğü.
+  double _pxPerGu = kSpritePxPerGu;
+
+  double get pxPerGu => _pxPerGu;
+
+  @override
+  void onGameResize(Vector2 size) {
+    super.onGameResize(size);
+    final dpr = PlatformDispatcher.instance.implicitView?.devicePixelRatio ?? 1;
+    if (size.x > 0) _pxPerGu = size.x / kVirtualW * dpr;
+    _renderer.setPixelRatio(_pxPerGu);
+  }
+
   GameTheme get theme => _theme;
 
   ThemeRenderer get renderer => _renderer;
@@ -101,7 +115,7 @@ class BallGame extends FlameGame {
     if (identical(value, _theme)) return;
     _renderer.dispose();
     _theme = value;
-    _renderer = value.createRenderer(value);
+    _renderer = value.createRenderer(value)..setPixelRatio(_pxPerGu);
     effects.theme = value;
     final audio = this.audio;
     if (audio != null) unawaited(audio.setTheme(value.sounds));
