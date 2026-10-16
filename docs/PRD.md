@@ -327,12 +327,15 @@ Oyun, aşağıdaki durumlardan birinde bulunur. Bir anda yalnızca biri etkindir
 
 Duraklatma bir durum değil, bir üst katmandır: oyun donar, durum makinesi aynı yerde bekler.
 
-#### 5.4.1 Uzun uçuşta otomatik hızlanma
+#### 5.4.1 Uzun uçuşta hızlandırma butonu (boost)
 
-- Yataya yakın tek bir topun çok uzun sürmesi (≈12 sn) tempoyu bozar. `flying` fazında geçen gerçek süre `FAST_FORWARD_AFTER` = 8 sn'yi aşarsa, kare saati karede işlenen sabit adım sayısını 1'den 4'e (`FAST_FORWARD_MAX`) 1,5 sn'de (`FAST_FORWARD_RAMP`) doğrusal artırır.
-- Sayaç yalnızca `flying` fazını sayar; `firing` fazı sayılmaz (99 toplu atış ≈14 sn sürer). flying'e girişte, flying'den çıkışta ve her yeni atışta sıfırlanır; faz `flying`'den çıkınca çarpan hemen 1'e döner, `collecting` ve `advancing` hızlanmaz.
-- Her adım yine 1/120 sn'lik `step()`'tir: simülasyon, replay ve `stateHash` değişmez. Karede en çok 8 × çarpan, mutlak en çok 32 adım işlenir (sonsuz döngü yok).
+- Yataya yakın tek bir topun çok uzun sürmesi (≈12 sn) tempoyu bozar. Hızlanma **otomatik değildir, oyuncu kontrolündedir:** `flying` fazında geçen gerçek süre `FAST_FORWARD_AFTER` = 8 sn'yi aşınca sağ altta bir "»" (boost) butonu belirir. Basınca kare saati, karede işlenen sabit adım sayısını 1'den 4'e (`FAST_FORWARD_MAX`) 1,5 sn'de (`FAST_FORWARD_RAMP`) doğrusal artırır; tekrar basınca aynı sürede 1'e düşürür. Oyuncu basmazsa çarpan her zaman 1'dir.
+- Sayaç yalnızca `flying` fazını sayar; `firing` fazı sayılmaz (99 toplu atış ≈14 sn sürer). flying'e girişte, flying'den çıkışta ve her yeni atışta sıfırlanır. Faz `flying`'den çıkınca (ya da yeni atış, yeniden başlatma, oyun sonu) buton solar (`BOOST_FADE_MS` = 200) ve boost kapanır, çarpan hemen 1'e döner; `collecting` ve `advancing` hızlanmaz.
+- Buton: 56×56 dp dokunma alanı, 44 dp görünen daire; kapalıyken yarı saydam koyu daire + ince açık kenar + tema vurgu renginde "»", açıkken vurgu renginde dolu daire + koyu "»". Belirirken tek seferlik hafif ölçek nabzı (1→1,12→1, 400 ms; hareket azaltma açıksa atlanır). Ekran okuyucu etiketi: tr "Hızlandır", en "Speed up". Titreşim ve ses yoktur (M5'te karar verilir).
+- Konum: sağ altta, kenar koruma şeritlerinin en az 8 dp içinde, zemin çizgisinden en az 16 dp yukarıda; atıcı topu ve zemin çubuğundaki (debug) tema seçiciyi örtmez. Buton oyunun dokunma dinleyicisinin üstünde ayrı bir katmandır: butona başlayan dokunuş nişan/atış başlatmaz; buton solarken ve sonraki 150 ms (`BOOST_SWALLOW_EXTRA_MS`) basışları hiçbir şey yapmadan yutar.
+- Her adım yine 1/120 sn'lik `step()`'tir: simülasyon, replay ve `stateHash` değişmez; boost bilgisi kayda/replay'e yazılmaz (testle doğrulandı). Karede en çok 8 × çarpan, mutlak en çok 32 adım işlenir (sonsuz döngü yok).
 - Rekabetçi modda da aynıdır; yalnızca görünüm hızıdır.
+- İlk kullanımda butonun ne işe yaradığını gösteren ipucu M4/M5'te eklenecek.
 
 ### 5.5 Top sayısı ve sayaç kuralları
 
