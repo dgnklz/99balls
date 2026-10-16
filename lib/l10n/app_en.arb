@@ -1,0 +1,19 @@
+{
+  "@@locale": "en",
+  "tutorialAim": "Press anywhere, pull back and release to shoot",
+  "@tutorialAim": {
+    "description": "In-game first-run tutorial (PRD 5.8)"
+  },
+  "gameOverTitle": "Game Over",
+  "@gameOverTitle": {
+    "description": "Game over card title"
+  },
+  "scoreLabel": "Score",
+  "@scoreLabel": {
+    "description": "Label above the final score"
+  },
+  "playAgain": "Play Again",
+  "@playAgain": {
+    "description": "Game over button that starts a new game"
+  }
+}
