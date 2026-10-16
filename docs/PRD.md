@@ -46,7 +46,7 @@ Karar sahibi ürün sahibidir. "Kabul" = ürün sahibi açıkça onayladı. "Var
 | --- | --- | --- |
 | K1 | Referans: videodaki "99 Balls" mekaniği esas alınır | Kabul |
 | K2 | Tema, isim, logo, renk, ses: yapay zeka özgün seçer | Kabul |
-| K3 | Dil: ilk sürümde yalnızca İngilizce. Tüm metinler harici .arb dosyasında anahtarla tutulur, koda gömülmez | Kabul |
+| K3 | Dil: ilk sürümde İngilizce ve Türkçe. Tüm metinler harici .arb dosyasında anahtarla tutulur, koda gömülmez | Kabul |
 | K4 | Faz 1'de reklam ve mağaza yok | Kabul |
 | K5 | Ekran ölçekleme: iPhone SE 2 ve iPhone 15 Pro Max'te aynı oranlı yerleşim (bölüm 3) | Kabul |
 | K6 | Ana menü sıfırdan tasarlanır: üst yarı ortada logo, alt yarı butonlar (Play, How to Play, Feedback, Settings, Exit) | Kabul |
@@ -89,6 +89,7 @@ Oyun mantığı saf Dart'ta, Flutter'dan bağımsız bir çekirdekte yazılır; 
 | Cihaz bilgisi | device\_info\_plus, package\_info\_plus | Feedback e-postasına eklenir |
 | Ekran uyanık | wakelock\_plus | Yalnızca oyun ekranındayken açık |
 | Faz 2 | firebase\_core, firebase\_auth, cloud\_firestore, google\_sign\_in, sign\_in\_with\_apple | Faz 1'de eklenmez |
+| Dış bağlantılar | url\_launcher | Gizlilik politikası vb. bağlantılar; M4'te eklenir |
 
 ### 2.2 Katmanlar ve klasör yapısı
 
@@ -98,7 +99,7 @@ lib/
   app/                 # MaterialApp, router, tema uygulaması
   core/
     config/            # game_config.dart (tüm sabitler), secrets.dart (dart-define), app_info.dart
-    theme/             # app_theme.dart, palette.dart, hp_colors.dart
+    theme/             # app_theme.dart (oyun temaları lib/themes/ altındadır)
     l10n_registry/     # supported_languages.dart
     services/          # audio_service, haptics_service, prefs_service, feedback_service
   game_core/           # SAF DART, flutter import YASAK
@@ -110,7 +111,7 @@ lib/
   features/
     splash/ menu/ game/ pause/ game_over/ how_to_play/ settings/ feedback/
     competitive/       # Faz 2
-  l10n/                # app_en.arb (+ ileride app_xx.arb), l10n.yaml kökte
+  l10n/                # app_en.arb, app_tr.arb (+ ileride app_xx.arb), l10n.yaml kökte
 test/                  # game_core birim testleri, widget testleri
 assets/                # sesler, yazı tipi, LICENSES.md
 ```
@@ -141,9 +142,9 @@ assets/                # sesler, yazı tipi, LICENSES.md
 
 ### 2.6 Varlık ve telif stratejisi
 
-- Görsel varlık dosyası yoktur: toplar, halkalar, parçacıklar, logo ve tüm ikonlar kodla (CustomPainter veya vektör) çizilir. Böylece telif riski ve boyut sıfıra yakın kalır.
+- Oyun içi görsel varlık dosyası yoktur: toplar, halkalar, parçacıklar, oyun logosu ve oyun içi simgeler kodla (CustomPainter veya vektör) çizilir. İstisna: uygulama ikonu ve açılış (splash) görseli marka dosyalarıdır (`assets/brand`, `assets/icon`, `assets/store`).
 - Yazı tipi: açık lisanslı (OFL) bir yazı tipi pakete gömülür, çalışma anında internetten çekilmez. Lisans metni `assets/LICENSES.md` içine yazılır.
-- Sesler yapay zeka tarafından sentezlenir (kodla üretilen WAV/OGG) ya da CC0 lisanslı kaynaklardan alınır; her dosyanın kaynağı `assets/LICENSES.md` içine yazılır.
+- Sesler yapay zeka tarafından sentezlenir (kodla üretilen WAV) ya da CC0 lisanslı kaynaklardan alınır; her dosyanın kaynağı `assets/LICENSES.md` içine yazılır.
 - Referans oyunun adı, logosu ("9 9 BALLS" yazısı ve iki rakamın balonları), görselleri, sesleri ve renk paleti birebir kullanılmaz. Oyun kuralları ve sayısal mekanik aynı kalır.
 - Uygulama adı "99 Balls" içeremez ve referans oyunun adına benzemez. Ad ve mağaza metinleri yapay zeka tarafından önerilir, ürün sahibi onaylar.
 
@@ -520,7 +521,7 @@ Parçacıklar 64 nesnelik bir havuzdan alınır ve bitince havuza döner. Havuz 
 
 - Yapay zeka beş tema konsepti seçer (bkz. 7.4.1; Orbitfall, Candy Burst, Pixel Drop, Abyss, Ink & Paper) ve gerekçesini `docs/THEME.md` içine kısa yazar.
 - Teslimat: `app_theme.dart` ve `palette.dart` içinde şu alanlar: `bgGradientTop`, `bgGradientBottom`, `hudBar`, `floorBar`, `accent` (nişan çizgisi ve atılan top), `pickupGlow`, `textPrimary`, `textSecondary`, `danger`, `buttonPrimary`, `buttonSecondary`, `popupSurface`; ve `hp_colors.dart` durakları (7.1).
-- Özgün logo (kodla çizilen vektör), uygulama ikonu, oyun adı. Logo ana menüde üst yarının tam ortasındadır (bölüm 9.1).
+- Özgün oyun logosu (kodla çizilen vektör), oyun adı. Uygulama ikonu ve açılış (splash) logosu ayrı hazırlanan marka görselleridir (assets/brand, assets/icon, assets/store); Android ve iOS için ayrı üretilir. Logo ana menüde üst yarının tam ortasındadır (bölüm 9.1).
 - Arka plan koyu veya orta-koyu tonlu olmalı; renkli topların öne çıkmasını sağlamalıdır. HUD ve zemin çubukları arka plandan ayrı görünmelidir.
 - Atılan top (halka veya dolu orb olabilir) ile toplanabilir halka birbirinden **hızla ayırt edilebilmeli**: toplanabilir halka %33 daha büyük (yarıçap 18 ve 13) ve parlayan ayrı bir vurgu renginde olur.
 - Yazı tipi: tek bir OFL yazı tipi ailesi, en fazla 2 ağırlık (Regular ve Bold). Sayılar için aynı ailenin dar (condensed) biçimi ya da tabular rakamlar kullanılır.
@@ -533,13 +534,16 @@ Parçacıklar 64 nesnelik bir havuzdan alınır ve bitince havuza döner. Havuz 
 - Sonraki sürümlerde üyelik: Orbitfall ücretsiz, diğer dördü kilitli. Yerel bir bayrak güvenli değildir; gerçek üyelik mağaza faturalandırması (Google Play Billing, iOS IAP) ve doğrulama gerektirir. Tüm temalar herkese açık yayımlandıktan sonra kilitlenirse mevcut kullanıcılar için eski haklar korunur (grandfathering).
 - Tüm görseller kodla (CustomPainter) üretilir; sesler `tools/audio/` altındaki Python betikleriyle sentezlenir. Tema başına ses bütçesi yaklaşık 2 MB.
 
+* Referans oyundan görsel ayrışma ilkeleri (kopya/ban riski): HUD dolu mavi çubuk değil, yarı saydam koyu yüzey + ince açık kenar + tema vurgusudur; düşük HP'li hedefler kırmızı/pembe değil turuncu/amber tonundadır; arka planda mavi spot ışığı yoktur; menüde krem hap düğme ve mavi yuvarlak düğmeler kullanılmaz; ad ve mağaza metinlerinde "99 Balls" / "Evo" geçmez.
+* Açılış ekranı tüm oyunlarda ortak marka logosudur (siyah zemin); temadan bağımsızdır. Uygulama ikonu Orbitfall konseptinden türetilmiş tek ana tasarımdır; iOS (1024, alfa yok), Android adaptive (ön plan %78 + dikey degrade arka plan) ve mağaza (Play 512, App Store 1024) dosyaları `tools/icon/make_icon.py` ile bu ana dosyadan üretilir.
+
 ## 8. Ses ve titreşim
 
 Referans videoda ses yoktur; tüm ses varlıkları yapay zeka ile üretilir ve orijinal olmalıdır. Ses ve titreşim, Ayarlar'daki üç bağımsız anahtara bağlıdır: Müzik, Ses Efektleri, Titreşim. Varsayılan üçü de açıktır.
 
 ### 8.1 Kurallar
 
-- Ses dosyaları `assets/audio/` altında, SFX için `.wav` (44.1 kHz, 16 bit, mono), müzik için `.ogg` (stereo, döngüsel) formatındadır.
+- Ses dosyaları `assets/audio/` altında, SFX için `.wav` (44.1 kHz, 16 bit, mono), müzik için `.wav` (mono, 22.05 kHz, 16 bit, kesintisiz döngü; başı ve sonu sıfır geçişinde) formatındadır. Tema başına ses bütçesi yaklaşık 2 MB'dır. Müzik sıkıştırılmış (OGG vb.) değildir: iOS OGG oynatmaz ve sıkıştırılmış biçimler döngüde boşluk bırakabilir.
 - Her SFX en fazla 1 sn sürer ve tepe seviyesi −3 dBFS'te normalize edilir. Müzik −14 LUFS civarındadır ve SFX'lerden belirgin biçimde alçaktır (müzik oynatıcı ses seviyesi 0.35, SFX 1.0).
 - Aynı SFX 50 ms içinde tekrar tetiklenirse ikincisi çalınmaz (sınırlama, `kSfxMinGapMs`). Aynı anda en fazla 8 SFX çalar; fazlası atlanır.
 - Top vuruşu sesi için 3 adet varyant (perde farkı) tanımlanır ve sırayla (rastgele değil, simülasyon RNG'sinden bağımsız bir sayaçla) döndürülür. Ses seçimi oyun simülasyonunu asla etkilemez.
@@ -551,7 +555,7 @@ Referans videoda ses yoktur; tüm ses varlıkları yapay zeka ile üretilir ve o
 | --- | --- | --- | --- |
 | Top ateşlendi | `sfx_shoot` | yok | Her top için çalar, 50 ms sınırı geçerli |
 | Top duvara/tavana çarptı | `sfx_wall` | yok | Çok hafif, kısa tık |
-| Top hedefe çarptı (hedef yok olmadı) | `sfx_hit_1..3` | yok | HP düştükçe perde hafifçe yükselir |
+| Top hedefe çarptı (hedef yok olmadı) | `sfx_hit_1..3` | yok | Perde farklılığı yalnızca 3 sıralı varyantla sağlanır (HP'ye bağlı perde değişimi yoktur) |
 | Hedef yok oldu | `sfx_break` | hafif (`light`) | Kırılma animasyonuyla aynı karede |
 | Halka (ring) alındı | `sfx_pickup` | yok | Yeni top eklenir |
 | Toplar toplandı (birleşme) | `sfx_collect` | yok | Toplama aşamasının başında bir kez |
@@ -560,13 +564,13 @@ Referans videoda ses yoktur; tüm ses varlıkları yapay zeka ile üretilir ve o
 | Oyun bitti | `sfx_gameover` | ağır (`heavy`) | Satır 8'e inince |
 | Buton tıklaması | `sfx_click` | seçim (`selectionClick`) | Tüm menü butonları |
 | İlk 10'a giriş (Faz 2) | `sfx_celebrate` | orta (`medium`) | Kutlama penceresi açılırken |
-| Yıldız toplandı | sfx\_star | yok | Parlak, kısa; ardışık toplamada perde hafifçe yükselir |
+| Yıldız toplandı | sfx\_star | yok | Parlak, kısa; ardışık toplamada perde değişmez |
 
 Nişan alma sırasında ses ve titreşim yoktur.
 
 ### 8.3 Müzik
 
-- Tek bir döngüsel parça, 60–90 sn uzunluğunda, sakin ve ritmik, tema yönüne uygun. Menüde ve oyunda aynı parça çalar.
+- Her tema için tek bir döngüsel parça, yaklaşık 32 sn uzunluğunda, sakin ve ritmik, tema yönüne uygun. Menüde ve oyunda aynı parça çalar.
 - Uygulama açılışında, kullanıcı ilk dokunuştan sonra başlar (tarayıcı/platform otomatik oynatma kısıtları için güvenli yol).
 - Duraklatma menüsü açıkken müzik %40 seviyeye iner; devam edince eski seviyeye döner (300 ms geçiş).
 - Uygulama arka plana alınınca müzik durur, öne gelince kaldığı yerden devam eder.
@@ -649,9 +653,10 @@ HUD yerleşimi Bölüm 4'te tanımlıdır. Sağ üstte duraklatma ikonu (36×36 
 | Dil | Satır | Dokununca açılan pencere (popup) dil listesini gösterir; seçim anında uygulanır ve kaydedilir |
 | Sürüm | Metin | `package_info_plus` ile `v1.0.0 (build)` |
 | Gizlilik politikası | Bağlantı | Harici tarayıcıda açılır; adres `--dart-define` ile gelmez, `app_config.dart` sabitidir ve ayarlanabilir tablosundadır |
+| Tema | Seçici | Beş temadan birini seçer ve anında uygular; kilitli temalar kilit simgesiyle gösterilir (v1'de hepsi açık). M3'te yalnızca debug yapıda, M4'te kullanıcıya açılır. |
 
 - Faz 2'de bu ekrana "Hesap" satırı eklenir: Google ile giriş, iOS'ta ek olarak Apple ile giriş, çıkış yap.
-- Dil penceresi: ortada kart, her dil bir satır (yerel adı, ör. "English", "Türkçe"), seçili olanda onay işareti. Dil listesi `supported_languages` kayıt defterinden gelir; yeni dil eklemek yalnızca `.arb` dosyası ve bu listeye bir satır eklemektir. İlk sürümde yalnızca İngilizce vardır; liste tek öğeli de olsa pencere çalışır.
+- Dil penceresi: ortada kart, her dil bir satır (yerel adı, ör. "English", "Türkçe"), seçili olanda onay işareti. Dil listesi `supported_languages` kayıt defterinden gelir; yeni dil eklemek yalnızca `.arb` dosyası ve bu listeye bir satır eklemektir. İlk sürümde İngilizce ve Türkçe vardır; liste tek öğeli olsa da pencere çalışır.
 - İlk açılışta dil, cihaz dili desteklenenler arasındaysa o, değilse İngilizce olur.
 
 ### 9.8 Geri bildirim
@@ -693,6 +698,7 @@ Faz 1'de yalnızca cihazdaki `shared_preferences` kullanılır. Devam eden oyun 
 | `tutorial_seen` | bool | false | Oyun içi öğretici gösterildi mi |
 | `games_played` | int | 0 | İstatistik için, isteğe bağlı |
 | `last_feedback_ms` | int | 0 | Geri bildirim sınırı için |
+| theme\_id | String | orbitfall | Seçili tema kimliği (bölüm 7.4.1). Bilinmiyor ya da kilitliyse orbitfall'a dönülür. |
 
 Tüm okuma/yazma işlemleri tek bir `PrefsRepository` sınıfı üzerinden yapılır; hatalar yutulur ve varsayılana dönülür.
 
@@ -915,6 +921,17 @@ Tüm sayısal değerler `lib/config/constants.dart` ve `game_core/lib/src/consta
 | `kAppCheckEnabled` | false | Faz 2 | App Check anahtarı |
 | kStarChancePct | 25 | Simülasyon | Satırda yıldız olasılığı (%) |
 | kStarScore | 3 | Simülasyon | Yıldız başına skor puanı |
+| GUIDE\_MIN\_LENGTH | 60 | Nişan | Nişan başlangıç uzunluğu (gu) |
+| GUIDE\_RAMP\_DISTANCE | 120 | Nişan | Çizginin tam boya ulaştığı sürükleme (gu) |
+| AIM\_MIN\_RADIUS | 120 | Nişan | İnce nişan kazanç yarıçapı (gu) |
+| AIM\_ENTER\_DISTANCE / AIM\_EXIT\_DISTANCE | 10 / 6 | Nişan | Ölü bölge histerezisi (gu) |
+| AIM\_SHOT\_LENGTH | 100 | Nişan | Üretilen nişan vektörü uzunluğu |
+| GUIDE\_MAX\_DASHES\_PER\_SEGMENT | 100 | Nişan | Segment başına en çok kesik parça |
+| MERGE\_SPEED | 1600 | Görünüm | Toplanan topların kayma hızı (gu/sn) |
+| FAST\_FORWARD\_AFTER | 8 | Görünüm | Hızlanma başlangıcı, yalnızca flying süresi (sn) |
+| FAST\_FORWARD\_MAX | 4 | Görünüm | En yüksek hız çarpanı |
+| FAST\_FORWARD\_RAMP | 1.5 | Görünüm | 1'den azami çarpana geçiş süresi (sn) |
+| MAX\_STEPS\_PER\_FRAME\_FAST | 32 | Görünüm | Hızlanmada karede mutlak adım üst sınırı |
 
 ## 14. Test, kabul ölçütleri ve kilometre taşları
 
