@@ -114,8 +114,8 @@ void main() {
 
     test('32 steps in one frame: ≤ kSfxMaxConcurrent sounds, pools within limits', () {
       // 99 top, yataya yakın atış, boş tahta: toplar duvarlar arasında sekerek
-      // ~11 sn tırmanır ve iner (flying > kFastForwardAfter + rampa → 4x).
-      // Her karede onlarca duvar olayı ve iniş gelir.
+      // ~11 sn tırmanır ve iner. Boost butonu çıkınca (flying > kFastForwardAfter)
+      // basılır, rampa sonunda 4x. Her karede onlarca duvar olayı ve iniş gelir.
       final session = GameSession.forTest(board: Board(), initialBallCount: kMaxBalls);
       final loop = GameLoop();
       final effects = EffectsController(theme: orbitfallTheme);
@@ -138,6 +138,8 @@ void main() {
       for (var frame = 0; frame < 2000 && session.phase != GamePhase.ready; frame++) {
         effects.beginFrame();
         final before = backend.sfx.length;
+        final boost = loop.fastForward;
+        if (boost.available && !boost.engaged) boost.toggle();
         final steps = loop.advance(session, dt);
         if (steps > maxSteps) maxSteps = steps;
         for (final event in session.drainEvents()) {

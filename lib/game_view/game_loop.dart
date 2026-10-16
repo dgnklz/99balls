@@ -2,7 +2,8 @@ import '../game_core/rules/round_state_machine.dart';
 import 'fast_forward.dart';
 import 'fixed_step_clock.dart';
 
-/// Kare döngüsü: sabit adım saati + uzun kuyruk hızlanması.
+/// Kare döngüsü: sabit adım saati + oyuncu kontrollü uzun kuyruk hızlanması
+/// (boost butonu, [FastForward]).
 ///
 /// Her adım yine `session.step()`'tir (1/120 sn); çarpan yalnızca karede kaç
 /// adım işleneceğini değiştirir. Simülasyon, replay ve stateHash etkilenmez.
@@ -23,7 +24,7 @@ class GameLoop {
     _multiplier = 1;
   }
 
-  /// Başarılı atıştan sonra çağrılır; hızlanma sayacını sıfırlar.
+  /// Başarılı atıştan sonra çağrılır; hızlanma sayacını ve boost durumunu sıfırlar.
   void noteShot() => fastForward.noteShot();
 
   /// [dt] saniyelik kare için oturumu ilerletir; işlenen adım sayısını döndürür.

@@ -14,14 +14,41 @@ const int kMaxStepsPerFrame = 8;
 /// İlk karede (ve arka plandan dönüşte) kabul edilen en büyük dt (sn).
 const double kFirstFrameMaxDt = 1 / 30;
 
-// --- Uzun kuyrukta otomatik hızlanma (yalnızca kare saati) -------------------
+// --- Uzun kuyrukta oyuncu kontrollü hızlanma (boost; yalnızca kare saati) ----
 
-/// flying fazında bu kadar gerçek süre (sn) geçince hızlanma başlar.
+/// flying fazında bu kadar gerçek süre (sn) geçince boost butonu belirir.
+/// Kendiliğinden hızlanma yoktur.
 const double kFastForwardAfter = 8;
 
-/// Kare saatinin en büyük çarpanı ve 1'den ona yükselme süresi (sn).
+/// Kare saatinin en büyük çarpanı ve 1 ↔ en büyük arası rampa süresi (sn);
+/// açarken ve kapatırken aynı rampa.
 const int kFastForwardMax = 4;
 const double kFastForwardRamp = 1.5;
+
+/// Boost butonu (mantıksal piksel = dp): dokunma alanı, görünen daire,
+/// kenar koruma şeritlerinden ve tuval kenarından boşluk.
+const double kBoostButtonSizeDp = 56;
+const double kBoostButtonVisualDp = 44;
+const double kBoostButtonMarginDp = 8;
+
+/// Zemin çizgisinden en az boşluk; ayrıca atıcı top çapı + [kBoostButtonMarginDp]
+/// kadar yukarıda durur (zemindeki topları örtmesin).
+const double kBoostButtonBottomGapDp = 16;
+
+/// Belirme/kaybolma süresi ve kaybolduktan sonra dokunuşları yutmaya devam
+/// ettiği ek süre (uçuş biterken basış nişana düşmesin).
+const int kBoostFadeMs = 200;
+const int kBoostSwallowExtraMs = 150;
+
+/// İlk belirişte tek seferlik ölçek nabzı 1 → [kBoostPulseScale] → 1
+/// (hareket azaltma açıksa atlanır).
+const int kBoostPulseMs = 400;
+const double kBoostPulseScale = 1.12;
+
+/// "»" simgesi (iki chevron) ve kenar çizgisi.
+const double kBoostIconSizeDp = 18;
+const double kBoostIconStrokeDp = 2.5;
+const double kBoostEdgeStrokeDp = 1.5;
 
 /// Hızlanmada karede en fazla adım: 8 × çarpan, mutlak üst sınır 32.
 const int kMaxStepsPerFrameFast = kMaxStepsPerFrame * kFastForwardMax;

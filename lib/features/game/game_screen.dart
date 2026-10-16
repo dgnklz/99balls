@@ -16,6 +16,7 @@ import '../../l10n/app_localizations.dart';
 import '../../themes/game_theme.dart';
 import '../../themes/theme_providers.dart';
 import 'game_seed.dart';
+import 'widgets/boost_button.dart';
 import 'widgets/debug_theme_picker.dart';
 import 'widgets/game_over_overlay.dart';
 import 'widgets/letterbox_painter.dart';
@@ -75,6 +76,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
   void dispose() {
     _immersive?.removeBarsShownListener(_onBarsShown);
     _game.gameOverScore.dispose();
+    _game.boost.dispose();
     super.dispose();
   }
 
@@ -132,12 +134,27 @@ class _GameScreenState extends ConsumerState<GameScreen> {
       builder: (context, constraints) {
         final fit = CanvasFit.compute(constraints.biggest, insets);
         _fit = fit;
-        _guard = EdgeGuard.compute(fit.screenSize, insets);
+        final guard = EdgeGuard.compute(fit.screenSize, insets);
+        _guard = guard;
         // Material atası: katmanlardaki metinler temadan DefaultTextStyle alır
         // (yoksa Flutter'ın sarı çift alt çizgili hata stili görünür).
         return Material(
           type: MaterialType.transparency,
-          child: _buildLayers(fit, theme.palette),
+          // Boost butonu oyunun tam ekran Listener'ının kardeşidir, çocuğu
+          // değil: butonda başlayan dokunuş nişan akışına hiç ulaşmaz.
+          child: Stack(
+            children: [
+              Positioned.fill(child: _buildLayers(fit, theme.palette)),
+              Positioned.fromRect(
+                rect: boostButtonRect(fit, guard),
+                child: BoostButton(
+                  state: _game.boost,
+                  palette: theme.palette,
+                  onPressed: _game.toggleBoost,
+                ),
+              ),
+            ],
+          ),
         );
       },
     );

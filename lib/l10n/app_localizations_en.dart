@@ -46,4 +46,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get themePlaceholderTag => 'placeholder';
+
+  @override
+  String get boostLabel => 'Speed up';
 }

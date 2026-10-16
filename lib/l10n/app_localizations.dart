@@ -169,6 +169,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'placeholder'**
   String get themePlaceholderTag;
+
+  /// Accessibility label of the in-game speed-up (boost) button
+  ///
+  /// In en, this message translates to:
+  /// **'Speed up'**
+  String get boostLabel;
 }
 
 class _AppLocalizationsDelegate

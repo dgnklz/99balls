@@ -58,6 +58,11 @@ void main() {
         expect(edge, greaterThan(HSLColor.fromColor(p.hudBar).lightness),
             reason: 'thin light edge line');
       });
+
+      test('HUD accent (boost button "on" fill) is not the reference blue', () {
+        expect(_rgbDistance(theme.palette.hudAccent, _referenceBar),
+            greaterThan(_minRgbDistanceFromReference));
+      });
     });
   }
 

@@ -58,7 +58,9 @@ varyantını ve Orbitfall seslerini kullanır (`lib/themes/placeholder/`).
 Referans oyunun görünüşü: siyaha yakın zemin + mavi spot ışığı, kırmızı/pembe dolu hedefler,
 mavi dolu üst/alt çubuklar, krem hap şeklinde oynat düğmesi. Tüm temalar bunlardan ayrışır:
 yönlü spot ışığı yok (yalnızca dikey degrade + yıldız tozu), düşük HP turuncu/amber, çubuklar
-yarı saydam koyu yüzey; M4'teki menü düğmeleri krem hap ya da mavi yuvarlak olmayacak.
+yarı saydam koyu yüzey; M4'teki menü düğmeleri krem hap ya da mavi yuvarlak olmayacak. Oyun içi boost butonu da bu
+kurala uyar: kapalıyken yarı saydam koyu yüzey + ince açık kenar + vurgu renginde "»", açıkken
+tema vurgusu dolgu (hiçbir temada mavi değil).
 `test/themes/reference_distinction_test.dart` bu kuralları her tema için denetler.
 - **Efektler:** Vuruşta hedef nabzı ve camgöbeği kıvılcım; kırılmada madeni para dönüşü
   ve "yıldız tozu"; halka/yıldızda büyüyüp solma; satır ilerlemede zemin kenarında ışık

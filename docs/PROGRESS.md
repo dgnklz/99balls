@@ -31,3 +31,5 @@
 - 2026-10-16 · M3b Candy Burst: tam tema (erik moru zemin + kayan şerit/serpinti deseni, parlak vurgulu spiralli şeker hedefler, sedefli top, sakız halkası, konfeti/serpinti efektleri) ve kendi sesleri (118 BPM marimba döngüsü + 13 SFX, 1.67 MB). Kimlik `candyburst` olarak düzeltildi.
 - Ortak çizim `BaseThemeRenderer`'a taşındı; Orbitfall çizim golden'ı (64 çağrı) birebir aynı. analyze temiz, 333 test yeşil; game_core değişmedi.
 - Cihazda bakılacak: c2 limon-yeşil ve parlak vurgu ile rakam okunurluğu (öncelikli), FPS, döngü eki, tema geçişi.
+- 2026-10-16 · Boost butonu: otomatik hızlanma kalktı; uçuş 8 sn'yi aşınca sağ altta "»" butonu belirir (tek nabız), basınca rampayla 4×, tekrar basınca 1×; uçuş bitince kaybolur ve sıfırlanır. Yalnızca kare saati (skor/stateHash/replay aynı, testli). Basış nişana düşmez (solarken de yutulur).
+- Not: boost ilk kullanım ipucu (ne işe yaradığını anlatan metin) M4/M5'te.

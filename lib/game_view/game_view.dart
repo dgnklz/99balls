@@ -16,6 +16,7 @@ import '../themes/theme_registry.dart';
 import 'aim_controller.dart';
 import 'ball_merge_animator.dart';
 import 'effects/effects_controller.dart';
+import 'fast_forward.dart';
 import 'floor_accent_tracker.dart';
 import 'game_loop.dart';
 import 'guide_path.dart';
@@ -33,8 +34,13 @@ import 'painters/hud_component.dart';
 /// Dünya koordinatları gu'dur; kamera 416×703'lük sabit çözünürlükle tuvali
 /// doldurur (widget zaten tuval oranında yerleştirilir, bkz. CanvasFit).
 class BallGame extends FlameGame {
-  BallGame({required int seed, GameTheme? theme, this.audio})
-      : _session = GameSession(seed),
+  /// [session]: yalnızca testler için hazır oturum (ör. boş tahtada uzun uçuş).
+  BallGame({
+    required int seed,
+    GameTheme? theme,
+    this.audio,
+    @visibleForTesting GameSession? session,
+  })  : _session = session ?? GameSession(seed),
         _theme = theme ?? ThemeRegistry.fallback,
         super(camera: CameraComponent.withFixedResolution(width: kVirtualW, height: kVirtualH)) {
     _renderer = _theme.createRenderer(_theme);
@@ -69,6 +75,10 @@ class BallGame extends FlameGame {
   /// Oyun sonu katmanı açılacağı an skor yazılır; yeniden başlatınca null olur.
   /// Sahibi olan ekran dispose eder (dinleyiciler ondan önce sökülür).
   final ValueNotifier<int?> gameOverScore = ValueNotifier<int?>(null);
+
+  /// Boost butonunun durumu (yalnızca kare saati; kayda yazılmaz). Sahibi
+  /// olan ekran dispose eder.
+  final ValueNotifier<BoostState> boost = ValueNotifier<BoostState>(BoostState.hidden);
 
   int _advanceStartStep = 0;
   bool _gameOver = false;
@@ -160,6 +170,7 @@ class BallGame extends FlameGame {
       _loop.advance(_session, dt);
       _handleEvents();
     }
+    _publishBoost();
     // Birleşme, efektler, arka plan ve kılavuz gerçek zamanla çalışır
     // (hızlanmadan etkilenmez).
     merge.update(dt);
@@ -182,6 +193,7 @@ class BallGame extends FlameGame {
         case GameOver():
           _gameOver = true;
           aim.cancel();
+          _loop.fastForward.reset();
         default:
           // Titreşim M4/M5'te.
           break;
@@ -231,10 +243,20 @@ class BallGame extends FlameGame {
     final shot = aim.up(pointer);
     if (shot == null || !_session.tryShoot(shot)) return false;
     _loop.noteShot();
+    _publishBoost();
     return true;
   }
 
   void pointerCancel() => aim.cancel();
+
+  /// Boost butonuna basış: uçuş [kFastForwardAfter]'ı aştıysa hızlanmayı
+  /// açar/kapatır (rampalı). Simülasyonu etkilemez.
+  void toggleBoost() {
+    _loop.fastForward.toggle();
+    _publishBoost();
+  }
+
+  void _publishBoost() => boost.value = _loop.fastForward.state;
 
   /// Yeni tohumla yeni oyun.
   void restart(int seed) {
@@ -250,6 +272,7 @@ class BallGame extends FlameGame {
     _guideShot = null;
     _guideSession = null;
     gameOverScore.value = null;
+    _publishBoost();
   }
 
   @override
