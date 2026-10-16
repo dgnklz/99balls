@@ -1,13 +1,19 @@
+import 'package:balls_99/game_core/constants.dart';
+import 'package:balls_99/game_core/engine/aim.dart';
+import 'package:balls_99/game_core/engine/events.dart';
 import 'package:balls_99/game_core/engine/rng.dart';
+import 'package:balls_99/game_core/engine/simulation.dart';
+import 'package:balls_99/game_core/model/board.dart';
 import 'package:balls_99/game_core/model/cell.dart';
 import 'package:balls_99/game_core/model/pickup.dart';
+import 'package:balls_99/game_core/rules/round_state_machine.dart';
 import 'package:balls_99/game_core/rules/row_generator.dart';
+import 'package:balls_99/game_core/rules/scoring.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'row_test_utils.dart';
 
-/// PRD Bölüm 5.11 yıldız testleri (1)-(3). (4) skor ve (5) toplama,
-/// skor ve simülasyon modülleriyle birlikte yazılacak.
+/// PRD Bölüm 5.11 yıldız testleri (1)-(5).
 void main() {
   const star = PickupCell(PickupKind.star);
   const t = 10;
@@ -56,6 +62,46 @@ void main() {
       expect(never.cells[starCol], isNull, reason: 'seed=$seed');
       expect(withoutStars(always), never.cells, reason: 'seed=$seed');
     }
+  });
+
+  test('(4) score formula: round 12 and 4 stars → 24', () {
+    expect(scoreFor(12, 4), 24);
+    expect(scoreFor(12, 4), 12 + kStarScore * 4);
+  });
+
+  test('(5) a star is counted once, even if several balls touch it', () {
+    final board = Board()..setCell(3, 3, star);
+    final session = GameSession.forTest(
+        board: board, initialBallCount: 3, initialLaunchX: Board.centerX(3));
+    session.tryShoot(const Shot(0, -100));
+    while (session.phase != GamePhase.ready) {
+      session.step();
+    }
+    final collected = session.drainEvents().whereType<PickupCollected>().toList();
+    expect(collected.single.kind, PickupKind.star);
+    expect(collected.single.ballIndex, 0);
+    expect(session.starsCollected, 1);
+    expect(session.score, session.round + kStarScore);
+
+    // Sonraki turda aynı yıldız yeniden sayılmaz.
+    session.tryShoot(const Shot(0, -100));
+    while (session.phase != GamePhase.ready) {
+      session.step();
+    }
+    expect(session.starsCollected, 1);
+  });
+
+  test('two balls on the same star in the same step: counted once', () {
+    final board = Board()..setCell(3, 3, star);
+    final events = <GameEvent>[];
+    final sim = Simulation(board, events)..beginVolley();
+    sim.launch(Board.centerX(3), kLaunchY, 0, -1);
+    sim.launch(Board.centerX(3), kLaunchY, 0, -1);
+    for (var i = 0; i < 150; i++) {
+      sim.step();
+    }
+    expect(events.whereType<PickupCollected>().single.ballIndex, 0);
+    expect(sim.takeCollected().stars, 1);
   });
 
   test('initial row never has a star', () {

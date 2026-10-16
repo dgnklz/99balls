@@ -285,7 +285,7 @@ Bu bölüm oyunun kurallarını adım adım tanımlar. Ölçülen değerler refe
 | Top hızı | Sabit 585 gu/sn = adım başına 4,875 gu (`BALL_SPEED`). Yerçekimi, ivme ve sürtünme yoktur |
 | Toplar arası çarpışma | Yoktur, üst üste geçerler |
 | Duvar ve tavan | Yansıma: sol/sağ duvarda vx işareti değişir, tavanda (y = 53) vy işareti değişir. Top yarıçapı hesaba katılır (merkez x ≤ 13 ya da ≥ 403, merkez y ≤ 66) |
-| Sayılı top | Daire-daire çarpışması. Çarpışma mesafesi `BALL_RADIUS + TARGET_RADIUS` = 38 gu. Yansıma: n = (top − hedef) / |
+| Sayılı top | Daire-daire çarpışması. Çarpışma mesafesi `BALL_RADIUS + TARGET_RADIUS` = 38 gu. Yansıma: n = (top − hedef) / \|top − hedef\| (birim vektör), v' = v − 2(v·n)n; yansımadan sonra hız büyüklüğü kBallSpeed'e yeniden normalleştirilir (sqrt ile). Aynı adımda iki farklı top aynı hedefi vurursa her biri sırayla işlenir ve HP 2 azalır. |
 | Vuruş | Her temas hedefin HP'sini tam **1** azaltır. HP 0 olan hedef anında oyun mantığından silinir (sonraki toplar içinden geçer), görsel yok olma animasyonu ayrıca oynar |
 | Çifte vuruş koruması | Çarpışma yalnızca top hedeften uzaklaşmıyorsa sayılır: v·n < 0 |
 | Aynı anda iki hedef | Önce en yakın olanla çarpışılır; eşitlikte (satır, sütun) sırası küçük olan. Kalan adım süresi yansımış hızla devam eder |
