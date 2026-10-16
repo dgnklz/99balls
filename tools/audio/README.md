@@ -44,9 +44,10 @@ süreklidir ve ikisi de ~0'dır (`test/assets/audio_assets_test.dart` denetler).
 
 - `synth.py`: ortak DSP (osilatör, zarf, filtre, normalize, döngü, WAV yazma)
 - `orbitfall.py`: Orbitfall ses kimliği (müzik + 13 SFX)
+- `candyburst.py`: Candy Burst ses kimliği (müzik + 13 SFX)
 - `build_all.py`: tüm temaları üretir
 
-Yeni tema (M3b–e): `<tema>.py` yazın (aynı `THEME_ID`, `render_sfx()`, `music_loop()`
+Yeni tema (M3c–e): `<tema>.py` yazın (aynı `THEME_ID`, `render_sfx()`, `music_loop()`
 arayüzü), `build_all.py`'deki `THEMES` listesine ekleyin, pubspec'e
 `assets/audio/<tema>/` ekleyin ve temanın `ThemeSounds` süre tablosunu güncelleyin.
 Sentez tarifleri `assets/audio/PROMPTS.md` dosyasına yazılır.

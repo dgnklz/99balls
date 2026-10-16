@@ -15,6 +15,16 @@ double _luminance(Color c) =>
 
 double _contrastWithWhite(Color c) => 1.05 / (_luminance(c) + 0.05);
 
+/// Ardışık iki durak gözle ayrı seçilebilmeli (PRD 7.1): sRGB uzaklığı (0–255).
+const double _minStopDistance = 30;
+
+double _rgbDistance(Color a, Color b) {
+  final dr = (a.r - b.r) * 255;
+  final dg = (a.g - b.g) * 255;
+  final db = (a.b - b.b) * 255;
+  return math.sqrt(dr * dr + dg * dg + db * db);
+}
+
 void main() {
   for (final theme in ThemeRegistry.all) {
     group('${theme.id} HP ramp', () {
@@ -51,6 +61,13 @@ void main() {
         expect(c, hasLength(HpRamp.stopCount));
         for (var i = 1; i < c.length; i++) {
           expect(c[i], isNot(c[i - 1]), reason: 'c${i - 1} vs c$i');
+        }
+      });
+
+      test('consecutive stops are visibly apart (RGB distance ≥ $_minStopDistance)', () {
+        for (var i = 1; i < c.length; i++) {
+          expect(_rgbDistance(c[i], c[i - 1]), greaterThanOrEqualTo(_minStopDistance),
+              reason: 'c${i - 1} vs c$i');
         }
       });
 

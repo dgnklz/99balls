@@ -2,26 +2,19 @@ import 'dart:math' as math;
 import 'dart:typed_data';
 import 'dart:ui';
 
-import 'package:flutter/painting.dart' show FontWeight, Shadow, TextStyle;
-
 import '../../core/config/game_config.dart';
 import '../../game_core/constants.dart';
-import '../game_theme.dart';
-import '../text_cache.dart';
+import '../shared/base_theme_renderer.dart';
 
 /// Orbitfall çizici: derin lacivert degrade, iki katmanlı kayan yıldız tozu,
 /// HP renkli hedefler, nane halka, altın yıldız. Yer tutucu temalar da şimdilik
-/// bu çiziciyi kendi paletleriyle kullanır.
+/// bu çiziciyi kendi paletleriyle kullanır. HUD, rakamlar ve "+3" yazısı
+/// [BaseThemeRenderer]'dadır.
 ///
-/// Performans: degrade Shader'ı, Paint'ler, yıldız Path'i ve metinler bir kez
-/// üretilir; yıldız tozu önceden ayrılmış Float32List'te tek `drawRawPoints`
-/// çağrısıyla çizilir. Karede yeni Paint/Path/liste üretilmez.
-class OrbitfallRenderer extends ThemeRenderer {
-  static const Rect _canvasRect = Rect.fromLTWH(0, 0, kVirtualW, kVirtualH);
-  static const Rect _hudRect = Rect.fromLTWH(0, 0, kVirtualW, kCeilingY);
-  static const Rect _floorRect = Rect.fromLTWH(0, kFloorY, kVirtualW, kVirtualH - kFloorY);
-  static const Rect _dangerRect =
-      Rect.fromLTWH(0, kFloorY - kDangerGlowHeight, kVirtualW, kDangerGlowHeight);
+/// Performans: degrade Shader'ı, Paint'ler ve yıldız Path'i bir kez üretilir;
+/// yıldız tozu önceden ayrılmış Float32List'te tek `drawRawPoints` çağrısıyla
+/// çizilir. Karede yeni Paint/Path/liste üretilmez.
+class OrbitfallRenderer extends BaseThemeRenderer {
   static const double _ringRadius = kPickupRadius - kPickupStroke / 2;
   static const double _ballRadius = kBallRadius - kBallStroke / 2;
   static const double _rimRadius = kTargetRadius - kTargetRimInset;
@@ -38,19 +31,7 @@ class OrbitfallRenderer extends ThemeRenderer {
   final Paint _ringGlow;
   final Paint _starPaint;
   final Paint _ball;
-  final Paint _hud;
-  final Paint _floor;
-  final Paint _edge;
-  final Paint _accentGlow;
-  final Paint _accentLine;
-  final Paint _overlay = Paint();
-  final Paint _layer = Paint();
-  final Path _starPath = _buildStar();
-
-  final TextCache _hp2;
-  final TextCache _hp3;
-  final TextCache _hudNumbers;
-  final TextCache _floatText;
+  final Path _starPath = BaseThemeRenderer.buildStar();
 
   double _time = 0;
 
@@ -84,25 +65,7 @@ class OrbitfallRenderer extends ThemeRenderer {
         _ball = Paint()
           ..style = PaintingStyle.stroke
           ..strokeWidth = kBallStroke
-          ..color = theme.palette.accent,
-        _hud = Paint()..color = theme.palette.hudBar,
-        _floor = Paint()..color = theme.palette.floorBar,
-        _edge = Paint()
-          ..strokeWidth = kHudEdgeStroke
-          ..color = theme.palette.hudEdge,
-        _accentGlow = Paint()
-          ..strokeWidth = kHudAccentStroke
-          ..strokeCap = StrokeCap.round
-          ..color = theme.palette.hudAccent
-          ..maskFilter = const MaskFilter.blur(BlurStyle.normal, kHudAccentGlowBlur),
-        _accentLine = Paint()
-          ..strokeWidth = kHudAccentStroke
-          ..strokeCap = StrokeCap.round
-          ..color = theme.palette.hudAccent,
-        _hp2 = TextCache(_numberStyle(theme, kTargetFontSize)),
-        _hp3 = TextCache(_numberStyle(theme, kTargetFontSize3Digits)),
-        _hudNumbers = TextCache(_numberStyle(theme, kHudFontSize)),
-        _floatText = TextCache(floatTextStyle(theme)) {
+          ..color = theme.palette.accent {
     final random = math.Random(kVisualRandomSeed);
     for (final layer in [_dustFar, _dustNear]) {
       for (var i = 0; i < kStarDustPerLayer; i++) {
@@ -110,54 +73,6 @@ class OrbitfallRenderer extends ThemeRenderer {
         layer[i * 2 + 1] = random.nextDouble() * kVirtualH;
       }
     }
-  }
-
-  /// Yıldız "+3" yazısı: altın, kalın, büyük; 4 yönlü koyu ince kenarlık ve
-  /// hafif gölge ile her zeminde okunur.
-  static TextStyle floatTextStyle(GameTheme theme) {
-    final outline = theme.palette.scrim.withValues(alpha: kFloatTextOutlineAlpha);
-    return TextStyle(
-      color: theme.palette.bonusText,
-      fontSize: kFloatTextSize,
-      fontWeight: FontWeight.w900,
-      shadows: [
-        Shadow(color: outline, offset: const Offset(kFloatTextOutline, 0)),
-        Shadow(color: outline, offset: const Offset(-kFloatTextOutline, 0)),
-        Shadow(color: outline, offset: const Offset(0, kFloatTextOutline)),
-        Shadow(color: outline, offset: const Offset(0, -kFloatTextOutline)),
-        Shadow(color: outline, blurRadius: kFloatTextShadowBlur),
-      ],
-    );
-  }
-
-  static TextStyle _numberStyle(GameTheme theme, double size) => TextStyle(
-        color: theme.palette.textPrimary,
-        fontSize: size,
-        fontWeight: FontWeight.bold,
-        shadows: [
-          Shadow(
-            color: theme.palette.scrim.withValues(alpha: kNumberShadowAlpha),
-            offset: const Offset(0, kNumberShadowOffset),
-            blurRadius: kNumberShadowBlur,
-          ),
-        ],
-      );
-
-  static Path _buildStar() {
-    const outer = kTargetRadius * kStarSizeRatio;
-    const inner = outer * kStarInnerRatio;
-    const vertices = kStarPoints * 2;
-    final path = Path();
-    for (var i = 0; i < vertices; i++) {
-      final r = i.isEven ? outer : inner;
-      final a = -math.pi / 2 + i * math.pi / kStarPoints;
-      if (i == 0) {
-        path.moveTo(r * math.cos(a), r * math.sin(a));
-      } else {
-        path.lineTo(r * math.cos(a), r * math.sin(a));
-      }
-    }
-    return path..close();
   }
 
   @override
@@ -179,7 +94,7 @@ class OrbitfallRenderer extends ThemeRenderer {
   @override
   void paintBackground(Canvas canvas) {
     canvas
-      ..drawRect(_canvasRect, _background)
+      ..drawRect(BaseThemeRenderer.canvasRect, _background)
       ..drawRawPoints(PointMode.points, _dustFar, _dustFarPaint)
       ..drawRawPoints(PointMode.points, _dustNear, _dustNearPaint);
   }
@@ -199,14 +114,8 @@ class OrbitfallRenderer extends ThemeRenderer {
     canvas
       ..drawCircle(Offset(cx, cy), kTargetRadius, _fill)
       ..drawCircle(Offset(cx, cy), _rimRadius, _rim);
-    (hp >= kThreeDigitThreshold ? _hp3 : _hp2).paintNumber(canvas, hp, cx, cy);
+    paintHpNumber(canvas, hp, cx, cy);
     if (scaled) canvas.restore();
-  }
-
-  @override
-  void paintTargetDisc(Canvas canvas, Color color, double opacity) {
-    _fill.color = color.withValues(alpha: opacity);
-    canvas.drawCircle(Offset.zero, kTargetRadius, _fill);
   }
 
   @override
@@ -222,13 +131,11 @@ class OrbitfallRenderer extends ThemeRenderer {
 
   @override
   void paintStar(Canvas canvas, double x, double y, {double scale = 1, double opacity = 1}) {
-    final phase = math.sin(2 * math.pi * _time / kStarPulseSec);
-    final pulse = kStarPulseMin + (kStarPulseMax - kStarPulseMin) * (phase + 1) / 2;
     _starPaint.color = theme.palette.star.withValues(alpha: opacity);
     canvas
       ..save()
       ..translate(x, y)
-      ..scale(scale * pulse)
+      ..scale(scale * BaseThemeRenderer.starPulse(_time))
       ..drawPath(_starPath, _starPaint)
       ..restore();
   }
@@ -236,88 +143,4 @@ class OrbitfallRenderer extends ThemeRenderer {
   @override
   void paintBall(Canvas canvas, double x, double y) =>
       canvas.drawCircle(Offset(x, y), _ballRadius, _ball);
-
-  @override
-  void paintHud(
-    Canvas canvas, {
-    required int score,
-    required int counter,
-    required double dangerGlow,
-    required double sweep,
-    required double scoreScale,
-    required double floorAccentX,
-  }) {
-    // Yarı saydam yüzey + oyun alanına bakan ince açık kenar + tema vurgusu
-    // (dolu renk çubuk değil; referans oyundan ayrışma). Üst vurgu ortada sabit
-    // (süs); zemin vurgusu atış noktasını izler.
-    canvas
-      ..drawRect(_hudRect, _hud)
-      ..drawRect(_floorRect, _floor)
-      ..drawLine(const Offset(0, kCeilingY), const Offset(kVirtualW, kCeilingY), _edge)
-      ..drawLine(const Offset(0, kFloorY), const Offset(kVirtualW, kFloorY), _edge);
-    _paintAccents(canvas, _accentGlow, floorAccentX);
-    _paintAccents(canvas, _accentLine, floorAccentX);
-    if (dangerGlow > 0) {
-      _overlay.color = theme.palette.danger.withValues(alpha: kDangerGlowAlpha * dangerGlow);
-      canvas.drawRect(_dangerRect, _overlay);
-    }
-    if (sweep >= 0 && sweep <= 1) {
-      final x = -kAdvanceSweepWidth + (kVirtualW + kAdvanceSweepWidth) * sweep;
-      _overlay.color = theme.palette.accent.withValues(alpha: kSweepAlpha * (1 - sweep));
-      canvas.drawRect(
-        Rect.fromLTWH(x, kFloorY - kSweepHeight / 2, kAdvanceSweepWidth, kSweepHeight),
-        _overlay,
-      );
-    }
-    _fill.color = theme.palette.accent;
-    canvas.drawCircle(
-      const Offset(kHudBallIconX, kHudBallIconY),
-      kHudBallIconDiameter / 2,
-      _fill,
-    );
-    if (scoreScale != 1) {
-      canvas
-        ..save()
-        ..translate(kHudScoreX, kHudScoreY)
-        ..scale(scoreScale);
-      _hudNumbers.paintNumber(canvas, score, 0, 0);
-      canvas.restore();
-    } else {
-      _hudNumbers.paintNumber(canvas, score, kHudScoreX, kHudScoreY);
-    }
-    _hudNumbers.paintNumber(canvas, counter, kHudCounterX, kHudCounterY);
-  }
-
-  static const double _accentLeft = (kVirtualW - kHudAccentWidth) / 2;
-  static const double _accentRight = (kVirtualW + kHudAccentWidth) / 2;
-  static const double _accentHalf = kHudAccentWidth / 2;
-
-  /// HUD alt kenarındaki (ortada) ve zemin üst kenarındaki ([floorX]) vurgu.
-  static void _paintAccents(Canvas canvas, Paint paint, double floorX) => canvas
-    ..drawLine(const Offset(_accentLeft, kCeilingY), const Offset(_accentRight, kCeilingY), paint)
-    ..drawLine(Offset(floorX - _accentHalf, kFloorY), Offset(floorX + _accentHalf, kFloorY), paint);
-
-  @override
-  void paintFloatText(Canvas canvas, String text, double x, double y, double opacity) {
-    if (opacity >= 1) {
-      _floatText.paintText(canvas, text, x, y);
-      return;
-    }
-    final size = _floatText.sizeOf(text);
-    _layer.color = Color.fromRGBO(0, 0, 0, opacity);
-    canvas.saveLayer(
-      Rect.fromCenter(center: Offset(x, y), width: size.width, height: size.height),
-      _layer,
-    );
-    _floatText.paintText(canvas, text, x, y);
-    canvas.restore();
-  }
-
-  @override
-  void dispose() {
-    _hp2.dispose();
-    _hp3.dispose();
-    _hudNumbers.dispose();
-    _floatText.dispose();
-  }
 }

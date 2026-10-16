@@ -5,6 +5,7 @@
 | Tema | Araç | Tarih | Lisans |
 |---|---|---|---|
 | Orbitfall | `tools/audio/` Python betikleri (numpy 2.3.3 + standart `wave`), kodla sentez | 2026-10-16 | Projeye ait özgün içerik; dış kaynak yok |
+| Candy Burst | `tools/audio/candyburst.py` (numpy 2.3.3 + standart `wave`), kodla sentez | 2026-10-16 | Projeye ait özgün içerik; dış kaynak yok |
 
 Tarifler: `assets/audio/PROMPTS.md`.
 

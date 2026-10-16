@@ -4,6 +4,7 @@ import 'package:balls_99/core/config/game_config.dart';
 import 'package:balls_99/game_core/constants.dart';
 import 'package:balls_99/themes/orbitfall/orbitfall_renderer.dart';
 import 'package:balls_99/themes/orbitfall/orbitfall_theme.dart';
+import 'package:balls_99/themes/shared/base_theme_renderer.dart';
 import 'package:balls_99/themes/text_cache.dart';
 import 'package:flutter/painting.dart' show FontWeight, TextStyle;
 import 'package:flutter_test/flutter_test.dart';
@@ -37,7 +38,7 @@ void main() {
   });
 
   test('"+3" text: gold, heavy, 40% larger, dark outline', () {
-    final style = OrbitfallRenderer.floatTextStyle(orbitfallTheme);
+    final style = BaseThemeRenderer.floatTextStyle(orbitfallTheme);
     expect(style.color, const Color(0xFFFFD54A));
     expect(style.fontSize, 20 * 1.4);
     expect(style.fontWeight, FontWeight.w900);

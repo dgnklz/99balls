@@ -324,3 +324,62 @@ const double kFloorAccentEdgeMargin = 4;
 const double kDangerGlowAlpha = 0.8;
 const double kSweepAlpha = 0.8;
 const double kSweepHeight = 4;
+
+// --- Candy Burst arka planı --------------------------------------------------
+
+/// Uzak katman: çapraz şeker şeritleri. Desen dikeyde kendini tekrar etsin diye
+/// periyot = kVirtualH / [kCandyStripeCount] (45° şerit tuval boyunda tam
+/// periyot sayısı kayar, ek yeri görünmez).
+const int kCandyStripeCount = 19;
+const double kCandyStripeWidth = 12;
+const double kCandyStripeAlpha = 0.05;
+const double kCandyStripeSpeed = 3;
+
+/// Yakın katman: konfeti renklerinde serpinti çubukları.
+const int kCandySprinkleCount = 36;
+const double kCandySprinkleLength = 7;
+const double kCandySprinkleWidth = 2.4;
+const double kCandySprinkleAlpha = 0.35;
+const double kCandySprinkleSpeed = 9;
+
+// --- Candy Burst çizimi ------------------------------------------------------
+
+/// Şeker hedefin sol üstteki parlak vurgusu (elips merkezi ve yarıçapları);
+/// rakamın altına girmesin diye kenara yakın.
+const double kCandyGlossX = -11;
+const double kCandyGlossY = -13;
+const double kCandyGlossRadiusX = 6;
+const double kCandyGlossRadiusY = 3.5;
+const double kCandyGlossAlpha = 0.35;
+
+/// Hedefin dış bandındaki ince spiral (rakam bölgesinin dışında).
+const double kCandySwirlInnerRadius = 15;
+const double kCandySwirlOuterRadius = 21;
+const double kCandySwirlTurns = 1.25;
+const int kCandySwirlSegments = 40;
+const double kCandySwirlStroke = 1.5;
+const double kCandySwirlAlpha = 0.15;
+
+/// Hedefin ince iç kenarı.
+const double kCandyRimAlpha = 0.18;
+
+/// Sedefli top: ince leylak kenar ve küçük parlak nokta.
+const double kCandyBallRimStroke = 1.2;
+const double kCandyBallRimAlpha = 0.6;
+const double kCandyBallGlossOffset = -3.5;
+const double kCandyBallGlossRadius = 3;
+
+/// Sakız halkasının içindeki ince şeftali çizgi.
+const double kCandyRingInnerStroke = 1.5;
+const double kCandyRingInnerInset = 3.5;
+
+/// Şeker yıldızın beyaz kenarı ve parlak noktası.
+const double kCandyStarEdgeStroke = 1.6;
+const double kCandyStarEdgeAlpha = 0.7;
+const double kCandyStarGlossX = -3;
+const double kCandyStarGlossY = -5;
+const double kCandyStarGlossRadius = 2.5;
+
+/// Serpinti biçimli kıvılcım: hız yönünde kısa, yuvarlak uçlu çubuk.
+const double kCandySparkLength = 6;
+const double kCandySparkWidth = 2.2;

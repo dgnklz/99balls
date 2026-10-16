@@ -9,6 +9,7 @@ import 'package:balls_99/game_core/model/pickup.dart';
 import 'package:balls_99/game_core/rules/round_state_machine.dart';
 import 'package:balls_99/game_view/effects/effects_controller.dart';
 import 'package:balls_99/game_view/game_loop.dart';
+import 'package:balls_99/themes/candyburst/candyburst_theme.dart';
 import 'package:balls_99/themes/game_theme.dart';
 import 'package:balls_99/themes/orbitfall/orbitfall_theme.dart';
 import 'package:balls_99/themes/placeholder/placeholder_themes.dart';
@@ -152,6 +153,50 @@ void main() {
         wallMs += frameMs;
       }
       expect(maxSteps, kMaxStepsPerFrameFast, reason: 'a 32-step frame happened');
+    });
+  });
+
+  group('theme sparks', () {
+    final board = Board();
+    Set<int> liveColors(EffectsController e) => {
+          for (var i = 0; i < e.sparks.capacity; i++)
+            if (e.sparks.isAlive(i)) e.sparks.color[i],
+        };
+    final confetti = candyBurstConfetti.map((c) => c.toARGB32()).toSet();
+
+    test('Orbitfall: single-colour hit sparks (no confetti)', () {
+      final e = EffectsController(theme: orbitfallTheme)..beginFrame();
+      e.onEvent(const TargetHit(0, 0, 2, 3, 4), board);
+      expect(liveColors(e), {orbitfallPalette.spark.toARGB32()});
+    });
+
+    test('Candy Burst: hit sparks are confetti colours', () {
+      final e = EffectsController(theme: candyBurstTheme)..beginFrame();
+      e.onEvent(const TargetHit(0, 0, 2, 3, 4), board);
+      expect(e.sparks.liveCount, candyBurstEffects.hitSparks);
+      expect(confetti.containsAll(liveColors(e)), isTrue);
+    });
+
+    test('Candy Burst: break sparks alternate candy (HP) colour and confetti', () {
+      final e = EffectsController(theme: candyBurstTheme)..beginFrame();
+      e.onEvent(const TargetDestroyed(0, 0, 2, 3), board);
+      expect(e.sparks.liveCount, candyBurstEffects.breakSparks);
+      final hpColor = candyBurstTheme.hpRamp.forHp(1).toARGB32();
+      for (var i = 0; i < candyBurstEffects.breakSparks; i++) {
+        final color = e.sparks.color[i];
+        if (i.isEven) {
+          expect(color, hpColor, reason: 'spark $i');
+        } else {
+          expect(confetti, contains(color), reason: 'spark $i');
+        }
+      }
+    });
+
+    test('theme switch mid-game uses the new effect set', () {
+      final e = EffectsController(theme: orbitfallTheme)..beginFrame();
+      e.theme = candyBurstTheme;
+      e.onEvent(const TargetHit(0, 0, 2, 3, 4), board);
+      expect(confetti.containsAll(liveColors(e)), isTrue);
     });
   });
 

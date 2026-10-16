@@ -35,10 +35,10 @@ void main() {
     await tester.tap(find.byKey(const Key('debugThemePicker')));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
-    for (final id in ['orbitfall', 'candybust', 'pixeldrop', 'abyss', 'inkpaper']) {
+    for (final id in ['orbitfall', 'candyburst', 'pixeldrop', 'abyss', 'inkpaper']) {
       expect(find.byKey(Key('theme_$id')), findsOneWidget, reason: id);
     }
-    expect(find.text('placeholder'), findsNWidgets(4));
+    expect(find.text('placeholder'), findsNWidgets(3));
 
     await tester.tap(find.byKey(const Key('theme_abyss')));
     await tester.pump();

@@ -7,9 +7,10 @@ import 'package:balls_99/themes/game_theme.dart';
 import 'package:balls_99/themes/theme_registry.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-/// PRD 7.4.1: beş tema, benzersiz id, Orbitfall ücretsiz ve tam, diğerleri yer tutucu.
+/// PRD 7.4.1: beş tema, benzersiz id. Orbitfall ücretsiz ve tam; Candy Burst
+/// tam ve ücretli (M3b); diğer üçü yer tutucu.
 void main() {
-  const expectedIds = {'orbitfall', 'candybust', 'pixeldrop', 'abyss', 'inkpaper'};
+  const expectedIds = {'orbitfall', 'candyburst', 'pixeldrop', 'abyss', 'inkpaper'};
 
   test('exactly five themes with unique, expected ids', () {
     final ids = ThemeRegistry.all.map((t) => t.id).toList();
@@ -18,13 +19,19 @@ void main() {
     expect(ids.toSet(), expectedIds);
   });
 
-  test('Orbitfall is free and complete; the other four are marked placeholders', () {
+  test('Orbitfall is free and complete; Candy Burst complete; the other three are placeholders',
+      () {
     final orbitfall = ThemeRegistry.byId('orbitfall')!;
     expect(orbitfall.isFree, isTrue);
     expect(orbitfall.isPlaceholder, isFalse);
     expect(orbitfall.id, kDefaultThemeId);
+    final candy = ThemeRegistry.byId('candyburst')!;
+    expect(candy.isPlaceholder, isFalse);
+    expect(candy.isFree, isFalse);
+    expect(candy.sounds.music, startsWith('candyburst/'), reason: 'own sound identity');
+    final placeholders = ThemeRegistry.all.where((t) => t.isPlaceholder).map((t) => t.id);
+    expect(placeholders.toSet(), {'pixeldrop', 'abyss', 'inkpaper'});
     for (final theme in ThemeRegistry.all.where((t) => t.id != 'orbitfall')) {
-      expect(theme.isPlaceholder, isTrue, reason: theme.id);
       expect(theme.isFree, isFalse, reason: theme.id);
     }
   });

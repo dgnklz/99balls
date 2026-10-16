@@ -158,7 +158,7 @@ abstract class AppLocalizations {
   /// **'Ink & Paper'**
   String get themeInkPaper;
 
-  /// Title of the theme picker (debug build only in M3a)
+  /// Title of the theme picker (debug build only until M4)
   ///
   /// In en, this message translates to:
   /// **'Theme'**

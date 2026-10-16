@@ -61,7 +61,7 @@ class EffectsController {
         if (hpLeft == 0) return null; // ses ve efekt TargetDestroyed'da
         _pulse[row * kCols + col] = kHitPulseSec;
         _burst(Board.centerX(col), Board.centerY(row), effects.hitSparks,
-            palette.spark.toARGB32());
+            palette.spark.toARGB32(), confettiEvery: 1);
         return SfxKey.hit;
       case TargetDestroyed(:final row, :final col):
         final x = Board.centerX(col);
@@ -69,7 +69,7 @@ class EffectsController {
         // Ölüm anındaki renk: HP 1 → 0 olduğundan HP 1'in rengi.
         final color = theme.hpRamp.forHp(1).toARGB32();
         if (_takeAnim()) breaks.spawn(x, y, _random.nextBool() ? 1 : -1, color);
-        _burst(x, y, effects.breakSparks, color);
+        _burst(x, y, effects.breakSparks, color, confettiEvery: 2);
         return SfxKey.breakTarget;
       case PickupCollected(:final row, :final col, :final kind):
         final x = Board.centerX(col);
@@ -111,11 +111,16 @@ class EffectsController {
     return true;
   }
 
-  void _burst(double x, double y, int count, int color) {
+  /// [confettiEvery]: temada konfeti varsa her n. kıvılcım konfeti renginden
+  /// seçilir (1 = hepsi, 2 = dönüşümlü, 0 = hiçbiri).
+  void _burst(double x, double y, int count, int color, {int confettiEvery = 0}) {
+    final confetti = theme.effects.confetti;
+    final mix = confettiEvery > 0 && confetti.isNotEmpty;
     for (var i = 0; i < count; i++) {
       if (_sparksThisFrame >= kMaxSparksPerFrame) return;
       _sparksThisFrame++;
       final angle = _random.nextDouble() * 2 * math.pi;
+      final pick = mix && i % confettiEvery == confettiEvery - 1;
       sparks.spawn(
         x: x,
         y: y,
@@ -123,7 +128,7 @@ class EffectsController {
         vy: math.sin(angle) * kSparkSpeed,
         life: kSparkLife,
         size: kSparkSize,
-        color: color,
+        color: pick ? confetti[_random.nextInt(confetti.length)].toARGB32() : color,
       );
     }
   }

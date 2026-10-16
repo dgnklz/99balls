@@ -26,3 +26,8 @@
 ## Açık notlar
 - Repo public; gizli anahtar, google-services.json, videolar commit edilmez.
 - Kayıt defterinin sonuna her tur için tarih + 2-3 satır ekle.
+
+## Kayıt
+- 2026-10-16 · M3b Candy Burst: tam tema (erik moru zemin + kayan şerit/serpinti deseni, parlak vurgulu spiralli şeker hedefler, sedefli top, sakız halkası, konfeti/serpinti efektleri) ve kendi sesleri (118 BPM marimba döngüsü + 13 SFX, 1.67 MB). Kimlik `candyburst` olarak düzeltildi.
+- Ortak çizim `BaseThemeRenderer`'a taşındı; Orbitfall çizim golden'ı (64 çağrı) birebir aynı. analyze temiz, 333 test yeşil; game_core değişmedi.
+- Cihazda bakılacak: c2 limon-yeşil ve parlak vurgu ile rakam okunurluğu (öncelikli), FPS, döngü eki, tema geçişi.

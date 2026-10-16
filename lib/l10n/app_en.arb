@@ -47,7 +47,7 @@
   },
   "themePickerTitle": "Theme",
   "@themePickerTitle": {
-    "description": "Title of the theme picker (debug build only in M3a)"
+    "description": "Title of the theme picker (debug build only until M4)"
   },
   "themePlaceholderTag": "placeholder",
   "@themePlaceholderTag": {

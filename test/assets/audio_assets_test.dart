@@ -1,13 +1,14 @@
 import 'dart:io';
 import 'dart:math' as math;
 
-import 'package:balls_99/themes/orbitfall/orbitfall_theme.dart';
+import 'package:balls_99/themes/game_theme.dart';
+import 'package:balls_99/themes/theme_registry.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'wav_reader.dart';
 
-/// Orbitfall sesleri (tools/audio ile üretilir): PRD 8.1 ve M3a kararları.
-const String _dir = 'assets/audio/orbitfall';
+/// Tema sesleri (tools/audio ile üretilir): PRD 8.1 ve M3a kararları. Kendi ses
+/// klasörü olan her tema ayrı denetlenir (yer tutucular Orbitfall'ınkini paylaşır).
 const int _sfxRate = 44100;
 const int _musicRate = 22050;
 const int _int16Max = 32767;
@@ -27,52 +28,74 @@ double _peakDb(Wav w) {
   return 20 * math.log(peak / _int16Max) / math.ln10;
 }
 
+/// Ses klasörü → o klasörü kullanan ilk temanın ses kimliği.
+Map<String, ThemeSounds> _soundSets() {
+  final sets = <String, ThemeSounds>{};
+  for (final theme in ThemeRegistry.all) {
+    sets.putIfAbsent(theme.sounds.music.split('/').first, () => theme.sounds);
+  }
+  return sets;
+}
+
 void main() {
-  final files = Directory(_dir).listSync().whereType<File>().where((f) => f.path.endsWith('.wav'));
+  final sets = _soundSets();
 
-  test('every WAV is PCM 16-bit mono', () {
-    expect(files, isNotEmpty);
-    for (final f in files) {
-      final w = Wav.read(f.path);
-      expect(w.format, 1, reason: f.path);
-      expect(w.channels, 1, reason: f.path);
-      expect(w.bitsPerSample, 16, reason: f.path);
-    }
+  test('Orbitfall and Candy Burst each have their own sound folder', () {
+    expect(sets.keys.toSet(), {'orbitfall', 'candyburst'});
   });
 
-  test('SFX: 44.1 kHz, ≤ 1 s, peak −3 dBFS, durations match the theme', () {
-    for (final entry in orbitfallSounds.durationsMs.entries) {
-      final w = Wav.read('assets/audio/${entry.key}');
-      expect(w.sampleRate, _sfxRate, reason: entry.key);
-      expect(w.durationMs, lessThanOrEqualTo(_maxSfxMs), reason: entry.key);
-      expect(w.durationMs.round(), entry.value, reason: '${entry.key} declared duration');
-      expect(_peakDb(w), closeTo(_peakDbfs, _peakTolerance), reason: entry.key);
-    }
-  });
+  for (final MapEntry(key: folder, value: sounds) in sets.entries) {
+    group(folder, () {
+      final files = Directory('assets/audio/$folder')
+          .listSync()
+          .whereType<File>()
+          .where((f) => f.path.endsWith('.wav'));
 
-  test('music: 22.05 kHz mono loop of ~32 s that starts and ends at a zero crossing', () {
-    final w = Wav.read('assets/audio/${orbitfallSounds.music}');
-    expect(w.sampleRate, _musicRate);
-    expect(w.durationMs, inInclusiveRange(30000, 34000));
-    expect(_peakDb(w), lessThanOrEqualTo(_peakDbfs + _peakTolerance));
-    final first = w.samples.first;
-    final last = w.samples.last;
-    expect(first.abs(), lessThan(_loopEdgeThreshold), reason: 'start near zero');
-    expect(last.abs(), lessThan(_loopEdgeThreshold), reason: 'end near zero');
-    expect((last - first).abs(), lessThan(_loopEdgeThreshold), reason: 'seamless wrap');
-  });
+      test('every WAV is PCM 16-bit mono', () {
+        expect(files, isNotEmpty);
+        for (final f in files) {
+          final w = Wav.read(f.path);
+          expect(w.format, 1, reason: f.path);
+          expect(w.channels, 1, reason: f.path);
+          expect(w.bitsPerSample, 16, reason: f.path);
+        }
+      });
 
-  test('no orphan files: every WAV is referenced by the theme', () {
-    final referenced = {
-      orbitfallSounds.music,
-      ...orbitfallSounds.sfxFiles,
-    }.map((p) => p.split('/').last).toSet();
-    final onDisk = files.map((f) => f.uri.pathSegments.last).toSet();
-    expect(onDisk, referenced);
-  });
+      test('SFX: 44.1 kHz, ≤ 1 s, peak −3 dBFS, durations match the theme', () {
+        for (final entry in sounds.durationsMs.entries) {
+          final w = Wav.read('assets/audio/${entry.key}');
+          expect(w.sampleRate, _sfxRate, reason: entry.key);
+          expect(w.durationMs, lessThanOrEqualTo(_maxSfxMs), reason: entry.key);
+          expect(w.durationMs.round(), entry.value, reason: '${entry.key} declared duration');
+          expect(_peakDb(w), closeTo(_peakDbfs, _peakTolerance), reason: entry.key);
+        }
+      });
 
-  test('theme audio fits the ~2 MB budget', () {
-    final total = files.fold<int>(0, (sum, f) => sum + f.lengthSync());
-    expect(total, lessThanOrEqualTo(_budgetBytes));
-  });
+      test('music: 22.05 kHz mono loop of ~32 s that starts and ends at a zero crossing', () {
+        final w = Wav.read('assets/audio/${sounds.music}');
+        expect(w.sampleRate, _musicRate);
+        expect(w.durationMs, inInclusiveRange(30000, 34000));
+        expect(_peakDb(w), lessThanOrEqualTo(_peakDbfs + _peakTolerance));
+        final first = w.samples.first;
+        final last = w.samples.last;
+        expect(first.abs(), lessThan(_loopEdgeThreshold), reason: 'start near zero');
+        expect(last.abs(), lessThan(_loopEdgeThreshold), reason: 'end near zero');
+        expect((last - first).abs(), lessThan(_loopEdgeThreshold), reason: 'seamless wrap');
+      });
+
+      test('no orphan files: every WAV is referenced by the theme', () {
+        final referenced = {
+          sounds.music,
+          ...sounds.sfxFiles,
+        }.map((p) => p.split('/').last).toSet();
+        final onDisk = files.map((f) => f.uri.pathSegments.last).toSet();
+        expect(onDisk, referenced);
+      });
+
+      test('theme audio fits the ~2 MB budget', () {
+        final total = files.fold<int>(0, (sum, f) => sum + f.lengthSync());
+        expect(total, lessThanOrEqualTo(_budgetBytes));
+      });
+    });
+  }
 }

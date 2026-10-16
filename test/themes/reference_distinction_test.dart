@@ -62,7 +62,7 @@ void main() {
   }
 
   test('placeholder hue shifts never touch the HUD surface', () {
-    for (final theme in ThemeRegistry.all) {
+    for (final theme in ThemeRegistry.all.where((t) => t.isPlaceholder)) {
       expect(theme.palette.hudBar, orbitfallPalette.hudBar, reason: theme.id);
       expect(theme.palette.floorBar, orbitfallPalette.floorBar, reason: theme.id);
       expect(theme.palette.hudEdge, orbitfallPalette.hudEdge, reason: theme.id);

@@ -1,5 +1,6 @@
 import 'package:balls_99/core/config/game_config.dart';
 import 'package:balls_99/core/services/audio_service.dart';
+import 'package:balls_99/themes/candyburst/candyburst_theme.dart';
 import 'package:balls_99/themes/game_theme.dart';
 import 'package:balls_99/themes/orbitfall/orbitfall_theme.dart';
 import 'package:balls_99/themes/placeholder/placeholder_themes.dart';
@@ -150,14 +151,26 @@ void main() {
       expect(h.backend.calls.skip(1), ['pause', 'resume']);
     });
 
-    test('theme change preloads the new set and switches the track', () async {
+    test('a placeholder theme shares Orbitfall sounds: no reload', () async {
       final h = await _ready();
       expect(h.backend.preloads.single, contains('orbitfall/music_loop.wav'));
       h.service.onUserInteraction();
-      await h.service.setTheme(candyBurstTheme.sounds);
+      await h.service.setTheme(abyssTheme.sounds);
       // Yer tutucu tema Orbitfall seslerini paylaşır (aynı nesne): yeniden yükleme yok.
-      expect(identical(candyBurstTheme.sounds, orbitfallSounds), isTrue);
+      expect(identical(abyssTheme.sounds, orbitfallSounds), isTrue);
       expect(h.backend.preloads, hasLength(1));
+    });
+
+    test('Candy Burst preloads its own set and switches the track', () async {
+      final h = await _ready();
+      h.service.onUserInteraction();
+      await h.service.setTheme(candyBurstTheme.sounds);
+      expect(h.backend.preloads, hasLength(2));
+      expect(h.backend.preloads.last, candyBurstSounds.sfxFiles + [candyBurstSounds.music]);
+      expect(h.backend.preloads.last.every((f) => f.startsWith('candyburst/')), isTrue);
+      expect(h.backend.calls.last, 'play:candyburst/music_loop.wav@$kMusicVolume');
+      expect(h.service.play(SfxKey.hit), isTrue);
+      expect(h.backend.sfx.last, 'candyburst/sfx_hit_1.wav');
     });
 
     test('a different sound set is preloaded and its music played', () async {

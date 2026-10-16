@@ -77,12 +77,18 @@ class ThemeEffects {
   final int starSparks;
   final int gameOverSparksPerTarget;
 
+  /// Konfeti renkleri: doluysa vuruş kıvılcımları bunlardan seçilir, kırılma
+  /// kıvılcımları HP rengiyle dönüşümlü olur. Boşsa tek renk (görsel Random'dan
+  /// fazladan sayı çekilmez).
+  final List<Color> confetti;
+
   const ThemeEffects({
     required this.hitSparks,
     required this.breakSparks,
     required this.ringSparks,
     required this.starSparks,
     required this.gameOverSparksPerTarget,
+    this.confetti = const [],
   });
 }
 
@@ -126,6 +132,9 @@ abstract class ThemeRenderer {
   void paintStar(Canvas canvas, double x, double y, {double scale = 1, double opacity = 1});
 
   void paintBall(Canvas canvas, double x, double y);
+
+  /// Tek kıvılcım parçacığı; (vx, vy) ilk hız yönüdür (yönlü biçimler için).
+  void paintSpark(Canvas canvas, double x, double y, double vx, double vy, double size, Color color);
 
   /// HUD ve zemin çubuğu; [dangerGlow] ∈ [0,1], [sweep] ∈ [0,1] ya da negatif (yok).
   /// [floorAccentX]: zemin neonunun merkezi (atış noktasını izler); üstteki

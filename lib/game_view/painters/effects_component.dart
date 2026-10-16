@@ -35,7 +35,6 @@ class BreakEffectsComponent extends Component with HasGameReference<BallGame> {
 /// Kıvılcımlar, halka/yıldız pop'ları, şok halkaları ve "+3" yazıları
 /// (PRD 4.5.1 katman 7): nişan çizgisinin üstünde, HUD'un altında.
 class ParticleEffectsComponent extends Component with HasGameReference<BallGame> {
-  final Paint _spark = Paint();
   final Paint _shock = Paint()
     ..style = PaintingStyle.stroke
     ..strokeWidth = kShockStroke;
@@ -71,8 +70,8 @@ class ParticleEffectsComponent extends Component with HasGameReference<BallGame>
     for (var i = 0; i < sparks.capacity; i++) {
       if (!sparks.isAlive(i)) continue;
       final fade = 1 - sparks.age[i] / sparks.life[i];
-      _spark.color = Color(sparks.color[i]).withValues(alpha: fade);
-      canvas.drawCircle(Offset(sparks.x[i], sparks.y[i]), sparks.size[i] / 2, _spark);
+      renderer.paintSpark(canvas, sparks.x[i], sparks.y[i], sparks.vx[i], sparks.vy[i],
+          sparks.size[i], Color(sparks.color[i]).withValues(alpha: fade));
     }
 
     final texts = effects.texts;
