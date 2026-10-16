@@ -1,0 +1,10 @@
+# Proje kuralları
+- Tek doğru kaynak: docs/PRD.md. Kod yazmadan önce ilgili bölümü oku.
+- Bölüm 2'deki klasör yapısına ve teknoloji yığınına birebir uy.
+- game_core saf Dart'tır; Flutter, dart:ui, trig, Random, DateTime.now yasak (PRD 2 ve 14.1).
+- Sabit sayıları koda gömme; Bölüm 13'teki isimlerle constants.dart'ta tanımla.
+- Metinleri koda yazma; Bölüm 12'deki anahtarlarla .arb dosyasına koy.
+- Gizli anahtarlar yalnızca --dart-define ile gelir (PRD 2).
+- Belirsizlik varsa tahmin etme; en küçük varsayımı docs/ASSUMPTIONS.md'ye yaz ve devam et.
+- Bir kilometre taşının (PRD 14.4) testleri geçmeden sonrakine geçme.
+- Faz 2 (Bölüm 11) Faz 1 bitmeden başlamaz.

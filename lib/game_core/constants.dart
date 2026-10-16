@@ -1,0 +1,104 @@
+/// game_core sabitleri (PRD Bölüm 13). Pure Dart; flutter importu yasaktır.
+///
+/// "Simülasyon" grubundaki bir değer değişirse doğrulama tabloları ve
+/// altın kayıt dosyaları (test/game_core/golden) yeniden üretilmelidir.
+library;
+
+// --- Geometri (gu) ---------------------------------------------------------
+
+/// Sanal tuval genişliği.
+const double kVirtualW = 416;
+
+/// Sanal tuval yüksekliği.
+const double kVirtualH = 703;
+
+// --- Izgara ----------------------------------------------------------------
+
+/// Sütun sayısı.
+const int kCols = 7;
+
+/// Hücre aralığı (kare hücre, yatay ve dikey).
+const double kPitch = 59.43;
+
+/// 0. satırın merkez y değeri.
+const double kRow0CenterY = 135.7;
+
+/// Oynanabilir satır sayısı (0..7). Bu indekse inen sayılı top oyunu bitirir.
+const int kPlayableRows = 8;
+
+// --- Sınırlar --------------------------------------------------------------
+
+/// Tavan (HUD çubuğunun alt kenarı).
+const double kCeilingY = 53;
+
+/// Zemin çizgisi (zemin çubuğunun üst kenarı).
+const double kFloorY = 635;
+
+/// Atılan topun yarıçapı.
+const double kBallRadius = 13;
+
+/// Fırlatma yüksekliği: zemindeki topun merkez y değeri.
+const double kLaunchY = kFloorY - kBallRadius;
+
+// --- Nesneler ----------------------------------------------------------------
+
+/// Sayılı top (hedef) yarıçapı.
+const double kTargetRadius = 25;
+
+/// Toplanabilir halka ve yıldız yarıçapı.
+const double kPickupRadius = 18;
+
+// --- Hareket ve zaman --------------------------------------------------------
+
+/// Top hızı (gu/sn).
+const double kBallSpeed = 585;
+
+/// Sabit simülasyon adımı sayısı (adım/sn).
+const int kStepsPerSec = 120;
+
+/// Ardışık iki topun fırlatılması arasındaki adım sayısı.
+const int kLaunchIntervalSteps = 17;
+
+/// Uçuş zaman aşımı (sn).
+const int kFlightTimeoutSec = 20;
+
+// --- Top sayısı --------------------------------------------------------------
+
+/// Oyun başlangıcındaki top sayısı.
+const int kStartBalls = 1;
+
+/// Top sayısı üst sınırı.
+const int kMaxBalls = 99;
+
+// --- Girdi -------------------------------------------------------------------
+
+/// Sürükleme ölü bölgesi (gu).
+const double kAimDeadZone = 10;
+
+/// Yataydan en küçük nişan açısı (derece).
+const double kMinAimAngleDeg = 5;
+
+// --- Satır üretimi (PRD Bölüm 6) ---------------------------------------------
+
+/// Yüzde çekimlerinin üst sınırı: `nextInt(kPercentBound)` 0..99 verir.
+const int kPercentBound = 100;
+
+/// Bir satırdaki sayılı top sayısı seçenekleri; [kBallCountWeights] ile eşleşir.
+const List<int> kRowTargetCounts = [2, 3, 4, 5];
+
+/// [kRowTargetCounts] ağırlıkları (yüzde, toplamı [kPercentBound]).
+const List<int> kBallCountWeights = [24, 29, 29, 18];
+
+/// Satıra halka konma olasılığı (yüzde).
+const int kRingChancePct = 56;
+
+/// Çarpanın iki katı: m2 ∈ {2, 3, 4} → çarpan ×1, ×1.5, ×2.
+const List<int> kMultipliersM2 = [2, 3, 4];
+
+// --- Yıldız (PRD Bölüm 5.11) -------------------------------------------------
+
+/// Satıra yıldız konma olasılığı (yüzde).
+const int kStarChancePct = 25;
+
+/// Yıldız başına skor puanı.
+const int kStarScore = 3;
