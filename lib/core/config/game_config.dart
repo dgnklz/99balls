@@ -501,3 +501,94 @@ const int kPixelDropCount = 30;
 const int kPixelDropMaxCells = 2;
 const double kPixelDropAlpha = 0.22;
 const double kPixelDropSpeed = 8;
+
+// --- Abyss arka planı --------------------------------------------------------
+
+/// Yavaşça yükselen halka kabarcıklar (bir kez kaydedilmiş Picture; karede
+/// yalnızca kaydırma). Yarıçap aralığı, kalınlık ve saydamlık gu.
+const int kAbyssBubbleCount = 24;
+const double kAbyssBubbleMinRadius = 1.5;
+const double kAbyssBubbleMaxRadius = 4;
+const double kAbyssBubbleStroke = 1;
+const double kAbyssBubbleAlpha = 0.2;
+const double kAbyssBubbleSpeed = 9;
+
+/// Çok yavaş aşağı inen plankton tozu ("deniz karı"; tek drawRawPoints).
+const int kAbyssDustCount = 90;
+const double kAbyssDustSize = 1.4;
+const double kAbyssDustAlpha = 0.28;
+const double kAbyssDustSpeed = 3;
+
+// --- Abyss çizimi (denizanası hedef; orijin = hedef merkezi, gu) -------------
+
+/// Kubbe: (0, [kAbyssBellCenterY]) merkezli yarım elips. Gövde kenarları
+/// kubbenin iki ucundan etek çizgisine ([kAbyssHemY]) iner; alt köşeler
+/// [kAbyssHemCornerRadius] yarıçapla yuvarlanır; etek [kAbyssHemWaves] dalga,
+/// [kAbyssHemDepth] derinlik. Silüetin tamamı çarpışma dairesinin içindedir.
+const double kAbyssBellCenterY = -6;
+const double kAbyssBellRadiusX = 23;
+const double kAbyssBellRadiusY = 17;
+const double kAbyssHemY = 12;
+const double kAbyssHemCornerRadius = 4;
+const int kAbyssHemWaves = 4;
+const double kAbyssHemDepth = 2;
+
+/// Dokunaçlar: x konumları, üst/alt uç, S kıvrım genliği ve kalınlık.
+const List<double> kAbyssTentacleXs = [-8, 0, 8];
+const double kAbyssTentacleTop = 14;
+const double kAbyssTentacleBottom = 21;
+const double kAbyssTentacleAmp = 2;
+const double kAbyssTentacleStroke = 2.5;
+
+/// Gövdenin iç kenarındaki açık halka (biyolüminesan kenar): HP rengi ile
+/// beyazın karışımı, gövdenin içine doğru [kAbyssRimStroke] kalınlık.
+const double kAbyssRimStroke = 2;
+const double kAbyssRimWhiteMix = 0.45;
+
+/// Hale: HP renginde, bir kez bulanıklaştırılıp atlasa pişirilen yumuşak disk.
+/// Çarpışma alanını sezdirir; dış sınırı komşu hücrelere değmez.
+const double kAbyssHaloRadius = 22;
+const double kAbyssHaloBlur = 3;
+const double kAbyssHaloAlpha = 0.22;
+
+/// Kubbedeki parlak vurgu (oval merkezi ve yarıçapları).
+const double kAbyssGlossX = -7;
+const double kAbyssGlossY = -15;
+const double kAbyssGlossRadiusX = 5;
+const double kAbyssGlossRadiusY = 2.5;
+const double kAbyssGlossAlpha = 0.35;
+
+/// HP rakamının kapladığı kutu (yarı genişlik, yarı yükseklik): Roboto Bold
+/// metriği (rakam ~0.56 em, büyük harf ~0.71 em) + pay. Testler kutunun
+/// gövdenin içinde kaldığını denetler.
+const double kAbyssDigitBoxHalfW = 14;
+const double kAbyssDigitBoxHalfH = 9;
+const double kAbyssDigitBox3HalfW = 17;
+const double kAbyssDigitBox3HalfH = 8;
+
+/// Atılan top: dolu çekirdek + pişmiş yumuşak hale.
+const double kAbyssBallCoreRadius = 10.5;
+const double kAbyssBallHaloBlur = 2.5;
+const double kAbyssBallHaloAlpha = 0.45;
+
+/// Halka: iç "jöle zarı" çizgisi ve opaklık nabzı (yalnız görsel).
+const double kAbyssRingInnerInset = 4;
+const double kAbyssRingInnerStroke = 1.5;
+const double kAbyssRingInnerAlpha = 0.45;
+const double kAbyssRingPulseSec = 1.6;
+const double kAbyssRingPulseMin = 0.85;
+
+/// Deniz yıldızı: iç köşe oranı, yuvarlak kol ucu için kontrol noktası oranı
+/// (kol ucu dış yarıçapa denk gelir) ve ortadaki açık nokta.
+const double kAbyssStarInnerRatio = 0.42;
+const double kAbyssStarControlRatio = 1.66;
+const double kAbyssStarDotRadius = 2;
+const double kAbyssStarDotAlpha = 0.7;
+
+/// Kıvılcım: kabarcık (halka + parlak nokta); çapı kıvılcım boyunun katı.
+const double kAbyssSparkBubbleRadius = 3;
+const double kAbyssSparkBubbleStroke = 1;
+const double kAbyssSparkScale = 1.6;
+
+/// Tek drawRawAtlas çağrısındaki en çok sprite (63 hedef × 4 parça).
+const int kAbyssAtlasBatchCapacity = 260;

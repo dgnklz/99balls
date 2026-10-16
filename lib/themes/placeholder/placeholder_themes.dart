@@ -8,13 +8,12 @@ import '../hp_ramp.dart';
 import '../orbitfall/orbitfall_renderer.dart';
 import '../orbitfall/orbitfall_theme.dart';
 
-/// YER TUTUCU temalar (M3a). Kayıtlıdırlar ve seçilebilirler, ama henüz
-/// kendi çizim, efekt ve ses kimlikleri yoktur:
+/// YER TUTUCU tema (M3a). Kayıtlıdır ve seçilebilir, ama henüz kendi çizim,
+/// efekt ve ses kimliği yoktur:
 /// - görünüm: Orbitfall çizicisi + Orbitfall paletinin ton/doygunluk varyantı,
 /// - HP durakları, efekt ayarları ve sesler: Orbitfall'ınki (ortak).
-/// M3d–e'de her biri kendi teması ile değiştirilecek (Candy Burst M3b'de, Pixel
-/// Drop M3c'de tamamlandı).
-const String kAbyssId = 'abyss';
+/// M3e'de Ink & Paper kendi temasıyla değiştirilecek (Candy Burst M3b'de, Pixel
+/// Drop M3c'de, Abyss M3d'de tamamlandı).
 const String kInkPaperId = 'inkpaper';
 
 /// Paletin arka plan, vurgu ve düğme renklerini HSL'de kaydırır; yazı, tehlike,
@@ -72,6 +71,5 @@ GameTheme _placeholder(
       createRenderer: OrbitfallRenderer.new,
     );
 
-final GameTheme abyssTheme = _placeholder(kAbyssId, (l) => l.themeAbyss, hueShift: -40);
 final GameTheme inkPaperTheme =
     _placeholder(kInkPaperId, (l) => l.themeInkPaper, saturationScale: 0.25);

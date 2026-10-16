@@ -15,9 +15,9 @@
 - M3c Pixel Drop: tam tema (piksel silüet hedef, özgün 3×5 rakam), çiptün sesler.
 - M3p performans: karede bulanıklık yok, parıltılar pişmiş resim, Pixel Drop tek atlasla toplu çizim; J8'de gerçekçi tahta üç temada ≤ 33 ms. Ölçüm aracı tools/bench/.
 - Geliştirici aracı: debug/profile yapıda "Yüksek HP tahtası" (tema seçici penceresinde).
+- M3d Abyss: tam tema (denizanası hedef, biyolüminesans palet, kabarcık/plankton zemini, ortak pürüzsüz sprite atlası), su altı sesleri.
 
 ## Sıradaki
-- M3d: Abyss (görsel, efekt, ses).
 - M3e: Ink & Paper (görsel, efekt, ses).
 - M4: ana menü, ayarlar (tema seçici dahil), dil penceresi, url_launcher, en iyi skor (debug oyununda yazılmaz), boost ilk kullanım ipucu.
 - M5: geri bildirim (EmailJS), çıkış, yaşam döngüsü, duraklatmada müzik %40, OFL yazı tipi.
@@ -48,3 +48,6 @@
 - 2026-10-16 · Yüksek HP debug tahtası: tema seçici (artık debug + profile, `kDebugToolsEnabled`) penceresinin altında "Yüksek HP tahtası". Sabit tahta: her HP durağının sınırları, 99 ve 100/111/148/188/198, 2 halka, 1 yıldız; 99 top, tur 175 (`GameSession.forTest`, game_core değişmedi).
 - Debug oyunu kalıcı veriye yazmaz (`BallGame.isDebugGame`; tutorial_seen korunur). M4'te best_score/games_played yazımı bu koşula uyacak. Release'te seçici widget ağacında yok (testli).
 - Cihazda bakılacak: her temada 3 haneli rakamlar ve c10 (50+), ardışık duraklar (24/26/27, 32/34/36, 44/46/48/50), HUD'da 3 haneli sayaç, profilde 99 topla FPS.
+- 2026-10-16 · M3d Abyss: tam tema. Siyaha yakın petrol-yeşil degrade, yükselen kabarcık + inen plankton tozu (yönlü ışık yok); denizanası hedef (çarpışma dairesinin içinde, HP renginde hale, açık iç kenar + dokunaç, rakam kutuları testli), aqua-beyaz top, fosforlu limon halka, deniz yıldızı, kabarcık kıvılcım. Hedef/top/kıvılcım ortak `SpriteAtlas` ile tek drawRawAtlas. Ses: 75 BPM F♯ minör su altı döngüsü + 13 SFX, 1.68 MB; telefon hoparlörü için 200 Hz altı müzikte %5.5, SFX ana enerjisi 345 Hz–1.7 kHz.
+- analyze temiz, 446 test yeşil; game_core, PRD, diğer üç temanın görünümü ve WAV'ları değişmedi (Orbitfall golden aynı). Bench'e `--dart-define=BENCH_THEME=<id>` eklendi.
+- J8 (Impeller/OpenGLES, profil) Abyss raster ort: gerçekçi 9.1 ms, en kötü 13.0 ms (hedef ≤ 33 / ≤ 50). Cihazda bakılacak: debug HP tahtasında 3 haneli rakamlar kubbede mi, c3–c6 zeminden ayrışıyor mu, halka toptan hemen ayırt ediliyor mu, müzik döngü eki ve telefon hoparlöründe bas/kalp atışı duyuluyor mu.

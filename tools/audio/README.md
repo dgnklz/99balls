@@ -40,14 +40,23 @@ Müzik döngüsü kuyruğu başa sarılarak (dairesel) karıştırılır, sonra 
 sıfır geçişine denk gelecek şekilde döndürülür: son örnekten ilk örneğe geçiş
 süreklidir ve ikisi de ~0'dır (`test/assets/audio_assets_test.dart` denetler).
 
+## Telefon hoparlörü (M3d'den itibaren)
+
+Telefon hoparlörü 200 Hz altını neredeyse hiç vermez. Bas, kalp atışı ve derin tonlar tek başına
+alçak frekans olmamalı: temelin üstünde güçlü harmonikler (200 Hz üstü) bulunur. SFX'lerin ana
+enerjisi 300 Hz–3 kHz arasındadır; her şey 4 kHz alçak geçirenden geçer. Baskın bantlar
+`assets/audio/PROMPTS.md` tablosundadır (FFT ile ölçüldü: enerjinin %80'inin bulunduğu aralık).
+
 ## Dosyalar
 
 - `synth.py`: ortak DSP (osilatör, zarf, filtre, normalize, döngü, WAV yazma)
 - `orbitfall.py`: Orbitfall ses kimliği (müzik + 13 SFX)
 - `candyburst.py`: Candy Burst ses kimliği (müzik + 13 SFX)
+- `pixeldrop.py`: Pixel Drop ses kimliği (müzik + 13 SFX)
+- `abyss.py`: Abyss ses kimliği (müzik + 13 SFX)
 - `build_all.py`: tüm temaları üretir
 
-Yeni tema (M3c–e): `<tema>.py` yazın (aynı `THEME_ID`, `render_sfx()`, `music_loop()`
+Yeni tema (M3e): `<tema>.py` yazın (aynı `THEME_ID`, `render_sfx()`, `music_loop()`
 arayüzü), `build_all.py`'deki `THEMES` listesine ekleyin, pubspec'e
 `assets/audio/<tema>/` ekleyin ve temanın `ThemeSounds` süre tablosunu güncelleyin.
 Sentez tarifleri `assets/audio/PROMPTS.md` dosyasına yazılır.

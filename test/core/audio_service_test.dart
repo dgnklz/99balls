@@ -155,9 +155,9 @@ void main() {
       final h = await _ready();
       expect(h.backend.preloads.single, contains('orbitfall/music_loop.wav'));
       h.service.onUserInteraction();
-      await h.service.setTheme(abyssTheme.sounds);
+      await h.service.setTheme(inkPaperTheme.sounds);
       // Yer tutucu tema Orbitfall seslerini paylaşır (aynı nesne): yeniden yükleme yok.
-      expect(identical(abyssTheme.sounds, orbitfallSounds), isTrue);
+      expect(identical(inkPaperTheme.sounds, orbitfallSounds), isTrue);
       expect(h.backend.preloads, hasLength(1));
     });
 

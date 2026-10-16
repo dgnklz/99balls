@@ -8,10 +8,10 @@ kurallar, replay, skor ve `stateHash` hiçbir temada değişmez (testle doğrula
 | Orbitfall | **Tam**, ücretsiz | Derin uzay ve yörüngeler |
 | Candy Burst | **Tam** (M3b) | Şeker/tatlı dünyası |
 | Pixel Drop | **Tam** (M3c) | Kodla çizilen piksel dünyası |
-| Abyss | Yer tutucu | M3d'de |
+| Abyss | **Tam** (M3d) | Okyanus dibi, biyolüminesans |
 | Ink & Paper | Yer tutucu | M3e'de |
 
-Yer tutucular (Abyss, Ink & Paper) kayıtlı ve seçilebilir, ama henüz Orbitfall çizicisini, paletinin ton/doygunluk
+Yer tutucu (Ink & Paper) kayıtlı ve seçilebilir, ama henüz Orbitfall çizicisini, paletinin ton/doygunluk
 varyantını ve Orbitfall seslerini kullanır (`lib/themes/placeholder/`).
 
 ## Orbitfall — gerekçe
@@ -89,6 +89,45 @@ varyantını ve Orbitfall seslerini kullanır (`lib/themes/placeholder/`).
   bu proje için yazıldı, senkoplu ve geniş aralıklı; bilinen çiptün temalarına (Korobeiniki/
   Tetris dahil) benzememesi gözetildi: Korobeiniki'nin noktalı 2/4 ritmi, A minör inen dizisi
   ve cümle yapısı kullanılmadı. Kesin değerlendirme kulakla (cihazda) yapılmalı.
+
+## Abyss — gerekçe
+
+- **Neden okyanus dibi:** Yavaşça inen satırlar derine batan bir dünyayı, sekip duran toplar
+  karanlıkta yanıp sönen ışık noktalarını çağrıştırır. Sakin, derin ve gizemli bir kimlik:
+  Orbitfall'ın uzayına benzemesin diye ışık yalnızca canlılardan gelir (hale, parlak kenar);
+  yıldız ya da yönlü ışık yoktur.
+- **Arka plan:** Siyaha yakın petrol-deniz yeşili degrade (#031512 → #0A2A2A, ton 170–180°).
+  Lacivert/indigo değil (Orbitfall ~230°), kahve-zeytin değil (Pixel 30–60°); ton bandı testli.
+  Üstünde yavaşça **yükselen** halka kabarcıklar (bir kez kaydedilmiş Picture) ve çok yavaş
+  **inen** plankton tozu ("deniz karı"; gerçekte çöker, zıt akış derinlik hissi verir). Hüzme,
+  spot ya da yönlü ışık yok.
+- **Hedefler:** Denizanası: üstte kubbe, düz yanlar, 4 dalgalı etek ve 3 kısa S kıvrımlı dokunaç.
+  Gövde HP renginde; iç kenar ve dokunaçlar HP rengi + %45 beyaz (biyolüminesan kenar);
+  kubbede parlak vurgu; HP renginde yumuşak hale. Silüetin tamamı çarpışma dairesinin içinde
+  (testli); hale (≤ 28 gu) çarpışma alanını sezdirir, komşu hücreye değmez. Rakamlar ortak
+  beyaz, bulanıksız gölgeli; 1–2 ve 3 hane kutuları gövdenin dolu kısmında (testli).
+  Alternatif "parlak kabarcık" (daire) Orbitfall/Candy dairelerine fazla benzediği için elendi.
+- **HP durakları:** bakır-turuncu (fener balığı ışığı) → amber → yosun-sarı → deniz marulu →
+  deniz yeşili → lagün → gök → derin mavi → çivit-mor → mor → magenta. Zemin tonu (170–180°)
+  bilerek boş bırakıldı: c3 sarıya (90°), c5 maviye (202°) kayık; her HP'de açık kenar zeminden
+  ≥ 5.4:1. Beyaz rakamla her durakta ≥ 3.57:1; düşük HP turuncu (21.5°). Aynı indeksteki
+  Orbitfall/Candy/Pixel durağına RGB ≥ 31.
+- **Top ve halka:** Top soluk aqua-beyaz çekirdek + pişmiş yumuşak hale. Halka fosforlu limon
+  (#C8FF6E), içi boş, %38 büyük, içinde ince "jöle zarı" çizgisi, 1.6 sn'lik opaklık nabzı;
+  diğer temaların halkalarından, toptan, yıldızdan ve HP duraklarından RGB ≥ 97 uzak.
+  **Yıldız:** yuvarlak kollu mercan-altın deniz yıldızı, ortasında açık nokta.
+- **HUD:** Yarı saydam koyu petrol yüzey (#021210, %55/%60), ince açık kenar, biyolüminesan aqua
+  vurgu (#5FF5E0; zemine 11:1, referans maviye uzak).
+- **Efektler:** Kıvılcımlar kabarcık (halka + parlak nokta). Konfeti: aqua, fosforlu limon,
+  lavanta, inci. Sayılar Candy/Pixel ile aynı (4/10/8/8/2).
+- **Performans:** Hale, gövde, kenar+dokunaç, vurgu, top ve kabarcık tek bir pürüzsüz beyaz maske
+  atlasında (`lib/themes/shared/sprite_atlas.dart`); her grup tek `drawRawAtlas` (56 hedef = 1
+  çağrı + rakamlar). Bulanıklık yalnızca atlas üretiminde.
+- **Ses:** Su altı: alçak, yavaş filtre süpürmeli pad; perdesi kayan su damlası; sonar ping;
+  kabarcık kümeleri. 75 BPM, F♯ minör (dorian renkli), F♯m9–Dmaj7–Bm9–C♯m7–Amaj7. Seyrek, geniş
+  aralıklı özgün damla melodisi; yarım ton ostinato ya da bilinen su altı/köpekbalığı temalarına
+  benzerlik yok. Telefon hoparlörü için 200 Hz altı tek başına yok (müzikte %5.5); SFX'lerin
+  ana enerjisi 300 Hz–3 kHz. Kesin değerlendirme kulakla (cihazda) yapılmalı.
 
 ## Referans oyundan ayrışma
 

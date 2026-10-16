@@ -59,3 +59,25 @@ filtreli gürültü. Keskinliği alçak geçiren filtre ve yumuşak zarflar alı
 | `sfx_record` | 800 ms | %25 darbe D5–F5–A5 fanfar, ardından D5–F5–A5–D6 kare akor (3.5 kHz alçak geçiren) |
 | `sfx_click` | 30 ms | 1 kHz kare blip, τ 5 ms |
 | `music_loop` | ~31.0 sn | 124 BPM, 16 ölçü, D minör (dorian/aeolian karışımı), Dm7–G7–B♭maj7–Am7 × 4: %25 darbe senkoplu özgün melodi (A–B–A–B cümleleri), %50 kare akor arpeji (sekizlik, oktav üstte, çok alçak), üçgen bas (kök–oktav–beşli sekizlik desen), 1–3'te üçgen kick, 2–4'te yumuşak trampet, ara sekizliklerde hafif hat; dairesel kuyruk, 5 kHz alçak geçiren, sıfır geçişinde başlar/biter. RMS −18.8 dBFS (tepe sınırı −3 dBFS'te kaldı) |
+
+## Abyss (`tools/audio/abyss.py`, tohum 0xAB1550)
+
+Su altı ve biyolüminesans: alçak, yavaş filtre süpürmeli pad; perdesi kayan "su damlası" (ilk 25 ms'de
+0.7f → f); sonar ping; kabarcık (yükselen sinüs süpürmesi). Telefon hoparlörü kuralı: 200 Hz altı tek
+başına yok; bas ve derin tonlarda 2. harmonik temelden güçlü. Her şey 4 kHz alçak geçirenden geçer.
+Baskın enerji bandı = enerjinin %80'inin bulunduğu aralık.
+
+| Dosya | Süre | Tarif | Baskın bant |
+|---|---|---|---|
+| `sfx_shoot` | 70 ms | Sinüs 520 → 900 Hz yükselen "blup" + 2. harmonik, τ 25 ms | 590–760 Hz |
+| `sfx_wall` | 40 ms | 700 Hz üçgen tık (τ 6 ms) + 2 kHz alçak geçirenli gürültü | 680–730 Hz |
+| `sfx_hit_1..3` | 110 ms | Su damlası C♯5 × {1, 9/8, 6/5}, τ 35 ms; sırayla döner | 545–565 / 610–635 / 655–675 Hz |
+| `sfx_break` | 380 ms | 6 kabarcık (420–680 Hz → ×2.1, 30 ms aralık) + 320 → 160 Hz üçgen darbe (2. harmonikli) + 600 Hz–2.5 kHz köpük gürültüsü | 445–825 Hz |
+| `sfx_pickup` | 420 ms | Sonar ping D6 (≈1175 Hz) + beşli, τ 60 ms, 120 ms yankı × 2 | 1170–1180 Hz |
+| `sfx_star` | 420 ms | Cam çan arpeji C♯6–E6–G♯6 (kısmi ×2.76), 70 ms aralık | 1320–1665 Hz |
+| `sfx_collect` | 200 ms | Üçgen 350 → 700 Hz + 400 Hz–2 kHz "şşş" | 425–540 Hz |
+| `sfx_advance` | 280 ms | Harmonikli glissando 440 → 300 Hz | 345–795 Hz |
+| `sfx_gameover` | 950 ms | Harmonikli inen tonlar E5–C♯5–A4–F♯4, son nota %10 süzülür; filtre 3 kHz → 600 Hz kapanır | 360–880 Hz |
+| `sfx_record` | 850 ms | Çan arpeji C♯5–E5–G♯5–C♯6 + C♯m akor kabarması | 415–1110 Hz |
+| `sfx_click` | 30 ms | Küçük kabarcık 900 → 1500 Hz | 1000–1200 Hz |
+| `music_loop` | 32.0 sn | 75 BPM, 10 ölçü, F♯ minör (dorian renkli), F♯m9–Dmaj7–Bm9–C♯m7–Amaj7 (her biri 2 ölçü): ayrık sinüs + üçgen pad (filtre 900 ↔ 2200 Hz, 2 ölçüde bir nefes), bir oktav yukarıda harmonikli bas (147–277 Hz, 1. ve 3. vuruş), 1. vuruşta boğuk "lub-dub" kalp atışı (260 → 150 Hz, 2. harmonik baskın + tıkırtı), seyrek pentatonik damla melodisi + noktalı sekizlik yankı, seyrek kabarcık tıkırtıları; dairesel kuyruk, 4 kHz alçak geçiren, sıfır geçişinde başlar/biter. 200 Hz altı %5.5, 300 Hz–3 kHz %60; RMS −16.7 dBFS (tepe −3 dBFS sınırında) | 220–555 Hz |

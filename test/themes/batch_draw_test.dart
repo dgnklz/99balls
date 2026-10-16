@@ -3,6 +3,8 @@ import 'dart:ui';
 
 import 'package:balls_99/core/config/game_config.dart';
 import 'package:balls_99/game_core/constants.dart';
+import 'package:balls_99/themes/abyss/abyss_renderer.dart';
+import 'package:balls_99/themes/abyss/abyss_theme.dart';
 import 'package:balls_99/themes/orbitfall/orbitfall_theme.dart';
 import 'package:balls_99/themes/pixeldrop/pixel_atlas.dart';
 import 'package:balls_99/themes/pixeldrop/pixeldrop_renderer.dart';
@@ -161,6 +163,83 @@ void main() {
 
       final before = atlasWidth();
       pixel.setPixelRatio(_j8PxPerGu * 2);
+      expect(atlasWidth(), greaterThan(before));
+    });
+  });
+
+  group('Abyss draws each group in a single drawRawAtlas call', () {
+    late AbyssRenderer abyss;
+
+    setUp(() => abyss = AbyssRenderer(abyssTheme)..setPixelRatio(_j8PxPerGu));
+    tearDown(() => abyss.dispose());
+
+    test('99 balls and 64 sparks: one call each, one sprite per item', () {
+      final balls = BallBatch();
+      for (var i = 0; i < kMaxBalls; i++) {
+        balls.add(20 + i * 3.7, 300 + i * 1.3);
+      }
+      var canvas = LoggingCanvas();
+      abyss.paintBalls(canvas, balls);
+      expect(canvas.calls, hasLength(1));
+      expect(_atlasCall(canvas).$3, hasLength(kMaxBalls));
+
+      final sparks = SparkBatch();
+      for (var i = 0; i < kParticlePool; i++) {
+        sparks.add(10 + i * 5.3, 200, 1, 0, kSparkSize, 0xFF5FF5E0);
+      }
+      canvas = LoggingCanvas();
+      abyss.paintSparks(canvas, sparks);
+      expect(canvas.calls, hasLength(1));
+      expect(_atlasCall(canvas).$3, hasLength(kParticlePool));
+    });
+
+    test('56 targets: one atlas call (halo, body, rim, gloss) + one paragraph each', () {
+      final targets = TargetBatch();
+      for (var i = 0; i < kCols * kPlayableRows; i++) {
+        targets.add(30 + (i % kCols) * kPitch, kRow0CenterY + (i ~/ kCols) * kPitch, 1 + i * 3,
+            tscale: i.isEven ? 1 : kHitPulseScale);
+      }
+      final canvas = LoggingCanvas();
+      abyss.paintTargets(canvas, targets);
+      expect(canvas.count('drawRawAtlas'), 1);
+      expect(_atlasCall(canvas).$3, hasLength(targets.length * 4));
+      expect(canvas.count('drawParagraph'), targets.length);
+      expect(canvas.count('drawPath') + canvas.count('drawCircle'), 0);
+    });
+
+    test('colours: HP halo, fill, light rim, translucent gloss; danger fill', () {
+      final targets = TargetBatch()
+        ..add(100, 200, 7)
+        ..add(200, 200, 150, tfill: abyssPalette.danger.toARGB32());
+      final canvas = LoggingCanvas();
+      abyss.paintTargets(canvas, targets);
+      final colors = _atlasCall(canvas).$3.map((c) => c.toUnsigned(32)).toList();
+      final hpColor = abyssTheme.hpRamp.forHp(7);
+      final gloss = abyssPalette.textPrimary.withValues(alpha: kAbyssGlossAlpha).toARGB32();
+      expect(colors.sublist(0, 4), [
+        hpColor.withValues(alpha: kAbyssHaloAlpha).toARGB32(),
+        hpColor.toARGB32(),
+        AbyssRenderer.rimColor(hpColor).toARGB32(),
+        gloss,
+      ]);
+      final danger = abyssPalette.danger;
+      expect(colors.sublist(4), [
+        danger.withValues(alpha: kAbyssHaloAlpha).toARGB32(),
+        danger.toARGB32(),
+        AbyssRenderer.rimColor(danger).toARGB32(),
+        gloss,
+      ]);
+    });
+
+    test('atlas is rebuilt at a new pixel ratio', () {
+      int atlasWidth() {
+        final canvas = LoggingCanvas();
+        abyss.paintBall(canvas, 100, 100);
+        return (canvas.calls.single.positionalArguments[0] as Image).width;
+      }
+
+      final before = atlasWidth();
+      abyss.setPixelRatio(_j8PxPerGu * 2);
       expect(atlasWidth(), greaterThan(before));
     });
   });

@@ -8,7 +8,7 @@ import 'package:balls_99/themes/theme_registry.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 /// PRD 7.4.1: beş tema, benzersiz id. Orbitfall ücretsiz ve tam; Candy Burst
-/// (M3b) ve Pixel Drop (M3c) tam ve ücretli; Abyss ve Ink & Paper yer tutucu.
+/// (M3b), Pixel Drop (M3c) ve Abyss (M3d) tam ve ücretli; Ink & Paper yer tutucu.
 void main() {
   const expectedIds = {'orbitfall', 'candyburst', 'pixeldrop', 'abyss', 'inkpaper'};
 
@@ -19,7 +19,7 @@ void main() {
     expect(ids.toSet(), expectedIds);
   });
 
-  test('Orbitfall is free and complete; Candy Burst and Pixel Drop complete; two placeholders',
+  test('Orbitfall is free and complete; Candy Burst, Pixel Drop and Abyss complete; one placeholder',
       () {
     final orbitfall = ThemeRegistry.byId('orbitfall')!;
     expect(orbitfall.isFree, isTrue);
@@ -33,8 +33,12 @@ void main() {
     expect(pixel.isPlaceholder, isFalse);
     expect(pixel.isFree, isFalse);
     expect(pixel.sounds.music, startsWith('pixeldrop/'), reason: 'own sound identity');
+    final abyss = ThemeRegistry.byId('abyss')!;
+    expect(abyss.isPlaceholder, isFalse);
+    expect(abyss.isFree, isFalse);
+    expect(abyss.sounds.music, startsWith('abyss/'), reason: 'own sound identity');
     final placeholders = ThemeRegistry.all.where((t) => t.isPlaceholder).map((t) => t.id);
-    expect(placeholders.toSet(), {'abyss', 'inkpaper'});
+    expect(placeholders.toSet(), {'inkpaper'});
     for (final theme in ThemeRegistry.all.where((t) => t.id != 'orbitfall')) {
       expect(theme.isFree, isFalse, reason: theme.id);
     }
