@@ -175,6 +175,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Speed up'**
   String get boostLabel;
+
+  /// Developer-only option (debug/profile builds) in the theme picker: starts a game on a fixed board with high HP targets
+  ///
+  /// In en, this message translates to:
+  /// **'High HP board'**
+  String get debugHighHpBoard;
 }
 
 class _AppLocalizationsDelegate

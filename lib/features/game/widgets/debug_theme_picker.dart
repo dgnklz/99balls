@@ -7,11 +7,15 @@ import '../../../themes/game_theme.dart';
 import '../../../themes/theme_providers.dart';
 import '../../../themes/theme_registry.dart';
 
-/// YALNIZCA DEBUG: zemin çubuğunun sağında küçük tema seçici (M3a).
+/// YALNIZCA GELİŞTİRİCİ: zemin çubuğunun sağında küçük tema seçici (M3a).
 /// Gerçek seçici M4'te Ayarlar ekranında olacak. Oyun ekranı bunu yalnızca
-/// `kDebugMode` iken ekler.
+/// `kDebugToolsEnabled` iken (debug ve profile) ekler. Pencerenin altında
+/// "Yüksek HP tahtası" seçeneği vardır.
 class DebugThemePicker extends ConsumerWidget {
-  const DebugThemePicker({super.key});
+  /// "Yüksek HP tahtası" seçilince (pencere kapandıktan sonra) çağrılır.
+  final VoidCallback onHighHpBoard;
+
+  const DebugThemePicker({super.key, required this.onHighHpBoard});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -25,14 +29,16 @@ class DebugThemePicker extends ConsumerWidget {
       tooltip: AppLocalizations.of(context).themePickerTitle,
       onPressed: () => showDialog<void>(
         context: context,
-        builder: (_) => const _ThemeDialog(),
+        builder: (_) => _ThemeDialog(onHighHpBoard: onHighHpBoard),
       ),
     );
   }
 }
 
 class _ThemeDialog extends ConsumerWidget {
-  const _ThemeDialog();
+  final VoidCallback onHighHpBoard;
+
+  const _ThemeDialog({required this.onHighHpBoard});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -66,6 +72,15 @@ class _ThemeDialog extends ConsumerWidget {
               ],
             ),
           ),
+        const Divider(),
+        SimpleDialogOption(
+          key: const Key('debugHighHpBoard'),
+          onPressed: () {
+            Navigator.of(context).pop();
+            onHighHpBoard();
+          },
+          child: Text(l10n.debugHighHpBoard),
+        ),
       ],
     );
   }

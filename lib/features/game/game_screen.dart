@@ -15,6 +15,7 @@ import '../../game_view/game_view.dart';
 import '../../l10n/app_localizations.dart';
 import '../../themes/game_theme.dart';
 import '../../themes/theme_providers.dart';
+import 'debug_high_hp_board.dart';
 import 'game_seed.dart';
 import 'widgets/boost_button.dart';
 import 'widgets/debug_theme_picker.dart';
@@ -29,7 +30,12 @@ class GameScreen extends ConsumerStatefulWidget {
   @visibleForTesting
   final BallGame Function()? gameFactory;
 
-  const GameScreen({super.key, this.gameFactory});
+  /// Geliştirici araçları (tema seçici, yüksek HP tahtası). Release'te false;
+  /// testler kapalı hâli sınamak için verir.
+  @visibleForTesting
+  final bool debugTools;
+
+  const GameScreen({super.key, this.gameFactory, this.debugTools = kDebugToolsEnabled});
 
   @override
   ConsumerState<GameScreen> createState() => _GameScreenState();
@@ -105,7 +111,8 @@ class _GameScreenState extends ConsumerState<GameScreen> {
 
   void _onPointerUp(PointerUpEvent event) {
     final shotFired = _game.pointerUp(event.pointer);
-    if (shotFired && _tutorialPending) {
+    // Geliştirici tahtası kalıcı veriye yazmaz.
+    if (shotFired && _tutorialPending && !_game.isDebugGame) {
       _tutorialPending = false;
       ref.read(prefsRepositoryProvider).setTutorialSeen(true);
     }
@@ -114,6 +121,15 @@ class _GameScreenState extends ConsumerState<GameScreen> {
   void _playAgain() {
     _audio.play(SfxKey.click);
     _game.restart(newGameSeed());
+  }
+
+  /// Yalnızca geliştirici yapı: hazır yüksek HP tahtasıyla yeni oyun.
+  void _startHighHpBoard() {
+    _audio.play(SfxKey.click);
+    _game.restartWith(debugHighHpSession(newGameSeed()), debugGame: true);
+    if (_tutorialVisible && !_tutorialFading) {
+      setState(() => _tutorialFading = true);
+    }
   }
 
   /// 416×703 gu düzenindeki bir katmanı tuvalin üstüne aynı ölçekle yerleştirir.
@@ -187,17 +203,17 @@ class _GameScreenState extends ConsumerState<GameScreen> {
                 ),
               ),
             ),
-          if (kDebugMode)
+          if (widget.debugTools)
             _onCanvas(
               fit,
-              const Stack(
+              Stack(
                 children: [
                   Positioned(
                     left: kDebugPickerX - kDebugPickerSize / 2,
                     top: kDebugPickerY - kDebugPickerSize / 2,
                     width: kDebugPickerSize,
                     height: kDebugPickerSize,
-                    child: DebugThemePicker(),
+                    child: DebugThemePicker(onHighHpBoard: _startHighHpBoard),
                   ),
                 ],
               ),

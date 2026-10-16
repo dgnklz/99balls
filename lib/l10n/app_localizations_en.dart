@@ -49,4 +49,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get boostLabel => 'Speed up';
+
+  @override
+  String get debugHighHpBoard => 'High HP board';
 }

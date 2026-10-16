@@ -56,5 +56,9 @@
   "boostLabel": "Speed up",
   "@boostLabel": {
     "description": "Accessibility label of the in-game speed-up (boost) button"
+  },
+  "debugHighHpBoard": "High HP board",
+  "@debugHighHpBoard": {
+    "description": "Developer-only option (debug/profile builds) in the theme picker: starts a game on a fixed board with high HP targets"
   }
 }

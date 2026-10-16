@@ -4,6 +4,8 @@
 /// koordinatlar 416×703 gu sanal tuvalindedir.
 library;
 
+import 'package:flutter/foundation.dart' show kReleaseMode;
+
 import '../../game_core/constants.dart';
 
 // --- Kare döngüsü (PRD 2.3, 10.2) --------------------------------------------
@@ -225,7 +227,15 @@ const bool kAllThemesUnlocked = true;
 /// Ücretsiz ve varsayılan tema; bilinmeyen/kilitli seçim buna düşer.
 const String kDefaultThemeId = 'orbitfall';
 
-/// Yalnızca debug yapıdaki tema seçici düğmesi (gu, zemin çubuğunun sağı).
+/// Geliştirici araçları (tema seçici, yüksek HP tahtası): debug ve profile
+/// yapıda açık, release'te asla.
+const bool kDebugToolsEnabled = !kReleaseMode;
+
+/// Yüksek HP debug tahtasının tur sayacı: 1'den 99 topa ortalama ~175 turda
+/// varılır (satır başına %56 halka); HUD sayacı ve skor 3 haneli olur.
+const int kDebugBoardRound = 175;
+
+/// Yalnızca geliştirici yapıdaki tema seçici düğmesi (gu, zemin çubuğunun sağı).
 const double kDebugPickerX = 386;
 const double kDebugPickerY = 669;
 const double kDebugPickerSize = 36;

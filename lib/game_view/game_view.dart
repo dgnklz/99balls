@@ -92,6 +92,12 @@ class BallGame extends FlameGame {
 
   GameSession get session => _session;
 
+  bool _debugGame = false;
+
+  /// Geliştirici tahtasıyla başlatılan oyun: skoru, en iyi skoru ve öğretici
+  /// işaretini kalıcı veriye yazmaz. Normal [restart] ile false olur.
+  bool get isDebugGame => _debugGame;
+
   /// Cihaz pikseli / gu (tuval genişliği × devicePixelRatio / kVirtualW);
   /// çizicinin pişirdiği sprite'ların çözünürlüğü.
   double _pxPerGu = kSpritePxPerGu;
@@ -273,8 +279,13 @@ class BallGame extends FlameGame {
   void _publishBoost() => boost.value = _loop.fastForward.state;
 
   /// Yeni tohumla yeni oyun.
-  void restart(int seed) {
-    _session = GameSession(seed);
+  void restart(int seed) => restartWith(GameSession(seed));
+
+  /// Hazır oturumla yeni oyun. [debugGame]: geliştirici tahtası (ör. yüksek HP);
+  /// böyle bir oyun kalıcı veriye yazmaz (bkz. [isDebugGame]).
+  void restartWith(GameSession session, {bool debugGame = false}) {
+    _session = session;
+    _debugGame = debugGame;
     _loop.reset();
     aim.cancel();
     _gameOver = false;

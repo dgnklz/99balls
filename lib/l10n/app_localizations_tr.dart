@@ -50,4 +50,7 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get boostLabel => 'Hızlandır';
+
+  @override
+  String get debugHighHpBoard => 'Yüksek HP tahtası';
 }
