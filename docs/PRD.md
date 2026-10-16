@@ -113,7 +113,7 @@ lib/
     competitive/       # Faz 2
   l10n/                # app_en.arb, app_tr.arb (+ ileride app_xx.arb), l10n.yaml kökte
 test/                  # game_core birim testleri, widget testleri
-assets/                # sesler, yazı tipi, LICENSES.md
+assets/                # sesler, yazı tipi, CREDITS.md
 ```
 
 `game_core` içinde `package:flutter` veya `dart:ui` import edilemez. Bunu denetleyen bir test yazılır: game\_core klasöründeki tüm dosyalar taranır ve yasak import bulunursa test başarısız olur.
@@ -143,8 +143,8 @@ assets/                # sesler, yazı tipi, LICENSES.md
 ### 2.6 Varlık ve telif stratejisi
 
 - Oyun içi görsel varlık dosyası yoktur: toplar, halkalar, parçacıklar, oyun logosu ve oyun içi simgeler kodla (CustomPainter veya vektör) çizilir. İstisna: uygulama ikonu ve açılış (splash) görseli marka dosyalarıdır (`assets/brand`, `assets/icon`, `assets/store`).
-- Yazı tipi: açık lisanslı (OFL) bir yazı tipi pakete gömülür, çalışma anında internetten çekilmez. Lisans metni `assets/LICENSES.md` içine yazılır.
-- Sesler yapay zeka tarafından sentezlenir (kodla üretilen WAV) ya da CC0 lisanslı kaynaklardan alınır; her dosyanın kaynağı `assets/LICENSES.md` içine yazılır.
+- Yazı tipi: açık lisanslı (OFL) bir yazı tipi pakete gömülür, çalışma anında internetten çekilmez. Lisans metni `assets/CREDITS.md` içine yazılır.
+- Sesler yapay zeka tarafından sentezlenir (kodla üretilen WAV) ya da CC0 lisanslı kaynaklardan alınır; her dosyanın kaynağı `assets/CREDITS.md` içine yazılır.
 - Referans oyunun adı, logosu ("9 9 BALLS" yazısı ve iki rakamın balonları), görselleri, sesleri ve renk paleti birebir kullanılmaz. Oyun kuralları ve sayısal mekanik aynı kalır.
 - Uygulama adı "99 Balls" içeremez ve referans oyunun adına benzemez. Ad ve mağaza metinleri yapay zeka tarafından önerilir, ürün sahibi onaylar.
 
@@ -532,7 +532,7 @@ Parçacıklar 64 nesnelik bir havuzdan alınır ve bitince havuza döner. Havuz 
 - Teslimat: `app_theme.dart` ve `palette.dart` içinde şu alanlar: `bgGradientTop`, `bgGradientBottom`, `hudBar`, `floorBar`, `accent` (nişan çizgisi ve atılan top), `pickupGlow`, `textPrimary`, `textSecondary`, `danger`, `buttonPrimary`, `buttonSecondary`, `popupSurface`; ve `hp_colors.dart` durakları (7.1).
 - Özgün oyun logosu (kodla çizilen vektör), oyun adı. Uygulama ikonu ve açılış (splash) logosu ayrı hazırlanan marka görselleridir (assets/brand, assets/icon, assets/store); Android ve iOS için ayrı üretilir. Logo ana menüde üst yarının tam ortasındadır (bölüm 9.1).
 - Arka plan koyu veya orta-koyu tonlu olmalı; renkli topların öne çıkmasını sağlamalıdır. HUD ve zemin çubukları arka plandan ayrı görünmelidir.
-- Atılan top (halka veya dolu orb olabilir) ile toplanabilir halka birbirinden **hızla ayırt edilebilmeli**: toplanabilir halka %33 daha büyük (yarıçap 18 ve 13) ve parlayan ayrı bir vurgu renginde olur.
+- Atılan top (halka veya dolu orb olabilir) ile toplanabilir halka birbirinden **hızla ayırt edilebilmeli**: toplanabilir halka %38 daha büyük (yarıçap 18 ve 13) ve parlayan ayrı bir vurgu renginde olur.
 - Yazı tipi: tek bir OFL yazı tipi ailesi, en fazla 2 ağırlık (Regular ve Bold). Sayılar için aynı ailenin dar (condensed) biçimi ya da tabular rakamlar kullanılır.
 
 #### 7.4.1 Beş tema ve kilit mimarisi
@@ -543,8 +543,12 @@ Parçacıklar 64 nesnelik bir havuzdan alınır ve bitince havuza döner. Havuz 
 - Sonraki sürümlerde üyelik: Orbitfall ücretsiz, diğer dördü kilitli. Yerel bir bayrak güvenli değildir; gerçek üyelik mağaza faturalandırması (Google Play Billing, iOS IAP) ve doğrulama gerektirir. Tüm temalar herkese açık yayımlandıktan sonra kilitlenirse mevcut kullanıcılar için eski haklar korunur (grandfathering).
 - Tüm görseller kodla (CustomPainter) üretilir; sesler `tools/audio/` altındaki Python betikleriyle sentezlenir. Tema başına ses bütçesi yaklaşık 2 MB.
 
-* Referans oyundan görsel ayrışma ilkeleri (kopya/ban riski): HUD dolu mavi çubuk değil, yarı saydam koyu yüzey + ince açık kenar + tema vurgusudur; düşük HP'li hedefler kırmızı/pembe değil turuncu/amber tonundadır; arka planda mavi spot ışığı yoktur; menüde krem hap düğme ve mavi yuvarlak düğmeler kullanılmaz; ad ve mağaza metinlerinde "99 Balls" / "Evo" geçmez.
-* Açılış ekranı tüm oyunlarda ortak marka logosudur (siyah zemin); temadan bağımsızdır. Uygulama ikonu Orbitfall konseptinden türetilmiş tek ana tasarımdır; iOS (1024, alfa yok), Android adaptive (ön plan %78 + dikey degrade arka plan) ve mağaza (Play 512, App Store 1024) dosyaları `tools/icon/make_icon.py` ile bu ana dosyadan üretilir.
+* **Durum (M3b sonrası):** Orbitfall (M3a) ve Candy Burst (M3b) tam temadır. Pixel Drop, Abyss ve Ink & Paper, M3c–M3e'ye kadar yer tutucudur (`lib/themes/placeholder/`: Orbitfall çizicisi + paletin ton/doygunluk varyantı + Orbitfall sesleri; HUD yüzeyi kaydırılmaz). Kimlikler: `orbitfall`, `candyburst`, `pixeldrop`, `abyss`, `inkpaper`.
+* **Ortak çizim:** `lib/themes/shared/base_theme_renderer.dart` (`BaseThemeRenderer`) HUD/zemin çubuğu, HP rakamları, "+3", yıldız Path'i, varsayılan disk ve kıvılcımı taşır; temalar arka plan, hedef, halka, yıldız, top ve kıvılcım biçimini ezer. Orbitfall çizim çağrısı golden testi korunur.
+* **Her tam tema için kabul:** HP durakları beyaz rakamla ≥ 3:1 kontrast, ardışık duraklar arası RGB uzaklığı ≥ 30, düşük HP turuncu/amber, `reference_distinction_test` geçer, ses ≈ 2 MB, efekt sayıları parçacık havuz bütçesinde, boost butonunun açık hali okunur (kontrast ≥ 3:1) ve vurgu rengi referans mavisinden uzak.
+
+- Referans oyundan görsel ayrışma ilkeleri (kopya/ban riski): HUD dolu mavi çubuk değil, yarı saydam koyu yüzey + ince açık kenar + tema vurgusudur; düşük HP'li hedefler kırmızı/pembe değil turuncu/amber tonundadır; arka planda mavi spot ışığı yoktur; menüde krem hap düğme ve mavi yuvarlak düğmeler kullanılmaz; ad ve mağaza metinlerinde "99 Balls" / "Evo" geçmez.
+- Açılış ekranı tüm oyunlarda ortak marka logosudur (siyah zemin); temadan bağımsızdır. Uygulama ikonu Orbitfall konseptinden türetilmiş tek ana tasarımdır; iOS (1024, alfa yok), Android adaptive (ön plan %78 + dikey degrade arka plan) ve mağaza (Play 512, App Store 1024) dosyaları `tools/icon/make_icon.py` ile bu ana dosyadan üretilir.
 
 ## 8. Ses ve titreşim
 
@@ -881,7 +885,7 @@ Kurallar: (1) Kodda `Text('…')` ile sabit metin kullanılması test ile yakala
 
 ## 13. Ayarlanabilir sabitler tablosu
 
-Tüm sayısal değerler `lib/config/constants.dart` ve `game_core/lib/src/constants.dart` içinde tek yerde, aşağıdaki adlarla tanımlanır. Kodun başka bir yerinde sabit sayı (magic number) bulunmaz. "Simülasyon" olarak işaretlenenler değiştirilirse tüm doğrulama tabloları (Bölüm 6, 14) yeniden üretilmelidir.
+Tüm sayısal değerler `lib/core/config/game_config.dart` ve `lib/game_core/constants.dart` içinde tek yerde, aşağıdaki adlarla tanımlanır. Kodun başka bir yerinde sabit sayı (magic number) bulunmaz. "Simülasyon" olarak işaretlenenler değiştirilirse tüm doğrulama tabloları (Bölüm 6, 14) yeniden üretilmelidir.
 
 | Sabit | Değer | Grup | Açıklama |
 | --- | --- | --- | --- |
