@@ -22,6 +22,7 @@ const ThemePalette orbitfallPalette = ThemePalette(
   guide: Color(0xFF9EEBFF),
   pickupGlow: Color(0xFF5CF2A0),
   star: Color(0xFFFFC93C),
+  bonusText: Color(0xFFFFD54A),
   spark: Color(0xFFBFF4FF),
   textPrimary: Color(0xFFFFFFFF),
   textSecondary: Color(0xFFAEB6E0),

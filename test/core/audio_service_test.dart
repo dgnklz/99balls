@@ -8,6 +8,7 @@ import 'package:flutter_test/flutter_test.dart';
 /// Sahte oynatıcı: çağrıları kaydeder.
 class FakeAudioBackend implements AudioBackend {
   final List<String> sfx = [];
+  final List<double> sfxVolumes = [];
   final List<String> calls = [];
   final List<List<String>> preloads = [];
 
@@ -16,7 +17,10 @@ class FakeAudioBackend implements AudioBackend {
       preloads.add([...sfx, music]);
 
   @override
-  void playSfx(String file, double volume) => sfx.add(file);
+  void playSfx(String file, double volume) {
+    sfx.add(file);
+    sfxVolumes.add(volume);
+  }
 
   @override
   Future<void> playMusic(String file, double volume) async => calls.add('play:$file@$volume');
@@ -94,6 +98,17 @@ void main() {
         'orbitfall/sfx_hit_3.wav',
         'orbitfall/sfx_hit_1.wav',
       ]);
+    });
+
+    test('headroom: SFX at 0.8, music stays at 0.35', () async {
+      expect(kSfxVolume, 0.8);
+      expect(kMusicVolume, 0.35);
+      final h = await _ready();
+      h.service.play(SfxKey.shoot);
+      h.service.play(SfxKey.wall);
+      h.service.onUserInteraction();
+      expect(h.backend.sfxVolumes, [kSfxVolume, kSfxVolume]);
+      expect(h.backend.calls.single, endsWith('@$kMusicVolume'));
     });
 
     test('no sfx while the app is in the background', () async {

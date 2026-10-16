@@ -16,6 +16,7 @@ import '../themes/theme_registry.dart';
 import 'aim_controller.dart';
 import 'ball_merge_animator.dart';
 import 'effects/effects_controller.dart';
+import 'floor_accent_tracker.dart';
 import 'game_loop.dart';
 import 'guide_path.dart';
 import 'painters/background_component.dart';
@@ -61,6 +62,9 @@ class BallGame extends FlameGame {
 
   /// İnen topların ilk topa kayması (yalnızca görsel durum).
   final BallMergeAnimator merge = BallMergeAnimator();
+
+  /// Atış noktasını izleyen zemin neonu (yalnızca görünüm).
+  final FloorAccentTracker floorAccent = FloorAccentTracker();
 
   /// Oyun sonu katmanı açılacağı an skor yazılır; yeniden başlatınca null olur.
   /// Sahibi olan ekran dispose eder (dinleyiciler ondan önce sökülür).
@@ -159,6 +163,7 @@ class BallGame extends FlameGame {
     // Birleşme, efektler, arka plan ve kılavuz gerçek zamanla çalışır
     // (hızlanmadan etkilenmez).
     merge.update(dt);
+    floorAccent.update(dt);
     effects.update(dt, danger: _session.board.hasTargetInRow(kPlayableRows - 1));
     _renderer.update(dt);
     _updateGuide();
@@ -168,6 +173,7 @@ class BallGame extends FlameGame {
     final audio = this.audio;
     for (final event in _session.drainEvents()) {
       merge.onEvent(event, _session.simulation);
+      floorAccent.onEvent(event, _session.simulation);
       final sfx = effects.onEvent(event, _session.board);
       if (sfx != null) audio?.play(sfx);
       switch (event) {
@@ -239,6 +245,7 @@ class BallGame extends FlameGame {
     _gameOverElapsed = 0;
     _advanceStartStep = 0;
     merge.reset();
+    floorAccent.reset();
     effects.reset();
     _guideShot = null;
     _guideSession = null;

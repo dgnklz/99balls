@@ -209,6 +209,12 @@ Bu bölümdeki tüm değerler 416×703 gu'luk tuvalde, sol üst köşe (0,0) ola
 
 HUD ve zemin çubuğu oyun alanının üzerinde çizilir. Duvarlar ekranın sol kenarı (x = 0) ve sağ kenarıdır (x = 416). Tavan, HUD çubuğunun alt kenarıdır (y = 53). Zemin çizgisi zemin çubuğunun üst kenarıdır (y = 635).
 
+- **Zemin vurgusu:** Zemin çizgisindeki neon vurgu, atış noktasını (ilk inen topun x'i) izler. Turun ilk topu indiği anda vurgu o x'e 200 ms'de ease-out ile kayar ve yeni atışa kadar orada kalır; başta ve yeniden başlatmada ekranın ortasındadır. Segment hiçbir zaman tuvalden taşmaz (kenarda 4 gu pay). Üstteki neon (tur sayacı altında) ortada sabittir. Yalnızca görünümdür, `stateHash`'i etkilemez.
+- **Tam ekran (immersive):** Durum ve gezinti çubukları uygulama açıldığı andan kapanana kadar gizlidir (`immersiveSticky`). Arka plandan, ekran kilidinden, bildirim panelinden ve pencere odağından dönüşte yeniden gizlenir. Kullanıcı kenardan kaydırırsa çubuklar geçici görünür ve en az 3 sn sonra tek zamanlayıcıyla yeniden gizlenir (uygulama bunu engelleyemez). Kenardan başlayan sürükleme çubuk geçişiyle iptal olursa atış yapılmaz. Çentikli ekranlarda yalnızca çentik payı uygulanır; çubuk görünürlüğü yerleşimi zıplatmaz. Android'de `shortEdges` çentik modu kullanılır. iOS'ta yalnızca durum çubuğu gizlenir; ana ekran göstergesi ve sistem hareketi erteleme iş M6'dadır (Mac gerekir).
+
+* **Kenar koruma şeridi:** Sistem hareketlerinin başladığı kenarlarda başlayan dokunuş oyunda yok sayılır (nişan çizgisi de atış da olmaz; şerit içinde başlayıp ortaya sürüklense bile). Üst: çentik/güvenli alan payının üstüne 32 dp, alt: 32 dp, sol ve sağ: 24 dp (`EDGE_GUARD_TOP_DP`, `EDGE_GUARD_BOTTOM_DP`, `EDGE_GUARD_SIDE_DP`). Yalnızca başlangıç konumu denetlenir; ortadan başlayıp kenara giden nişan etkilenmez. Sistem çubukları dokunuş sırasında görünür hale gelirse ya da pencere odağı giderse aktif nişan iptal edilir. Şeritteki dokunuş müziği yine başlatır.
+* **Dönüşte hızlı gizleme:** Uygulama öne gelince (resumed, pencere odağı, Android `onResume`) tam ekran hemen uygulanır ve ardından 0, 150, 400, 1000, 2000 ms'de tekrarlanır (`IMMERSIVE_RESUME_BURST_MS`). İlk 3 sn'de (`IMMERSIVE_RESUME_WINDOW_MS`) çubuklar görünür olursa 250 ms sonra yeniden gizlenir (`IMMERSIVE_RESUME_REAPPLY_MS`); pencere dışında 3000 ms bekleme korunur (kenar kaydırmasını bozmamak için). Arka plana gitme, `inactive` ve odak kaybında tüm zamanlayıcılar iptal edilir.
+
 ### 4.2 Izgara
 
 - 7 sütun, hücre genişliği = 416 / 7 = 59,43 gu. Sütun merkezi x = 59,43 × (c + 0,5), c = 0..6 (29,7 / 89,1 / 148,6 / 208,0 / 267,4 / 326,9 / 386,3).
@@ -373,7 +379,7 @@ Yıldız, topun içinden geçerek toplanan ve yalnızca skora puan ekleyen bir n
 - **Toplama:** Yarıçap `kPickupRadius` (18 gu), halkayla aynı. Top yıldızın merkezine bu mesafeden yaklaşınca yıldız toplanır; top sekmez, yoluna devam eder. Aynı adımda birden fazla top değerse ilk işlenen toplar, yıldız tek kez sayılır.
 - **Puan:** Her yıldız `kStarScore` (varsayılan 3) puan. Skor = tur sayacı + 3 × toplanan yıldız. Oyun biterse skor, oyunu bitiren satır eklendikten sonraki tur sayacı + toplanan yıldızların puanıdır.
 - **Kayma:** Yıldız satırla birlikte aşağı kayar. Toplanmadan 8. satıra gelirse halka gibi sessizce kaybolur (0,2 sn solar); oyun bitmez ve puan eklenmez.
-- **Görsel:** Altın sarısı beş köşeli yıldız, hedef yarıçapının yaklaşık %70'i boyutunda, yavaşça nabız atar (ölçek 0,95–1,05, 1,2 sn). Toplanınca 0,25 sn büyüyüp solar ve yerinde 0,6 sn yukarı süzülen "+3" yazısı çıkar.
+- **Görsel:** Altın sarısı beş köşeli yıldız, hedef yarıçapının yaklaşık %70'i boyutunda, yavaşça nabız atar (ölçek 0,95–1,05, 1,2 sn). Toplanınca 0,25 sn büyüyüp solar ve yerinde 0,6 sn yukarı süzülen "+3" yazısı çıkar (altın #FFD54A, en kalın ağırlık, 28 gu, koyu ince kenarlık ve hafif gölge; her temada okunur kalır).
 - **Ses ve titreşim:** `sfx_star`, titreşim yok (bölüm 8.2).
 - **HUD:** Büyük sayı canlı skoru gösterir; tur sayacı ayrıca gösterilmez. Bu, bölüm 4'teki HUD tablosunun "tur sayacı" öğesinin yerine geçer.
 - **Yarışmalı mod:** Skor aynı formülle hesaplanır, tekrar oynatma doğrulaması yıldızları da içerir (bölüm 11.8).
@@ -990,7 +996,7 @@ Her kilometre taşı sonunda `flutter analyze` sıfır uyarı, `flutter test` he
 3. **M3 — Görsel ve ses cilası:** AI ile üretilen tema, animasyonlar, parçacıklar, SFX ve müzik.
 4. **M4 — Uygulama kabuğu:** Splash, ana menü, nasıl oynanır, ayarlar, dil penceresi, duraklatma/oyun sonu, kalıcı veri.
 5. **M5 — Geri bildirim ve çıkış:** EmailJS, cihaz bilgisi, çıkış, yaşam döngüsü kuralları.
-6. **M6 — Faz 1 yayın adayı:** Performans, kabul listesi, ikon ve mağaza görselleri, gizlilik metni.
+6. **M6 — Faz 1 yayın adayı:** Performans, kabul listesi, ikon ve mağaza görselleri, gizlilik metni; iOS ana ekran göstergesinin gizlenmesi ve sistem hareketlerinin ertelenmesi (Mac gerekir).
 7. **M7 — Faz 2 altyapısı:** Firebase, giriş, haklar, günlük tohum.
 8. **M8 — Faz 2 sıralama:** Haftalık liste, yasaklı filtre, kutlama, yerel hile önleme, güvenlik kuralları testleri.
 9. **M9 — Faz 2 yayın adayı:** Kabul listesi, mağaza güncellemesi.

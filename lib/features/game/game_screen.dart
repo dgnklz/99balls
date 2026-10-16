@@ -4,6 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/canvas_fit.dart';
+import '../../app/edge_guard.dart';
+import '../../app/immersive_mode.dart';
+import '../../app/safe_insets.dart';
 import '../../core/config/game_config.dart';
 import '../../core/services/audio_service.dart';
 import '../../core/services/prefs_service.dart';
@@ -48,11 +51,17 @@ class _GameScreenState extends ConsumerState<GameScreen> {
   late bool _tutorialPending;
   CanvasFit? _fit;
 
+  /// Sistem hareket kenarlarında başlayan dokunuşları ayıklar.
+  EdgeGuard? _guard;
+  ImmersiveMode? _immersive;
+
   @override
   void initState() {
     super.initState();
     _tutorialPending = !ref.read(prefsRepositoryProvider).tutorialSeen;
     _tutorialVisible = _tutorialPending;
+    // Sistem çubukları dokunuş sırasında görünür olursa aktif nişan iptal.
+    _immersive = ref.read(immersiveModeProvider)?..addBarsShownListener(_onBarsShown);
   }
 
   @override
@@ -64,6 +73,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
 
   @override
   void dispose() {
+    _immersive?.removeBarsShownListener(_onBarsShown);
     _game.gameOverScore.dispose();
     super.dispose();
   }
@@ -72,6 +82,10 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     // Müzik ilk dokunuştan sonra başlar (PRD 8.3).
     _audio.onUserInteraction();
     if (!_game.acceptsInput) return;
+    // Kenar şeridinde başlayan dokunuş sistem hareketidir: oyunda yok sayılır.
+    // İşaretçi nişana hiç verilmediği için sonraki move/up olayları da yok sayılır.
+    final guard = _guard;
+    if (guard != null && !guard.allowsStart(event.localPosition)) return;
     if (_tutorialVisible && !_tutorialFading) {
       setState(() => _tutorialFading = true);
     }
@@ -84,6 +98,8 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     if (fit == null || !(fit.scale > 0) || !fit.scale.isFinite) return;
     _game.pointerMove(event.pointer, event.position, fit.scale);
   }
+
+  void _onBarsShown() => _game.pointerCancel();
 
   void _onPointerUp(PointerUpEvent event) {
     final shotFired = _game.pointerUp(event.pointer);
@@ -110,11 +126,13 @@ class _GameScreenState extends ConsumerState<GameScreen> {
   Widget build(BuildContext context) {
     final theme = ref.watch(selectedThemeProvider);
     _game.theme = theme;
-    final insets = MediaQuery.paddingOf(context);
+    // Tam ekran: yalnızca çentik/güvenli alan payı (çubuklar gizli).
+    final insets = gameSafeInsets(MediaQuery.of(context), defaultTargetPlatform);
     return LayoutBuilder(
       builder: (context, constraints) {
         final fit = CanvasFit.compute(constraints.biggest, insets);
         _fit = fit;
+        _guard = EdgeGuard.compute(fit.screenSize, insets);
         // Material atası: katmanlardaki metinler temadan DefaultTextStyle alır
         // (yoksa Flutter'ın sarı çift alt çizgili hata stili görünür).
         return Material(

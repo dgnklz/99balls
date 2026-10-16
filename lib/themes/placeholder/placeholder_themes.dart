@@ -42,6 +42,7 @@ ThemePalette placeholderPalette({double hueShift = 0, double saturationScale = 1
     guide: shift(p.guide),
     pickupGlow: shift(p.pickupGlow),
     star: p.star,
+    bonusText: p.bonusText,
     spark: shift(p.spark),
     textPrimary: p.textPrimary,
     textSecondary: shift(p.textSecondary),

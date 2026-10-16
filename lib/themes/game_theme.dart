@@ -29,6 +29,9 @@ class ThemePalette {
   final Color guide;
   final Color pickupGlow;
   final Color star;
+
+  /// Yıldız "+3" yazısı (her zeminde okunur altın).
+  final Color bonusText;
   final Color spark;
   final Color textPrimary;
   final Color textSecondary;
@@ -52,6 +55,7 @@ class ThemePalette {
     required this.guide,
     required this.pickupGlow,
     required this.star,
+    required this.bonusText,
     required this.spark,
     required this.textPrimary,
     required this.textSecondary,
@@ -124,6 +128,8 @@ abstract class ThemeRenderer {
   void paintBall(Canvas canvas, double x, double y);
 
   /// HUD ve zemin çubuğu; [dangerGlow] ∈ [0,1], [sweep] ∈ [0,1] ya da negatif (yok).
+  /// [floorAccentX]: zemin neonunun merkezi (atış noktasını izler); üstteki
+  /// neon ortada sabittir.
   void paintHud(
     Canvas canvas, {
     required int score,
@@ -131,6 +137,7 @@ abstract class ThemeRenderer {
     required double dangerGlow,
     required double sweep,
     required double scoreScale,
+    required double floorAccentX,
   });
 
   /// "+3" gibi yüzen yazı.

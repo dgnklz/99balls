@@ -5,8 +5,8 @@ import 'package:flame/components.dart';
 import '../game_view.dart';
 
 /// HUD ve zemin çubuğu (PRD 4.1, 4.5; katman 8): canlı skor, top ikonu,
-/// eldeki top sayısı, tehlike parlaması ve satır ilerleme süpürmesi.
-/// Müzik ve duraklat ikonları M4/M5'te eklenecek.
+/// eldeki top sayısı, tehlike parlaması, satır ilerleme süpürmesi ve atış
+/// noktasını izleyen zemin neonu. Müzik ve duraklat ikonları M4/M5'te.
 class HudComponent extends Component with HasGameReference<BallGame> {
   @override
   void render(Canvas canvas) {
@@ -19,6 +19,7 @@ class HudComponent extends Component with HasGameReference<BallGame> {
       dangerGlow: effects.dangerGlow,
       sweep: effects.sweep,
       scoreScale: effects.scoreScale,
+      floorAccentX: game.floorAccent.x,
     );
   }
 }

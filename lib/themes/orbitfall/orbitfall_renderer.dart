@@ -102,7 +102,7 @@ class OrbitfallRenderer extends ThemeRenderer {
         _hp2 = TextCache(_numberStyle(theme, kTargetFontSize)),
         _hp3 = TextCache(_numberStyle(theme, kTargetFontSize3Digits)),
         _hudNumbers = TextCache(_numberStyle(theme, kHudFontSize)),
-        _floatText = TextCache(_numberStyle(theme, kFloatTextSize)) {
+        _floatText = TextCache(floatTextStyle(theme)) {
     final random = math.Random(kVisualRandomSeed);
     for (final layer in [_dustFar, _dustNear]) {
       for (var i = 0; i < kStarDustPerLayer; i++) {
@@ -110,6 +110,24 @@ class OrbitfallRenderer extends ThemeRenderer {
         layer[i * 2 + 1] = random.nextDouble() * kVirtualH;
       }
     }
+  }
+
+  /// Yıldız "+3" yazısı: altın, kalın, büyük; 4 yönlü koyu ince kenarlık ve
+  /// hafif gölge ile her zeminde okunur.
+  static TextStyle floatTextStyle(GameTheme theme) {
+    final outline = theme.palette.scrim.withValues(alpha: kFloatTextOutlineAlpha);
+    return TextStyle(
+      color: theme.palette.bonusText,
+      fontSize: kFloatTextSize,
+      fontWeight: FontWeight.w900,
+      shadows: [
+        Shadow(color: outline, offset: const Offset(kFloatTextOutline, 0)),
+        Shadow(color: outline, offset: const Offset(-kFloatTextOutline, 0)),
+        Shadow(color: outline, offset: const Offset(0, kFloatTextOutline)),
+        Shadow(color: outline, offset: const Offset(0, -kFloatTextOutline)),
+        Shadow(color: outline, blurRadius: kFloatTextShadowBlur),
+      ],
+    );
   }
 
   static TextStyle _numberStyle(GameTheme theme, double size) => TextStyle(
@@ -227,16 +245,18 @@ class OrbitfallRenderer extends ThemeRenderer {
     required double dangerGlow,
     required double sweep,
     required double scoreScale,
+    required double floorAccentX,
   }) {
-    // Yarı saydam yüzey + oyun alanına bakan ince açık kenar + ortada tema
-    // vurgusu (dolu renk çubuk değil; referans oyundan ayrışma).
+    // Yarı saydam yüzey + oyun alanına bakan ince açık kenar + tema vurgusu
+    // (dolu renk çubuk değil; referans oyundan ayrışma). Üst vurgu ortada sabit
+    // (süs); zemin vurgusu atış noktasını izler.
     canvas
       ..drawRect(_hudRect, _hud)
       ..drawRect(_floorRect, _floor)
       ..drawLine(const Offset(0, kCeilingY), const Offset(kVirtualW, kCeilingY), _edge)
       ..drawLine(const Offset(0, kFloorY), const Offset(kVirtualW, kFloorY), _edge);
-    _paintAccents(canvas, _accentGlow);
-    _paintAccents(canvas, _accentLine);
+    _paintAccents(canvas, _accentGlow, floorAccentX);
+    _paintAccents(canvas, _accentLine, floorAccentX);
     if (dangerGlow > 0) {
       _overlay.color = theme.palette.danger.withValues(alpha: kDangerGlowAlpha * dangerGlow);
       canvas.drawRect(_dangerRect, _overlay);
@@ -270,11 +290,12 @@ class OrbitfallRenderer extends ThemeRenderer {
 
   static const double _accentLeft = (kVirtualW - kHudAccentWidth) / 2;
   static const double _accentRight = (kVirtualW + kHudAccentWidth) / 2;
+  static const double _accentHalf = kHudAccentWidth / 2;
 
-  /// HUD alt kenarı ve zemin üst kenarının ortasındaki tema vurgusu.
-  static void _paintAccents(Canvas canvas, Paint paint) => canvas
+  /// HUD alt kenarındaki (ortada) ve zemin üst kenarındaki ([floorX]) vurgu.
+  static void _paintAccents(Canvas canvas, Paint paint, double floorX) => canvas
     ..drawLine(const Offset(_accentLeft, kCeilingY), const Offset(_accentRight, kCeilingY), paint)
-    ..drawLine(const Offset(_accentLeft, kFloorY), const Offset(_accentRight, kFloorY), paint);
+    ..drawLine(Offset(floorX - _accentHalf, kFloorY), Offset(floorX + _accentHalf, kFloorY), paint);
 
   @override
   void paintFloatText(Canvas canvas, String text, double x, double y, double opacity) {

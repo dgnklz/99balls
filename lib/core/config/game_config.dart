@@ -154,6 +154,33 @@ const double kOverlayButtonTextSize = 20;
 /// Sistem yazı ölçeğinin üst sınırı.
 const double kMaxTextScale = 1.15;
 
+/// Tam ekran: sistem çubukları görünür hale gelirse bu kadar sonra yeniden
+/// gizlenir (art arda olaylar tek zamanlayıcıda birleşir).
+const int kImmersiveReapplyMs = 3000;
+
+/// Kendi SystemChrome çağrımızın hemen ardından gelen sistem çubuğu olayları
+/// bu süre içinde yok sayılır (kendi tetiklediğimiz değişiklik).
+const int kImmersiveOwnEventWindowMs = 500;
+
+/// Arka plandan dönüşte (`resumed`) hemen gizlemenin ardından bu anlarda
+/// (ms) post-frame yeniden gizlenir; Android çubukları dönüş sırasında birkaç
+/// kez yeniden gösterebilir.
+const List<int> kImmersiveResumeBurstMs = [0, 150, 400, 1000, 2000];
+
+/// Dönüş penceresi: `resumed`'dan sonraki bu süre içinde görünür olan çubuklar
+/// [kImmersiveResumeReapplyMs] sonra gizlenir (dışında [kImmersiveReapplyMs]).
+const int kImmersiveResumeWindowMs = 3000;
+
+/// Dönüş penceresi içindeki yeniden gizleme gecikmesi.
+const int kImmersiveResumeReapplyMs = 250;
+
+/// Kenar koruma şeritleri (dp = Flutter mantıksal pikseli): bu şeritlerde
+/// başlayan dokunuş sistem hareketidir (bildirim paneli, ana ekran, geri);
+/// nişan hiç başlamaz. Üst şerit çentik/güvenli alan payının üstüne eklenir.
+const double kEdgeGuardTopDp = 32;
+const double kEdgeGuardBottomDp = 32;
+const double kEdgeGuardSideDp = 24;
+
 // --- Temalar (PRD 7.4.1) -----------------------------------------------------
 
 /// v1'de tüm temalar açık (kilit sorusunun tek kapısı ThemeAccess).
@@ -218,10 +245,14 @@ const double kSparkSize = 3;
 const double kSparkSpeed = 120;
 const double kSparkLife = 0.35;
 
-/// "+3" yazısı: 0.6 sn yukarı süzülür.
+/// "+3" yazısı: 0.6 sn yukarı süzülür. Boy 20'den %40 büyütüldü (okunurluk);
+/// koyu ince kenarlık ve hafif gölgeyle.
 const double kFloatTextSec = 0.6;
 const double kFloatTextRise = 30;
-const double kFloatTextSize = 20;
+const double kFloatTextSize = 28;
+const double kFloatTextOutline = 1.5;
+const double kFloatTextOutlineAlpha = 0.85;
+const double kFloatTextShadowBlur = 3;
 
 /// Yıldız nabzı: 0.95–1.05, 1.2 sn.
 const double kStarPulseSec = 1.2;
@@ -245,7 +276,9 @@ const double kScorePulseScale = 1.15;
 const int kSfxMinGapMs = 50;
 const int kSfxMaxConcurrent = 8;
 const double kMusicVolume = 0.35;
-const double kSfxVolume = 1.0;
+
+/// Üst üste binen efektlerde kırpılmaya karşı marj (−3 dBFS tepeli dosyalar).
+const double kSfxVolume = 0.8;
 
 /// SFX başına önceden açılan oynatıcı sayısı (AudioPool).
 const int kSfxPoolPlayers = 4;
@@ -281,6 +314,11 @@ const double kHudEdgeStroke = 1.5;
 const double kHudAccentWidth = 96;
 const double kHudAccentStroke = 2.5;
 const double kHudAccentGlowBlur = 3;
+
+/// Zemin neonu atış noktasını izler: ilk inen topun x'ine ease-out kayma süresi
+/// ve tuval kenarından bırakılan pay (segment hiç taşmaz).
+const int kFloorAccentSlideMs = 200;
+const double kFloorAccentEdgeMargin = 4;
 
 /// Tehlike ve süpürme parlaklıkları.
 const double kDangerGlowAlpha = 0.8;
