@@ -12,7 +12,7 @@ import '../game_core/engine/events.dart';
 import '../game_core/rules/round_state_machine.dart';
 import 'aim_controller.dart';
 import 'ball_merge_animator.dart';
-import 'fixed_step_clock.dart';
+import 'game_loop.dart';
 import 'guide_path.dart';
 import 'painters/background_component.dart';
 import 'painters/balls_component.dart';
@@ -34,7 +34,7 @@ class BallGame extends FlameGame {
   GameSession _session;
   final AimController aim = AimController();
   final GuidePath guide = GuidePath();
-  final FixedStepClock _clock = FixedStepClock();
+  final GameLoop _loop = GameLoop();
 
   /// İnen topların ilk topa kayması (yalnızca görsel durum).
   final BallMergeAnimator merge = BallMergeAnimator();
@@ -56,7 +56,7 @@ class BallGame extends FlameGame {
   GameSession get session => _session;
 
   /// Son adımdan bu yana geçen süre / adım süresi.
-  double get alpha => _clock.alpha;
+  double get alpha => _loop.alpha;
 
   bool get guideVisible => _guideVisible;
 
@@ -98,12 +98,10 @@ class BallGame extends FlameGame {
         gameOverScore.value = _session.score;
       }
     } else {
-      final steps = _clock.consume(dt);
-      for (var i = 0; i < steps && _session.phase != GamePhase.gameOver; i++) {
-        _session.step();
-      }
+      _loop.advance(_session, dt);
       _handleEvents();
     }
+    // Birleşme ve kılavuz gerçek zamanla çalışır (hızlanmadan etkilenmez).
     merge.update(dt);
     _updateGuide();
   }
@@ -147,7 +145,7 @@ class BallGame extends FlameGame {
   /// Fazın başlangıç olayından bu yana geçen adımlar (+ alpha) / süre.
   /// Olay, fazı başlatan adım içinde yazılır; faz bir sonraki adımda sayılır.
   double _progress(int startStep, int durationSteps) {
-    final p = (_session.stepCount - startStep - 1 + _clock.alpha) / durationSteps;
+    final p = (_session.stepCount - startStep - 1 + _loop.alpha) / durationSteps;
     return p < 0 ? 0 : (p > 1 ? 1 : p);
   }
 
@@ -164,7 +162,9 @@ class BallGame extends FlameGame {
   /// Bırakma: geçerli nişan varsa atış yapılır ve true döner.
   bool pointerUp(int pointer) {
     final shot = aim.up(pointer);
-    return shot != null && _session.tryShoot(shot);
+    if (shot == null || !_session.tryShoot(shot)) return false;
+    _loop.noteShot();
+    return true;
   }
 
   void pointerCancel() => aim.cancel();
@@ -172,7 +172,7 @@ class BallGame extends FlameGame {
   /// Yeni tohumla yeni oyun.
   void restart(int seed) {
     _session = GameSession(seed);
-    _clock.reset();
+    _loop.reset();
     aim.cancel();
     _gameOver = false;
     _gameOverElapsed = 0;
@@ -189,7 +189,7 @@ class BallGame extends FlameGame {
     switch (state) {
       case AppLifecycleState.resumed:
         // Arka planda geçen süre oyuna eklenmez (PRD 10.2).
-        _clock.reset();
+        _loop.clock.reset();
       case AppLifecycleState.inactive:
       case AppLifecycleState.paused:
       case AppLifecycleState.hidden:

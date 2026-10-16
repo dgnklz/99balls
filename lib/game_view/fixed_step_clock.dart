@@ -7,6 +7,10 @@ import '../game_core/constants.dart';
 /// adım verilir, fazlası atılır (yavaş cihazda oyun yavaşlar ama tutarlı kalır).
 /// İlk karede ve [reset] sonrasında dt en fazla [kFirstFrameMaxDt] sayılır;
 /// böylece arka planda geçen süre oyuna eklenmez.
+///
+/// `timeScale` (hızlanma çarpanı, [1, kFastForwardMax]) biriken süreyi ve
+/// karedeki adım sınırını çarpar: ceil(8 × ölçek), mutlak üst sınır
+/// [kMaxStepsPerFrameFast]. Her adım yine aynı 1/120 sn adımdır.
 class FixedStepClock {
   /// Kayan nokta birikim hatasına karşı tolerans (adım cinsinden).
   static const double _epsilon = 1e-6;
@@ -23,17 +27,24 @@ class FixedStepClock {
   }
 
   /// [dt] saniyelik kare için işlenecek adım sayısı.
-  int consume(double dt) {
+  int consume(double dt, {double timeScale = 1}) {
+    var scale = timeScale;
+    if (!(scale >= 1)) scale = 1; // NaN ve < 1
+    if (scale > kFastForwardMax) scale = kFastForwardMax.toDouble();
+
     var seconds = dt > 0 ? dt : 0.0;
     if (_firstFrame) {
       if (seconds > kFirstFrameMaxDt) seconds = kFirstFrameMaxDt;
       _firstFrame = false;
     }
-    _pendingSteps += seconds * kStepsPerSec;
+    _pendingSteps += seconds * kStepsPerSec * scale;
+
+    var cap = (kMaxStepsPerFrame * scale).ceil();
+    if (cap > kMaxStepsPerFrameFast) cap = kMaxStepsPerFrameFast;
     final steps = (_pendingSteps + _epsilon).floor();
-    if (steps > kMaxStepsPerFrame) {
+    if (steps > cap) {
       _pendingSteps = 0;
-      return kMaxStepsPerFrame;
+      return cap;
     }
     _pendingSteps -= steps;
     if (_pendingSteps < 0) _pendingSteps = 0;

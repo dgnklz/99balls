@@ -59,6 +59,38 @@ void main() {
     }
   });
 
+  group('time scale (fast forward)', () {
+    test('scale 4 runs 4× steps, capped at 32 per frame', () {
+      final clock = FixedStepClock()..consume(0);
+      expect(clock.consume(1 / 60, timeScale: 4), 8);
+      expect(clock.consume(1.0, timeScale: 4), kMaxStepsPerFrameFast);
+      expect(kMaxStepsPerFrameFast, 32);
+    });
+
+    test('scale above the maximum is clamped to 4', () {
+      final clock = FixedStepClock()..consume(0);
+      expect(clock.consume(1 / 60, timeScale: 100), 8);
+      expect(clock.consume(1.0, timeScale: 100), kMaxStepsPerFrameFast);
+    });
+
+    test('cap follows the scale: ceil(8 × scale)', () {
+      final clock = FixedStepClock()..consume(0);
+      expect(clock.consume(1.0, timeScale: 2.5), 20);
+    });
+
+    test('NaN or < 1 scale behaves like 1', () {
+      final clock = FixedStepClock()..consume(0);
+      expect(clock.consume(1 / 60, timeScale: double.nan), 2);
+      expect(clock.consume(1 / 60, timeScale: 0.5), 2);
+      expect(clock.consume(1.0, timeScale: double.nan), kMaxStepsPerFrame);
+    });
+
+    test('first-frame cap applies before scaling', () {
+      final clock = FixedStepClock();
+      expect(clock.consume(5.0, timeScale: 4), 16); // 1/30 sn × 120 × 4
+    });
+  });
+
   test('negative dt is treated as zero', () {
     final clock = FixedStepClock();
     expect(clock.consume(-1), 0);

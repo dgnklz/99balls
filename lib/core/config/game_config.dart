@@ -14,6 +14,18 @@ const int kMaxStepsPerFrame = 8;
 /// İlk karede (ve arka plandan dönüşte) kabul edilen en büyük dt (sn).
 const double kFirstFrameMaxDt = 1 / 30;
 
+// --- Uzun kuyrukta otomatik hızlanma (yalnızca kare saati) -------------------
+
+/// flying fazında bu kadar gerçek süre (sn) geçince hızlanma başlar.
+const double kFastForwardAfter = 5;
+
+/// Kare saatinin en büyük çarpanı ve 1'den ona yükselme süresi (sn).
+const int kFastForwardMax = 4;
+const double kFastForwardRamp = 1.5;
+
+/// Hızlanmada karede en fazla adım: 8 × çarpan, mutlak üst sınır 32.
+const int kMaxStepsPerFrameFast = kMaxStepsPerFrame * kFastForwardMax;
+
 // --- Nişan çizgisi (PRD 5.2) -------------------------------------------------
 
 const double kGuideLength = 490;
