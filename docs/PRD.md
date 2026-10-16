@@ -547,8 +547,10 @@ Parçacıklar 64 nesnelik bir havuzdan alınır ve bitince havuza döner. Havuz 
 * **Ortak çizim:** `lib/themes/shared/base_theme_renderer.dart` (`BaseThemeRenderer`) HUD/zemin çubuğu, HP rakamları, "+3", yıldız Path'i, varsayılan disk ve kıvılcımı taşır; temalar arka plan, hedef, halka, yıldız, top ve kıvılcım biçimini ezer. Orbitfall çizim çağrısı golden testi korunur.
 * **Her tam tema için kabul:** HP durakları beyaz rakamla ≥ 3:1 kontrast, ardışık duraklar arası RGB uzaklığı ≥ 30, düşük HP turuncu/amber, `reference_distinction_test` geçer, ses ≈ 2 MB, efekt sayıları parçacık havuz bütçesinde, boost butonunun açık hali okunur (kontrast ≥ 3:1) ve vurgu rengi referans mavisinden uzak.
 
-- Referans oyundan görsel ayrışma ilkeleri (kopya/ban riski): HUD dolu mavi çubuk değil, yarı saydam koyu yüzey + ince açık kenar + tema vurgusudur; düşük HP'li hedefler kırmızı/pembe değil turuncu/amber tonundadır; arka planda mavi spot ışığı yoktur; menüde krem hap düğme ve mavi yuvarlak düğmeler kullanılmaz; ad ve mağaza metinlerinde "99 Balls" / "Evo" geçmez.
-- Açılış ekranı tüm oyunlarda ortak marka logosudur (siyah zemin); temadan bağımsızdır. Uygulama ikonu Orbitfall konseptinden türetilmiş tek ana tasarımdır; iOS (1024, alfa yok), Android adaptive (ön plan %78 + dikey degrade arka plan) ve mağaza (Play 512, App Store 1024) dosyaları `tools/icon/make_icon.py` ile bu ana dosyadan üretilir.
+- **Performans kuralları (M3p, J8 ölçümüyle):** Karede bulanıklık (`MaskFilter.blur`) yoktur: rakam gölgesi bulanıksız, 1 gu kaydırılmış koyu gölgedir; halıka ve HUD parıltısı bir kez bulanıklaştırılıp resme çevrilir ve her karede o resim basılır. Pixel Drop'ta bulanıklık hiç yoktur; hedefler, toplar, kıvılcımlar ve düşen bloklar tek atlas resminden toplu çizilir ve konumlar cihaz piksel adımına yuvarlanır. Her tema bu kurala uyar (test: bulanıklık yok, toplu çağrı sayısı). Impeller kapatıp Skia'ya geçilmez (Flutter'da kaldırılıyor).
+
+* Referans oyundan görsel ayrışma ilkeleri (kopya/ban riski): HUD dolu mavi çubuk değil, yarı saydam koyu yüzey + ince açık kenar + tema vurgusudur; düşük HP'li hedefler kırmızı/pembe değil turuncu/amber tonundadır; arka planda mavi spot ışığı yoktur; menüde krem hap düğme ve mavi yuvarlak düğmeler kullanılmaz; ad ve mağaza metinlerinde "99 Balls" / "Evo" geçmez.
+* Açılış ekranı tüm oyunlarda ortak marka logosudur (siyah zemin); temadan bağımsızdır. Uygulama ikonu Orbitfall konseptinden türetilmiş tek ana tasarımdır; iOS (1024, alfa yok), Android adaptive (ön plan %78 + dikey degrade arka plan) ve mağaza (Play 512, App Store 1024) dosyaları `tools/icon/make_icon.py` ile bu ana dosyadan üretilir.
 
 ## 8. Ses ve titreşim
 
@@ -982,7 +984,7 @@ Her kilometre taşı sonunda `flutter analyze` sıfır uyarı, `flutter test` he
 - [ ] Geri bildirim gerçek EmailJS üzerinden ulaşır; konu ve alanlar Bölüm 9.8'deki gibi.
 - [ ] Çıkış iki platformda da uygulamayı kapatır.
 - [ ] Küçük (iPhone SE) ve büyük (15 Pro Max) ekranda yerleşim aynı oranda görünür.
-- [ ] 10 dakika sürekli oyunda kare hızı 60 fps'in altına düşmez, bellek artışı gözlenmez.
+- [ ] 10 dakika sürekli oyunda kare hızı orta segment Android'de (2019 ve sonrası) 60 fps'in altına düşmez, bellek artışı gözlenmez. Alt uç cihazda (Galaxy J8, 2018, Adreno 506) gerçekçi tahtada (≈ 28 hedef, 99 top, 64 kıvılcım) raster süresi en fazla 33 ms (≥ 30 fps), en kötü tahtada (56 hedef) en fazla 50 ms olur. Ölçüm: tools/bench/theme\_bench.dart (profil modu).
 
 ### 14.3 Elle kabul listesi (Faz 2)
 
