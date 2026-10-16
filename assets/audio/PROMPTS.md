@@ -39,3 +39,23 @@ Neşeli, oyuncu şeker dünyası: marimba/ksilofon tınıları, pizzicato bas, b
 | `sfx_record` | 800 ms | Kısa fanfar C5–E5–G5, ardından C5–E5–G5–C6 marimba akoru |
 | `sfx_click` | 30 ms | 2.2 kHz sinüs, τ 4 ms |
 | `music_loop` | ~32.5 sn | 118 BPM, 16 ölçü, C–Am–F–G × 4, C majör pentatonik: marimba sekizlik melodi (A–B–A–B cümleleri), 2. ve 4. vuruşta yumuşak marimba akoru, B cümlesinde ksilofon süsü, 1. ve 3. vuruşta pizzicato bas (kök ve beşli), ara sekizliklerde seyrek tohumlu çıtırtı; dairesel kuyruk, sıfır geçişinde başlar/biter, RMS −16 dBFS |
+
+## Pixel Drop (`tools/audio/pixeldrop.py`, tohum 0x91DE1D)
+
+Yumuşatılmış çiptün: bant sınırlı darbe (pulse, harmonikler ≤ 3–5 kHz, katlanma yok) ve üçgen dalga,
+filtreli gürültü. Keskinliği alçak geçiren filtre ve yumuşak zarflar alır (PRD 8.5).
+
+| Dosya | Süre | Tarif |
+|---|---|---|
+| `sfx_shoot` | 60 ms | %25 darbe, 520 → 860 Hz yükselen "pew", τ 22 ms |
+| `sfx_wall` | 35 ms | 1.1 kHz üçgen tık (τ 5 ms) + 3 kHz alçak geçirenli gürültü |
+| `sfx_hit_1..3` | 80 ms | %50 kare "blip": D5 × {1, 9/8, 6/5}, τ 25 ms, 4 kHz alçak geçiren; sırayla döner |
+| `sfx_break` | 320 ms | 5 örnek tutmalı ("8-bit") gürültü kırılması (3.5 kHz alçak geçiren, τ 60 ms) + %25 darbe 900 → 180 Hz düşüş |
+| `sfx_pickup` | 210 ms | %25 darbe D5–F5–A5 yükselen arpej, 60 ms aralık |
+| `sfx_star` | 360 ms | %12.5 darbe A5 → D6 oktav-dörtlü sıçrama + A6 üçgen parıltı (τ 60 ms) |
+| `sfx_collect` | 180 ms | Üçgen 300 → 620 Hz yükselen ton + bant geçirenli gürültü "şşş" |
+| `sfx_advance` | 240 ms | Üçgen bas G3 → D3 iki adım "thum" |
+| `sfx_gameover` | 900 ms | %25 darbe D5–C5–A4–F4 inen dizi (aeolian), ardından D4 üçgen %8 aşağı süzülür |
+| `sfx_record` | 800 ms | %25 darbe D5–F5–A5 fanfar, ardından D5–F5–A5–D6 kare akor (3.5 kHz alçak geçiren) |
+| `sfx_click` | 30 ms | 1 kHz kare blip, τ 5 ms |
+| `music_loop` | ~31.0 sn | 124 BPM, 16 ölçü, D minör (dorian/aeolian karışımı), Dm7–G7–B♭maj7–Am7 × 4: %25 darbe senkoplu özgün melodi (A–B–A–B cümleleri), %50 kare akor arpeji (sekizlik, oktav üstte, çok alçak), üçgen bas (kök–oktav–beşli sekizlik desen), 1–3'te üçgen kick, 2–4'te yumuşak trampet, ara sekizliklerde hafif hat; dairesel kuyruk, 5 kHz alçak geçiren, sıfır geçişinde başlar/biter. RMS −18.8 dBFS (tepe sınırı −3 dBFS'te kaldı) |

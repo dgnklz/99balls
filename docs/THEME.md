@@ -7,11 +7,11 @@ kurallar, replay, skor ve `stateHash` hiçbir temada değişmez (testle doğrula
 |---|---|---|
 | Orbitfall | **Tam**, ücretsiz | Derin uzay ve yörüngeler |
 | Candy Burst | **Tam** (M3b) | Şeker/tatlı dünyası |
-| Pixel Drop | Yer tutucu | M3c'de |
+| Pixel Drop | **Tam** (M3c) | Kodla çizilen piksel dünyası |
 | Abyss | Yer tutucu | M3d'de |
 | Ink & Paper | Yer tutucu | M3e'de |
 
-Yer tutucular kayıtlı ve seçilebilir, ama henüz Orbitfall çizicisini, paletinin ton/doygunluk
+Yer tutucular (Abyss, Ink & Paper) kayıtlı ve seçilebilir, ama henüz Orbitfall çizicisini, paletinin ton/doygunluk
 varyantını ve Orbitfall seslerini kullanır (`lib/themes/placeholder/`).
 
 ## Orbitfall — gerekçe
@@ -30,6 +30,10 @@ varyantını ve Orbitfall seslerini kullanır (`lib/themes/placeholder/`).
 - **HUD ve zemin çubukları:** Dolu renk çubuk değil; yarı saydam, nötre yakın koyu yüzey
   (#0B0A18, %55–60 opak), oyun alanına bakan ince açık kenar çizgisi ve ortasında nane rengi
   vurgu.
+- **Efektler:** Vuruşta hedef nabzı ve camgöbeği kıvılcım; kırılmada madeni para dönüşü
+  ve "yıldız tozu"; halka/yıldızda büyüyüp solma; satır ilerlemede zemin kenarında ışık
+  süpürmesi; oyun sonunda kırmızı şok halkaları; 7. satırda tehlike nefesi.
+- **Ses:** Yumuşak sinüs tabanlı "plink", arpej ve pad'ler; sakin 92 BPM uzay ambiyansı.
 
 ## Candy Burst — gerekçe
 
@@ -53,6 +57,39 @@ varyantını ve Orbitfall seslerini kullanır (`lib/themes/placeholder/`).
 - **Ses:** Marimba/ksilofon, pizzicato bas, baloncuk pop ve şeker çıtırtısı; 118 BPM majör
   pentatonik neşeli döngü.
 
+## Pixel Drop — gerekçe
+
+- **Neden piksel:** Izgaraya dizilmiş numaralı toplar ve basamak basamak inen satırlar
+  zaten eski bir ekranın hücrelerini çağrıştırır. Orbitfall'ın yumuşak uzayına ve Candy
+  Burst'ün parlak şekerine karşı keskin kenarlı, sade, "ekran pikseli" kimliği. Tüm şekiller
+  kodla, 2 gu'luk tek bir ızgaraya oturtularak çizilir; görsel dosyası yoktur.
+- **Arka plan:** Koyu kahve-zeytin degrade (#17140D → #2A2616). Mavi değil, tek ton yeşil
+  değil: dört tonlu yeşil el konsolu paletini çağrıştırmaz (zemin tonu 30–60°, testli).
+  Petrol-teal elendi, çünkü orta HP durakları (deniz, petrol) ile karışıyordu. Üstünde sabit,
+  çok soluk yatay tarama çizgileri ve hücre adımlarıyla yavaşça düşen seyrek piksel blokları
+  ("drop"; amber, camgöbeği, orkide, krem). İkisi de bir kez kaydedilmiş Picture.
+- **Hedefler:** Piksel silüet; yalnızca tamamı çarpışma dairesinin içinde kalan hücreler
+  (24 hücre = 48 gu, eksenlerde 1 gu içeride, alanın %89.6'sı). Dolgu HP rengi; 1 hücrelik
+  açık kenar halkası (HP rengi + %35 beyaz; zeminden her HP'de ≥ 3:1, testli); halkanın hemen
+  içinde üst-sol parlak yay. Rakamlar özgün 3×5 piksel glif, hedef merkezine hizalı:
+  1–2 hanede 5 gu piksel (yükseklik çapın %50'si), 3 hanede 4 gu piksel (%40). Rakamlar her
+  HP'de (1–198) açık kenarın içinde kalır.
+- **HP durakları:** mandalina → amber → hardal → çimen → deniz → petrol → gök → çivit → mor →
+  orkide → mürdüm. Kenar yumuşatmasız rakam için Candy Burst'ten koyu ve doygun: beyazla her
+  durakta ≥ 4.5:1 (en düşük c0 4.79). Düşük HP turuncu (24°).
+- **Top ve halka:** Top sıcak beyaz piksel orb + tek parlak hücre. Halka camgöbeği, içi boş,
+  2 hücre kalın, %38 büyük; parıltısı 0.5 sn'lik iki kare arasında adımlı yanıp söner.
+  **Yıldız:** altın piksel yıldız; parlak karede gövdesinde tek beyaz hücre.
+- **HUD:** Yarı saydam koyu kahve yüzey (#120F09, %55/%60), ince krem kenar, amber vurgu.
+  Boost butonu açıkken amber dolgu üstünde koyu "»" (11:1).
+- **Efektler:** Kıvılcımlar ızgaraya oturan kare pikseller (hareket hücre hücre görünür);
+  vuruş ve kırılmada blok renkleriyle konfeti. Sayılar ve havuz bütçesi Candy Burst ile aynı.
+- **Ses:** Yumuşatılmış çiptün: bant sınırlı darbe (%25 ve %50) ve üçgen dalga, filtreli
+  gürültü ritim. 124 BPM, D minör (dorian/aeolian karışımı), Dm7–G7–B♭maj7–Am7 × 4. Melodi
+  bu proje için yazıldı, senkoplu ve geniş aralıklı; bilinen çiptün temalarına (Korobeiniki/
+  Tetris dahil) benzememesi gözetildi: Korobeiniki'nin noktalı 2/4 ritmi, A minör inen dizisi
+  ve cümle yapısı kullanılmadı. Kesin değerlendirme kulakla (cihazda) yapılmalı.
+
 ## Referans oyundan ayrışma
 
 Referans oyunun görünüşü: siyaha yakın zemin + mavi spot ışığı, kırmızı/pembe dolu hedefler,
@@ -61,8 +98,6 @@ yönlü spot ışığı yok (yalnızca dikey degrade + yıldız tozu), düşük 
 yarı saydam koyu yüzey; M4'teki menü düğmeleri krem hap ya da mavi yuvarlak olmayacak. Oyun içi boost butonu da bu
 kurala uyar: kapalıyken yarı saydam koyu yüzey + ince açık kenar + vurgu renginde "»", açıkken
 tema vurgusu dolgu (hiçbir temada mavi değil).
-`test/themes/reference_distinction_test.dart` bu kuralları her tema için denetler.
-- **Efektler:** Vuruşta hedef nabzı ve camgöbeği kıvılcım; kırılmada madeni para dönüşü
-  ve "yıldız tozu"; halka/yıldızda büyüyüp solma; satır ilerlemede zemin kenarında ışık
-  süpürmesi; oyun sonunda kırmızı şok halkaları; 7. satırda tehlike nefesi.
-- **Ses:** Yumuşak sinüs tabanlı "plink", arpej ve pad'ler; sakin 92 BPM uzay ambiyansı.
+`test/themes/reference_distinction_test.dart` bu kuralları her tema için denetler;
+`test/themes/boost_contrast_test.dart` boost butonunun her temada okunur (≥ 3:1) ve maviden
+uzak olduğunu denetler.

@@ -12,8 +12,8 @@ import '../orbitfall/orbitfall_theme.dart';
 /// kendi çizim, efekt ve ses kimlikleri yoktur:
 /// - görünüm: Orbitfall çizicisi + Orbitfall paletinin ton/doygunluk varyantı,
 /// - HP durakları, efekt ayarları ve sesler: Orbitfall'ınki (ortak).
-/// M3c–e'de her biri kendi teması ile değiştirilecek (Candy Burst M3b'de tamamlandı).
-const String kPixelDropId = 'pixeldrop';
+/// M3d–e'de her biri kendi teması ile değiştirilecek (Candy Burst M3b'de, Pixel
+/// Drop M3c'de tamamlandı).
 const String kAbyssId = 'abyss';
 const String kInkPaperId = 'inkpaper';
 
@@ -72,8 +72,6 @@ GameTheme _placeholder(
       createRenderer: OrbitfallRenderer.new,
     );
 
-final GameTheme pixelDropTheme =
-    _placeholder(kPixelDropId, (l) => l.themePixelDrop, hueShift: -80);
 final GameTheme abyssTheme = _placeholder(kAbyssId, (l) => l.themeAbyss, hueShift: -40);
 final GameTheme inkPaperTheme =
     _placeholder(kInkPaperId, (l) => l.themeInkPaper, saturationScale: 0.25);

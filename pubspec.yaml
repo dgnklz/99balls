@@ -37,6 +37,7 @@ flutter:
   assets:
     - assets/audio/orbitfall/
     - assets/audio/candyburst/
+    - assets/audio/pixeldrop/
 
 # Native splash: marka kimliği, tüm oyunlarda ortak. SudokuPure v2.0.0
 # yapılandırmasından birebir uyarlandı (yalnızca dosya yolları değişti).

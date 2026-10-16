@@ -2,10 +2,12 @@ import '../core/config/game_config.dart';
 import 'candyburst/candyburst_theme.dart';
 import 'game_theme.dart';
 import 'orbitfall/orbitfall_theme.dart';
+import 'pixeldrop/pixeldrop_theme.dart';
 import 'placeholder/placeholder_themes.dart';
 import 'theme_access.dart';
 
-/// Beş tema (PRD 7.4.1). Orbitfall ve Candy Burst tam; diğer üçü yer tutucu.
+/// Beş tema (PRD 7.4.1). Orbitfall, Candy Burst ve Pixel Drop tam; Abyss ve
+/// Ink & Paper yer tutucu.
 abstract final class ThemeRegistry {
   static final List<GameTheme> all = List.unmodifiable([
     orbitfallTheme,

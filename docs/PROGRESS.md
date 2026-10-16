@@ -12,7 +12,7 @@
 - M3a düzeltme turları: zemin neonu atış noktasını izler, "+3" yazısı okunur, ses marjı (SFX 0.8), tam ekran (immersive sticky), dönüşte hızlı gizleme, kenar koruma şeridi.
 
 ## Sıradaki
-- M3b-e: Candy Burst, Pixel Drop, Abyss, Ink & Paper (görsel, efekt, ses).
+- M3d-e: Abyss, Ink & Paper (görsel, efekt, ses).
 - M4: ana menü, ayarlar (tema seçici dahil), dil penceresi, url_launcher, geri bildirim (EmailJS).
 - M5: yaşam döngüsü, duraklatmada müzik %40, OFL yazı tipi.
 - M6: performans, mağaza hazırlığı, iOS ana ekran göstergesi/sistem hareketleri (Mac gerekir), ad ve ikon benzerlik kontrolü.
@@ -33,3 +33,7 @@
 - Cihazda bakılacak: c2 limon-yeşil ve parlak vurgu ile rakam okunurluğu (öncelikli), FPS, döngü eki, tema geçişi.
 - 2026-10-16 · Boost butonu: otomatik hızlanma kalktı; uçuş 8 sn'yi aşınca sağ altta "»" butonu belirir (tek nabız), basınca rampayla 4×, tekrar basınca 1×; uçuş bitince kaybolur ve sıfırlanır. Yalnızca kare saati (skor/stateHash/replay aynı, testli). Basış nişana düşmez (solarken de yutulur).
 - Not: boost ilk kullanım ipucu (ne işe yaradığını anlatan metin) M4/M5'te.
+- 2026-10-16 · M3c Pixel Drop: tam tema. Koyu kahve-zeytin zemin + tarama çizgisi + hücre adımlı düşen bloklar; 2 gu ızgarada piksel hedef (silüet çarpışma dairesinin içinde, 48 gu), açık kenar halkası, özgün 3×5 piksel rakam (1–2 hane %50, 3 hane %40 yükseklik); piksel top/halka/yıldız, kare kıvılcım. Kendi sesleri: bant sınırlı darbe + üçgen çiptün, 124 BPM D minör (dorian/aeolian), 1.59 MB.
+- analyze temiz, 393 test yeşil; game_core değişmedi; Orbitfall/Candy ses dosyaları bayt bayt aynı.
+- Profil ölçümü (Galaxy J8, Impeller/OpenGLES, en kötü tahta: 56 hedef + 99 top + 6 halka + 64 kıvılcım + HUD), raster ort: Pixel Drop 83 → 50 ms (Path'ler satır parçalarına birleştirildi: hedef 440 → 24 parça); Orbitfall 228 ms, Candy 236 ms. Orbitfall/Candy'de hedef maliyetinin ~%90'ı rakam gölgesinin bulanıklığı (56 gölgeli rakam 120 ms, gölgesiz 8.5 ms). Pixel Drop'ta artık çizim çağrısı sayısı belirleyici. Öneriler M6'ya: gölgesiz/önbellekli rakam, sprite + toplu çizim (drawAtlas), bulanık parıltının kaldırılması, Skia ile karşılaştırma. Geçici ölçüm düzeneği silindi.
+- Cihazda bakılacak: 3 haneli HP okunuyor mu, c10 (mürdüm) hedef zeminden ayrışıyor mu, müzik döngü eki ve tını (keskin değil mi), Pixel Drop FPS (yeniden ölçüm).

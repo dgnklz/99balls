@@ -42,6 +42,24 @@ def triangle(freq, t: np.ndarray) -> np.ndarray:
     return 2 / np.pi * np.arcsin(sine(freq, t))
 
 
+def pulse(freq, duty: float, t: np.ndarray, max_hz: float = 5000.0) -> np.ndarray:
+    """Bant sınırlı darbe (pulse) dalgası: toplamalı sentez, harmonikler
+    ≤ max_hz. Örnekleme hızında katlanma (aliasing) yok; çiptün tınısı
+    keskin ve kulak tırmalayıcı olmaz. Doğru akım bileşeni yoktur.
+
+    duty: darbe genişliği (0.5 = kare, 0.25 / 0.125 = daha ince tını).
+    """
+    freq = np.broadcast_to(np.asarray(freq, dtype=np.float64), t.shape)
+    rate = 1.0 / (t[1] - t[0]) if len(t) > 1 else 1.0
+    phase = 2 * np.pi * np.cumsum(freq) / rate
+    top = float(np.max(freq)) if len(t) else 1.0
+    harmonics = max(1, int(min(max_hz, rate / 2) // top))
+    out = np.zeros_like(phase)
+    for k in range(1, harmonics + 1):
+        out += np.sin(np.pi * k * duty) / k * np.cos(k * phase - np.pi * k * duty)
+    return out * (4 / np.pi) / 2
+
+
 def sweep(f0: float, f1: float, t: np.ndarray) -> np.ndarray:
     """Üstel frekans süpürmesi f0 → f1."""
     u = t / t[-1] if t[-1] > 0 else t

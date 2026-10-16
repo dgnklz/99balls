@@ -410,3 +410,62 @@ const double kCandyStarGlossRadius = 2.5;
 /// Serpinti biçimli kıvılcım: hız yönünde kısa, yuvarlak uçlu çubuk.
 const double kCandySparkLength = 6;
 const double kCandySparkWidth = 2.2;
+
+// --- Pixel Drop çizimi -------------------------------------------------------
+
+/// Piksel ızgarası (gu). Hedef, top, halka, yıldız, kıvılcım ve arka plan
+/// blokları bu ızgaraya oturur; ızgara çizgileri hedef merkezinden geçer.
+/// Silüet yalnızca tamamı kTargetRadius içinde kalan hücrelerdir (görünüm
+/// çarpışma dairesini aşmaz); 2 gu hücreyle hedef 24 hücre (48 gu) genişliğinde,
+/// eksenlerde görünümle çarpışma arasındaki boşluk 1 gu.
+const double kPixelCell = 2;
+
+/// HP rakamı: 3×5 piksellik glif, hedef merkezine hizalı. 1–2 hanede rakam
+/// pikseli [kPixelDigitPx] (yükseklik 25 gu = çapın %50'si), 3 hanede
+/// [kPixelDigitPx3] (20 gu = %40). Rakam pikselleri hedef ızgarasından
+/// bağımsızdır; haneler arası boşluk [kPixelDigitGap] / [kPixelDigitGap3].
+const int kPixelGlyphCols = 3;
+const int kPixelGlyphRows = 5;
+const double kPixelDigitPx = 5;
+const double kPixelDigitGap = 5;
+const double kPixelDigitPx3 = 4;
+const double kPixelDigitGap3 = 2;
+
+/// Hedefin 1 hücrelik kenar halkası: HP rengi ile beyazın karışımı (beyaz
+/// oranı). Koyu duraklar koyu zeminden en az 3:1 ayrışır (testli).
+const double kPixelRimWhiteMix = 0.35;
+
+/// Hedefin üst-sol parlak yayı: halkanın hemen içindeki hücreler, merkez
+/// açısı bu aralıkta (derece; ekran koordinatı, y aşağı: 225° = sol üst).
+/// Rakam köşelerine değmeyecek kadar yukarıda (testli).
+const double kPixelGlossFromDeg = 225;
+const double kPixelGlossToDeg = 260;
+const double kPixelGlossAlpha = 0.4;
+
+/// Topun parlak hücresi (sol üst köşesi, merkeze göre gu).
+const double kPixelBallGlintX = -6;
+const double kPixelBallGlintY = -8;
+
+/// Halka: dış kenar kPickupRadius, kalınlık 2 hücre (4 gu; kPickupStroke'a yakın).
+const int kPixelRingCells = 2;
+
+/// Halka ve yıldızın adımlı iki kareli parıltısı (yalnız görsel): kare süresi
+/// ve sönük karede parıltı saydamlığı.
+const double kPixelBlinkSec = 0.5;
+const double kPixelBlinkDimAlpha = 0.45;
+
+/// Yıldızın parlak karede beyaz yanan hücresi (sol üst köşesi, merkeze göre gu).
+const double kPixelStarGlintX = -4;
+const double kPixelStarGlintY = -2;
+
+/// Arka plan: sabit, çok soluk yatay tarama çizgileri (periyot, kalınlık gu).
+const double kPixelScanlinePeriod = 4;
+const double kPixelScanlineHeight = 2;
+const double kPixelScanlineAlpha = 0.035;
+
+/// Arka plan: yavaşça düşen seyrek piksel blokları (1–2 hücre kare). Kayma
+/// hücre adımlarıyla yapılır (piksel hissi).
+const int kPixelDropCount = 30;
+const int kPixelDropMaxCells = 2;
+const double kPixelDropAlpha = 0.22;
+const double kPixelDropSpeed = 8;

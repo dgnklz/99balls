@@ -40,8 +40,8 @@ Map<String, ThemeSounds> _soundSets() {
 void main() {
   final sets = _soundSets();
 
-  test('Orbitfall and Candy Burst each have their own sound folder', () {
-    expect(sets.keys.toSet(), {'orbitfall', 'candyburst'});
+  test('Orbitfall, Candy Burst and Pixel Drop each have their own sound folder', () {
+    expect(sets.keys.toSet(), {'orbitfall', 'candyburst', 'pixeldrop'});
   });
 
   for (final MapEntry(key: folder, value: sounds) in sets.entries) {
