@@ -237,7 +237,7 @@ Yıldız (bölüm 5.11) altın sarısı, yıldız biçimli ve halkadan açıkça
 | Öğe | Konum (merkez, gu) | Boyut | Not |
 | --- | --- | --- | --- |
 | Müzik ikonu | (30, 26) | 28×28, dokunma alanı min 48×48 | Müziği açıp kapatır (bölüm 8) |
-| Tur sayacı | (208, 26) | Yazı yüksekliği 26, kalın | Tur numarası = skor |
+| Tur sayacı | (208, 26) | Yazı yüksekliği 26, kalın | Canlı skor: tur sayacı + 3 × yıldız (bölüm 5.6 ve 5.11) |
 | Duraklat ikonu | (386, 26) | 28×28, dokunma alanı min 48×48 | Rekabetçi modda gizli (bölüm 11) |
 | Top ikonu | (39, 669) | Çap 24 | Dolu daire, süs değil |
 | Top sayısı | (208, 669) | Yazı yüksekliği 26, kalın | Nişan/nişan: atışta kalan top sayısı (bölüm 5.6) |
@@ -273,8 +273,17 @@ Bu bölüm oyunun kurallarını adım adım tanımlar. Ölçülen değerler refe
 
 - Yalnızca geçerli nişan sürerken görünür. Fırlatma noktasından başlar.
 - Kesikli çizgi: çizgi kalınlığı 3 gu, dash 12 gu, boşluk 12,6 gu (periyot 24,6), tema vurgu rengi, opaklık 0,9; son 40 gu içinde saydamlaşarak biter.
-- **Toplam uzunluk sabit**: 490 gu (`GUIDE_LENGTH`). Çizgi, topun gerçek yolunu önceden hesaplar: duvarlardan, tavandan ve sayılı toplardan yansır (bölüm 5.3'teki aynı çarpışma kodu kullanılır), halkaları yok sayar, zeminde biter. Yansıma sayısı sınırsızdır; uzunluk dolunca çizgi kesilir.
-- Çizgi her karede en fazla bir kez yeniden hesaplanır.
+- **Uzunluk sürüklemeyle uzar**: nişan başladığında 60 gu (`GUIDE_MIN_LENGTH`), ölü bölgeden sonraki 120 gu'luk sürüklemede (`GUIDE_RAMP_DISTANCE`) doğrusal olarak azami 490 gu'ya (`GUIDE_LENGTH`) çıkar; dokunur dokunmaz tam boy çıkmaz. Çizgi, topun gerçek yolunu önceden hesaplar: duvarlardan, tavandan ve sayılı toplardan yansır (bölüm 5.3'teki aynı çarpışma kodu kullanılır), halkaları yok sayar, zeminde biter. En çok 64 segment çizilir; uzunluk dolunca çizgi kesilir. Solma, çizginin o anki ucuna göre hesaplanır.
+- Çizgi her karede en fazla bir kez yeniden hesaplanır. Kesik parçalar kayan nokta mod (%) işlemiyle değil, parça indeksiyle (k × periyot) üretilir ve segment başına en çok 100 parça çizilir; mod tabanlı yöntem cihazda sonsuz döngüye (ANR) yol açmıştır.
+
+#### 5.2.1 İnce nişan (artımlı eşleme)
+
+- Açıyı yalnızca parmağın anlık konumundan hesaplamak kısa sürüklemede çok hassastır: sürükleme uzunluğu L = 40 gu iken 1 gu'luk dik hareket 1,4° döndürür (L = 10 gu iken 5,7°). Kabul ölçütü: 1 gu'luk parmak hareketi her L için en fazla ≈0,48° değiştirmelidir.
+- Parmak ölü bölgeden çıkınca (≥ 10 gu) ilk yön mutlaktır (ham yön). Sonraki her harekette ham açı farkı bir kazançla uygulanır: φ += Δφ × min(1, L / 120) (`AIM_MIN_RADIUS` = 120 gu). L ≥ 120 gu'da kazanç 1'dir (ham davranış).
+- Ölü bölge histerezislidir: nişan 10 gu'da başlar, 6 gu'nun altına inince biter. İptal bölgesine (a.y ≥ 0) ya da ölü bölgeye dönünce nişan sıfırlanır; yeniden çıkınca yine mutlak başlar.
+- φ, \[5°, 175°\] aralığına sıkıştırılır ve `aimFromDrag` ile (vx, vy) üretilir (vektör uzunluğu 100). Kılavuzun çizildiği yön ile ateşlenen yön aynı `Shot`'tır.
+- Bedel: eşleme yola bağlıdır; kısa çekişte parmak başlangıca dönünce açı birebir aynı yere dönmeyebilir. Bu, ince ayar için bilinçli bir takastır.
+- Bu katman yalnızca görünüm/girdi tarafındadır; `game_core` içindeki `aimFromDrag`, `Shot` ve `isValidShot` değişmez.
 
 ### 5.3 Atış, hız ve çarpışmalar
 
@@ -304,12 +313,19 @@ Oyun, aşağıdaki durumlardan birinde bulunur. Bir anda yalnızca biri etkindir
 | --- | --- | --- |
 | `ready` | Oyuncu nişan alabilir. Alt sayaç `ballCount` gösterir. Fırlatma noktasında 1 top görünür | Geçerli bırakma: `firing`'e geç |
 | `firing` | Toplar 17 adım arayla çıkar. Alt sayaç her çıkışta 1 azalır (N, N−1, ... 0). Girdi yok sayılır | Son top çıkınca: `flying`'e geç |
-| `flying` | Toplar uçar, çarpışır, halka toplar. Alt sayaç 0'da durur | Havada top kalmayınca: `collecting`'e geç |
-| `collecting` | İnmiş toplar 0,25 sn'de fırlatma noktasına kayıp birleşir (kayma `ease-in-out`). Toplanan halka sayısı `pendingBalls`'a işlenmiştir | Animasyon bitince: `advancing`'e geç |
+| `flying` | Toplar uçar, çarpışır, halka toplar. Alt sayaç 0'da durur. Yere inen her top, ilk inen topun x'ine hemen kayar (görsel birleşme, aşağıdaki collecting satırı) | Havada top kalmayınca: `collecting`'e geç |
+| `collecting` | İnen toplar, ilk inen topun x'ine sabit hızla (`MERGE_SPEED` = 1600 gu/sn) kayıp birleşir; ilk top yerinde kalır. Kayma her top indiği anda başlar ve hepsinin inmesini beklemez. Yalnızca görseldir, çekirdek durumunu etkilemez. `collecting` süresi 0,25 sn'dir; yetişemeyen top süre bitince hedefe oturur. Toplanan halka sayısı `pendingBalls`'a işlenmiştir | Animasyon bitince: `advancing`'e geç |
 | `advancing` | `ballCount += pendingBalls` (en çok 99), `pendingBalls = 0`. Yeni satır üretilir (bölüm 6), tüm nesneler 1 satır aşağı kayar (0,18 sn, `easeOutCubic`), tur sayacı +1 olur, alt sayaç yeni `ballCount`'a döner | Kayma bitince: 9. satıra inmiş sayılı top varsa `gameOver`, yoksa `ready` |
 | `gameOver` | Biten satırdaki toplar 0,6 sn vurgulanır (kırmızıya yanıp söner), ardından oyun sonu ekranına geçilir (bölüm 9.5) | Yeniden başlat veya ana menü |
 
 Duraklatma bir durum değil, bir üst katmandır: oyun donar, durum makinesi aynı yerde bekler.
+
+#### 5.4.1 Uzun uçuşta otomatik hızlanma
+
+- Yataya yakın tek bir topun çok uzun sürmesi (≈12 sn) tempoyu bozar. `flying` fazında geçen gerçek süre `FAST_FORWARD_AFTER` = 8 sn'yi aşarsa, kare saati karede işlenen sabit adım sayısını 1'den 4'e (`FAST_FORWARD_MAX`) 1,5 sn'de (`FAST_FORWARD_RAMP`) doğrusal artırır.
+- Sayaç yalnızca `flying` fazını sayar; `firing` fazı sayılmaz (99 toplu atış ≈14 sn sürer). flying'e girişte, flying'den çıkışta ve her yeni atışta sıfırlanır; faz `flying`'den çıkınca çarpan hemen 1'e döner, `collecting` ve `advancing` hızlanmaz.
+- Her adım yine 1/120 sn'lik `step()`'tir: simülasyon, replay ve `stateHash` değişmez. Karede en çok 8 × çarpan, mutlak en çok 32 adım işlenir (sonsuz döngü yok).
+- Rekabetçi modda da aynıdır; yalnızca görünüm hızıdır.
 
 ### 5.5 Top sayısı ve sayaç kuralları
 
@@ -330,7 +346,7 @@ Duraklatma bir durum değil, bir üst katmandır: oyun donar, durum makinesi ayn
 
 ### 5.8 İlk çalıştırma öğretici katmanı
 
-- Tercih `tutorialSeen` yoksa, ilk oyunun ilk `ready` durumunda gösterilir: oyun alanının ortasında `tutorial_slide_to_shoot` metni (başlangıç: "Slide to shoot") ve ekranın ortasında bir el ikonu ile beyaz bir nokta. El, noktayı aşağı-sola çekip bırakır; nişan çizgisi bu yöne göre yukarı-sağa uzanır. Döngü 2,4 sn, sonsuz tekrar.
+- Tercih `tutorialSeen` yoksa, ilk oyunun ilk `ready` durumunda gösterilir: oyun alanının ortasında `tutorialAim` metni (başlangıç: "Press anywhere, pull back and release to shoot") ve ekranın ortasında bir el ikonu ile beyaz bir nokta. El, noktayı aşağı-sola çekip bırakır; nişan çizgisi bu yöne göre yukarı-sağa uzanır. Döngü 2,4 sn, sonsuz tekrar.
 - Oyuncu ilk kez ekrana basınca katman hızla solar. İlk geçerli atış yapılınca `tutorialSeen = true` yazılır. Daha sonraki oyunlarda gösterilmez. Ayrıntılı anlatım "How to Play" ekranındadır.
 
 ### 5.9 Girdi dışı olaylar
@@ -502,12 +518,20 @@ Parçacıklar 64 nesnelik bir havuzdan alınır ve bitince havuza döner. Havuz 
 
 ### 7.4 Tema yönergesi (yapay zeka için)
 
-- Yapay zeka tek, tutarlı bir tema konsepti seçer (örnık yönler: uzay, şeker, okyanus, neon; seçim ona aittir) ve gerekçesini `docs/THEME.md` içine kısa yazar.
+- Yapay zeka beş tema konsepti seçer (bkz. 7.4.1; Orbitfall, Candy Burst, Pixel Drop, Abyss, Ink & Paper) ve gerekçesini `docs/THEME.md` içine kısa yazar.
 - Teslimat: `app_theme.dart` ve `palette.dart` içinde şu alanlar: `bgGradientTop`, `bgGradientBottom`, `hudBar`, `floorBar`, `accent` (nişan çizgisi ve atılan top), `pickupGlow`, `textPrimary`, `textSecondary`, `danger`, `buttonPrimary`, `buttonSecondary`, `popupSurface`; ve `hp_colors.dart` durakları (7.1).
 - Özgün logo (kodla çizilen vektör), uygulama ikonu, oyun adı. Logo ana menüde üst yarının tam ortasındadır (bölüm 9.1).
 - Arka plan koyu veya orta-koyu tonlu olmalı; renkli topların öne çıkmasını sağlamalıdır. HUD ve zemin çubukları arka plandan ayrı görünmelidir.
 - Atılan top (halka veya dolu orb olabilir) ile toplanabilir halka birbirinden **hızla ayırt edilebilmeli**: toplanabilir halka %33 daha büyük (yarıçap 18 ve 13) ve parlayan ayrı bir vurgu renginde olur.
 - Yazı tipi: tek bir OFL yazı tipi ailesi, en fazla 2 ağırlık (Regular ve Bold). Sayılar için aynı ailenin dar (condensed) biçimi ya da tabular rakamlar kullanılır.
+
+#### 7.4.1 Beş tema ve kilit mimarisi
+
+- Beş tema vardır: Orbitfall (ücretsiz), Candy Burst, Pixel Drop, Abyss, Ink & Paper. Her birinin kendi renk paleti, top/hedef/halka çizimi, arka planı, parçacık efektleri ve kendi ses kimliği (müzik döngüsü + efektler) vardır.
+- Temalar yalnızca görünüm ve sestir: çarpışma yarıçapları, yerleşim, kurallar, replay, skor ve `stateHash` hiçbir temada değişmez.
+- Mimari: `GameTheme` (palet, çizim, efekt, ses alanları), `ThemeRegistry` (beş tema), seçilen tema `theme_id` ile kaydedilir. `ThemeAccess.isUnlocked(theme)` kilit sorusunun tek kapısıdır; v1'de `kAllThemesUnlocked = true` (test için hepsi açık). Kayıtlı tema bulunamaz ya da kilitliyse ücretsiz temaya (Orbitfall) dönülür.
+- Sonraki sürümlerde üyelik: Orbitfall ücretsiz, diğer dördü kilitli. Yerel bir bayrak güvenli değildir; gerçek üyelik mağaza faturalandırması (Google Play Billing, iOS IAP) ve doğrulama gerektirir. Tüm temalar herkese açık yayımlandıktan sonra kilitlenirse mevcut kullanıcılar için eski haklar korunur (grandfathering).
+- Tüm görseller kodla (CustomPainter) üretilir; sesler `tools/audio/` altındaki Python betikleriyle sentezlenir. Tema başına ses bütçesi yaklaşık 2 MB.
 
 ## 8. Ses ve titreşim
 

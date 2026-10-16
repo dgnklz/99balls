@@ -17,7 +17,7 @@ const double kFirstFrameMaxDt = 1 / 30;
 // --- Uzun kuyrukta otomatik hızlanma (yalnızca kare saati) -------------------
 
 /// flying fazında bu kadar gerçek süre (sn) geçince hızlanma başlar.
-const double kFastForwardAfter = 5;
+const double kFastForwardAfter = 8;
 
 /// Kare saatinin en büyük çarpanı ve 1'den ona yükselme süresi (sn).
 const int kFastForwardMax = 4;
