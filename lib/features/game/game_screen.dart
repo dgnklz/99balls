@@ -53,7 +53,9 @@ class _GameScreenState extends ConsumerState<GameScreen> {
 
   void _onPointerMove(PointerMoveEvent event) {
     final fit = _fit;
-    if (fit != null) _game.pointerMove(event.pointer, event.position, fit.scale);
+    // Sıfır boyutlu yerleşimde ölçek 0 olur; bölme NaN/∞ üretmesin.
+    if (fit == null || !(fit.scale > 0) || !fit.scale.isFinite) return;
+    _game.pointerMove(event.pointer, event.position, fit.scale);
   }
 
   void _onPointerUp(PointerUpEvent event) {

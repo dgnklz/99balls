@@ -43,7 +43,9 @@ class GuidePath {
     _endsOnFloor = false;
     _addPoint(x, y);
 
-    while (_pointCount <= kGuideMaxSegments && remaining > 0) {
+    // Açık sayaçlı döngü: her turda en fazla bir segment eklenir ve tur sayısı
+    // kGuideMaxSegments ile sınırlıdır (sonlanma _addPoint'e bağlı değildir).
+    for (var segment = 0; segment < kGuideMaxSegments && remaining > 0; segment++) {
       var best = kNoHit;
       var contact = _Contact.none;
       var hitRow = -1;

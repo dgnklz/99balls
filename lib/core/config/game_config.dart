@@ -26,6 +26,9 @@ const double kGuideFadeLength = 40;
 /// Sonsuz yansımaya karşı segment sınırı.
 const int kGuideMaxSegments = 64;
 
+/// Bir segmentte üretilecek en fazla kesik parça (490 gu ≈ 21 parça).
+const int kGuideMaxDashesPerSegment = 100;
+
 // --- Nesne çizimi (PRD 4.3, 5.11, 7.1) ---------------------------------------
 
 /// Atılan topun çizgi kalınlığı.
