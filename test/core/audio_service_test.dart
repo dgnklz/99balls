@@ -17,10 +17,30 @@ class FakeAudioBackend implements AudioBackend {
   Future<void> preload({required List<String> sfx, required String music}) async =>
       preloads.add([...sfx, music]);
 
+  final List<bool> flightSounds = [];
+  final List<bool> important = [];
+  final List<int> durations = [];
+  int cuts = 0;
+
   @override
-  void playSfx(String file, double volume) {
+  void playSfx(
+    String file,
+    double volume, {
+    bool important = false,
+    bool flightSound = false,
+    int durationMs = 0,
+  }) {
     sfx.add(file);
     sfxVolumes.add(volume);
+    flightSounds.add(flightSound);
+    this.important.add(important);
+    durations.add(durationMs);
+  }
+
+  @override
+  void cutFlightSfx({void Function(SfxCutReport report)? onReport}) {
+    cuts++;
+    onReport?.call(const SfxCutReport(pending: 0, stopped: 0, lateStopped: 0, skippedBackpressure: 0));
   }
 
   @override
@@ -184,6 +204,109 @@ void main() {
       await h.service.setTheme(other);
       expect(h.backend.preloads.last, ['other/sfx_shoot.wav', 'other/music_loop.wav']);
       expect(h.backend.calls.last, 'play:other/music_loop.wav@$kMusicVolume');
+    });
+  });
+
+  group('flight end', () {
+    test('only hit and wall are flight sounds; the rest are never cut', () async {
+      final h = await _ready();
+      for (final key in SfxKey.values) {
+        h.now += 1000;
+        expect(h.service.play(key), isTrue, reason: '$key');
+        expect(h.backend.flightSounds.last, key == SfxKey.hit || key == SfxKey.wall,
+            reason: '$key');
+      }
+    });
+
+    test('endFlight asks the backend to cut flight sounds; later sounds still play', () async {
+      final h = await _ready();
+      expect(h.service.play(SfxKey.hit), isTrue);
+      h.service.endFlight();
+      expect(h.backend.cuts, 1);
+      // Toplama ve satır sesleri uçuş sonunda çalar, kesilmez.
+      expect(h.service.play(SfxKey.collect), isTrue);
+      expect(h.backend.flightSounds.last, isFalse);
+      // Yeni uçuşun vuruşları normal çalar (50 ms kuralı aynen).
+      h.now += kSfxMinGapMs;
+      expect(h.service.play(SfxKey.hit), isTrue);
+      expect(h.backend.flightSounds.last, isTrue);
+    });
+  });
+
+  group('priority and crowd thinning', () {
+    const unimportant = {SfxKey.hit, SfxKey.wall, SfxKey.shoot};
+
+    test('hit, wall and shoot are unimportant; every other key is important', () async {
+      final h = await _ready();
+      for (final key in SfxKey.values) {
+        h.now += 1000;
+        expect(h.service.play(key), isTrue, reason: '$key');
+        expect(h.backend.important.last, !unimportant.contains(key), reason: '$key');
+      }
+    });
+
+    test('the sound duration is passed to the backend', () async {
+      final h = await _ready();
+      expect(h.service.play(SfxKey.hit), isTrue);
+      expect(h.backend.durations.last, orbitfallSounds.durationsMs[h.backend.sfx.last]);
+    });
+
+    test('$kSfxCrowdBalls+ balls in flight: hit plays at t=0, not at t=60, again at t=100',
+        () async {
+      final h = await _ready();
+      h.service.setCrowd(kSfxCrowdBalls);
+      expect(h.service.play(SfxKey.hit), isTrue);
+      h.now = 60;
+      expect(h.service.play(SfxKey.hit), isFalse);
+      h.now = kSfxCrowdMinGapMs;
+      expect(h.service.play(SfxKey.hit), isTrue);
+      // Duvar da aynı kurala uyar.
+      h.now = 1000;
+      expect(h.service.play(SfxKey.wall), isTrue);
+      h.now = 1060;
+      expect(h.service.play(SfxKey.wall), isFalse);
+    });
+
+    test('${kSfxCrowdBalls - 1} balls: the PRD 8.1 gap of $kSfxMinGapMs ms is unchanged', () async {
+      final h = await _ready();
+      h.service.setCrowd(kSfxCrowdBalls - 1);
+      expect(h.service.play(SfxKey.hit), isTrue);
+      h.now = kSfxMinGapMs - 1;
+      expect(h.service.play(SfxKey.hit), isFalse);
+      h.now = kSfxMinGapMs;
+      expect(h.service.play(SfxKey.hit), isTrue);
+    });
+
+    test('in a crowd, break, pickup and star still play every $kSfxMinGapMs ms', () async {
+      final h = await _ready();
+      h.service.setCrowd(99);
+      for (final key in [SfxKey.breakTarget, SfxKey.pickup, SfxKey.star]) {
+        h.now += 1000;
+        expect(h.service.play(key), isTrue, reason: '$key');
+        h.now += kSfxMinGapMs;
+        expect(h.service.play(key), isTrue, reason: '$key again after 50 ms');
+      }
+    });
+
+    test('in a crowd, hit variants still rotate 1-2-3', () async {
+      final h = await _ready();
+      h.service.setCrowd(99);
+      for (var i = 0; i < 6; i++) {
+        h.now += 30; // seyreltilen istekler sırayı ilerletmez
+        h.service.play(SfxKey.hit);
+      }
+      final hits = h.backend.sfx.where((f) => f.contains('sfx_hit')).toList();
+      expect(hits, ['orbitfall/sfx_hit_1.wav', 'orbitfall/sfx_hit_2.wav']);
+    });
+
+    test('at most $kSfxMaxConcurrent sounds at once still holds (PRD 8.1)', () async {
+      final h = await _ready();
+      h.service.setCrowd(99);
+      var played = 0;
+      for (final key in SfxKey.values) {
+        if (h.service.play(key)) played++;
+      }
+      expect(played, lessThanOrEqualTo(kSfxMaxConcurrent));
     });
   });
 }

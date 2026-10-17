@@ -3,12 +3,24 @@ import 'package:flutter/foundation.dart';
 
 import '../config/game_config.dart';
 import 'audio_service.dart';
+import 'flight_sfx_gate.dart';
+import 'sfx_dispatcher.dart';
 
 /// flame_audio ile gerçek oynatıcı. SFX'ler dosya başına bir AudioPool ile
 /// önceden açılır (düşük gecikme); müzik Bgm ile döngüde çalar.
 /// Platform hataları yutulur: ses çalmasa da oyun sürer.
+///
+/// Başlatmalar [SfxDispatcher]'dan geçer (geri basınç): AudioPool'un dosya
+/// kilidinde ve Android ana iş parçacığında kuyruk birikmez; durdurma komutları
+/// da uzun bir kuyruğun arkasında kalmaz.
+///
+/// Uçuş sesleri uçuş bitince [FlightSfxGate] ile kesilir. Kesme sert durdurmadır:
+/// AudioPool yalnızca durdurma işlevi verir, oynatıcıya (ses seviyesi rampası
+/// için) erişim vermez; sesler ≤ 110 ms olduğundan yalnızca son kısımları kesilir.
 class FlameAudioBackend implements AudioBackend {
   final Map<String, AudioPool> _pools = {};
+  final FlightSfxGate _flight = FlightSfxGate();
+  final SfxDispatcher _dispatcher = SfxDispatcher();
 
   @override
   Future<void> preload({required List<String> sfx, required String music}) async {
@@ -24,13 +36,42 @@ class FlameAudioBackend implements AudioBackend {
   }
 
   @override
-  void playSfx(String file, double volume) {
+  void playSfx(
+    String file,
+    double volume, {
+    bool important = false,
+    bool flightSound = false,
+    int durationMs = 0,
+  }) {
     final pool = _pools[file];
     if (pool == null) return;
-    pool.start(volume: volume).catchError((Object e) {
-      debugPrint('SFX failed: $e');
-      return () async {};
-    });
+    final started = _dispatcher.dispatch<StopSfx>(
+      file,
+      () => pool.start(volume: volume).catchError((Object e) {
+        debugPrint('SFX failed: $e');
+        return () async {};
+      }),
+      important: important,
+    );
+    if (started == null) return;
+    _flight.track(started, flightSound: flightSound, durationMs: durationMs);
+  }
+
+  @override
+  void cutFlightSfx({void Function(SfxCutReport report)? onReport}) {
+    final pending = _dispatcher.pending;
+    final skipped = _dispatcher.takeSkipped();
+    final playing = _flight.playing;
+    _flight.cut(
+      onSettled: onReport == null
+          ? null
+          : (late) => onReport(SfxCutReport(
+                pending: pending,
+                stopped: playing,
+                lateStopped: late,
+                skippedBackpressure: skipped,
+              )),
+    );
   }
 
   @override

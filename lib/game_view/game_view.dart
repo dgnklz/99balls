@@ -188,6 +188,8 @@ class BallGame extends FlameGame {
       }
     } else {
       _loop.advance(_session, dt);
+      // Kalabalık uçuşta vuruş/duvar sesleri seyreltilir (yalnız ses).
+      audio?.setCrowd(_session.simulation.flyingCount);
       _handleEvents();
     }
     _publishBoost();
@@ -208,6 +210,9 @@ class BallGame extends FlameGame {
       final sfx = effects.onEvent(event, _session.board);
       if (sfx != null) audio?.play(sfx);
       switch (event) {
+        case CollectStarted():
+          // Son top yere indi: uçuşa ait sesler (vuruş, duvar) kesilir.
+          audio?.endFlight();
         case RowAdvanced(:final step):
           _advanceStartStep = step;
         case GameOver():
@@ -284,6 +289,8 @@ class BallGame extends FlameGame {
   /// Hazır oturumla yeni oyun. [debugGame]: geliştirici tahtası (ör. yüksek HP);
   /// böyle bir oyun kalıcı veriye yazmaz (bkz. [isDebugGame]).
   void restartWith(GameSession session, {bool debugGame = false}) {
+    // Yarıda bırakılan uçuşun sesleri yeni oyuna taşmaz.
+    audio?.endFlight();
     _session = session;
     _debugGame = debugGame;
     _loop.reset();

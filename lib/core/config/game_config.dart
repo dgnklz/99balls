@@ -332,6 +332,22 @@ const int kSfxPoolPlayers = 4;
 /// Vuruş sesi varyant sayısı; simülasyondan bağımsız bir sayaçla sırayla döner (8.1).
 const int kHitVariants = 3;
 
+/// Uçuş sesi (vuruş, duvar) çalmaya başladıktan sonra süresi + bu pay boyunca
+/// takip edilir; uçuş bu sürede biterse durdurulur. Takipte sayı sınırı yok.
+const int kSfxFlightStopMarginMs = 50;
+
+/// Geri basınç (platform iş parçacığı kuyruğu birikmesin; geç ses yerine
+/// sessizlik): bir dosyanın en çok bu kadar başlatması aynı anda sürer; toplam
+/// süren başlatma [kSfxMaxPendingStarts] ve üstündeyken önemsiz sesler
+/// (vuruş, duvar, atış) atlanır.
+const int kSfxMaxPendingPerFile = 1;
+const int kSfxMaxPendingStarts = 3;
+
+/// Kalabalık uçuş: havada bu kadar ve üstü top varken vuruş ve duvar sesi en az
+/// [kSfxCrowdMinGapMs] aralıkla çalar (diğerleri [kSfxMinGapMs]).
+const int kSfxCrowdBalls = 24;
+const int kSfxCrowdMinGapMs = 100;
+
 // --- Orbitfall arka planı ----------------------------------------------------
 
 /// Kayan yıldız tozu: iki parallaks katman.
