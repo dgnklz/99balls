@@ -543,14 +543,16 @@ Parçacıklar 64 nesnelik bir havuzdan alınır ve bitince havuza döner. Havuz 
 - Sonraki sürümlerde üyelik: Orbitfall ücretsiz, diğer dördü kilitli. Yerel bir bayrak güvenli değildir; gerçek üyelik mağaza faturalandırması (Google Play Billing, iOS IAP) ve doğrulama gerektirir. Tüm temalar herkese açık yayımlandıktan sonra kilitlenirse mevcut kullanıcılar için eski haklar korunur (grandfathering).
 - Tüm görseller kodla (CustomPainter) üretilir; sesler `tools/audio/` altındaki Python betikleriyle sentezlenir. Tema başına ses bütçesi yaklaşık 2 MB.
 
-* **Durum (M3b sonrası):** Orbitfall (M3a) ve Candy Burst (M3b) tam temadır. Pixel Drop, Abyss ve Ink & Paper, M3c–M3e'ye kadar yer tutucudur (`lib/themes/placeholder/`: Orbitfall çizicisi + paletin ton/doygunluk varyantı + Orbitfall sesleri; HUD yüzeyi kaydırılmaz). Kimlikler: `orbitfall`, `candyburst`, `pixeldrop`, `abyss`, `inkpaper`.
+* **Durum (M3d sonrası):** Orbitfall (M3a), Candy Burst (M3b), Pixel Drop (M3c) ve Abyss (M3d) tam temadır. Ink & Paper, M3e'ye kadar yer tutucudur (`lib/themes/placeholder/`: Orbitfall çizicisi + paletin ton/doygunluk varyantı + Orbitfall sesleri; HUD yüzeyi kaydırılmaz). Kimlikler: `orbitfall`, `candyburst`, `pixeldrop`, `abyss`, `inkpaper`.
 * **Ortak çizim:** `lib/themes/shared/base_theme_renderer.dart` (`BaseThemeRenderer`) HUD/zemin çubuğu, HP rakamları, "+3", yıldız Path'i, varsayılan disk ve kıvılcımı taşır; temalar arka plan, hedef, halka, yıldız, top ve kıvılcım biçimini ezer. Orbitfall çizim çağrısı golden testi korunur.
 * **Her tam tema için kabul:** HP durakları beyaz rakamla ≥ 3:1 kontrast, ardışık duraklar arası RGB uzaklığı ≥ 30, düşük HP turuncu/amber, `reference_distinction_test` geçer, ses ≈ 2 MB, efekt sayıları parçacık havuz bütçesinde, boost butonunun açık hali okunur (kontrast ≥ 3:1) ve vurgu rengi referans mavisinden uzak.
 
-- **Performans kuralları (M3p, J8 ölçümüyle):** Karede bulanıklık (`MaskFilter.blur`) yoktur: rakam gölgesi bulanıksız, 1 gu kaydırılmış koyu gölgedir; halıka ve HUD parıltısı bir kez bulanıklaştırılıp resme çevrilir ve her karede o resim basılır. Pixel Drop'ta bulanıklık hiç yoktur; hedefler, toplar, kıvılcımlar ve düşen bloklar tek atlas resminden toplu çizilir ve konumlar cihaz piksel adımına yuvarlanır. Her tema bu kurala uyar (test: bulanıklık yok, toplu çağrı sayısı). Impeller kapatıp Skia'ya geçilmez (Flutter'da kaldırılıyor).
+- **Performans kuralları (M3p, J8 ölçümüyle):** Karede bulanıklık (`MaskFilter.blur`) yoktur: rakam gölgesi bulanıksız, 1 gu kaydırılmış koyu gölgedir; halıka ve HUD parıltısı bir kez bulanıklaştırılıp resme çevrilir ve her karede o resim basılır. Pixel Drop'ta bulanıklık hiç yoktur; hedefler, toplar, kıvılcımlar ve düşen bloklar tek atlas resminden toplu çizilir ve konumlar cihaz piksel adımına yuvarlanır. Her tema bu kurala uyar (test: bulanıklık yok, toplu çağrı sayısı). Pürüzsüz çizimli temalar (Abyss) ortak sprite atlasını kullanabilir: beyaz maske sprite'ları bir kez cihaz çözünürlüğünde pişirilir, her karede renklendirilerek (BlendMode.modulate) tek drawRawAtlas çağrısıyla toplu çizilir; hedef silüeti çarpışma dairesinin içinde kalır, çarpışma alanı hale ile sezdirilir. Impeller kapatıp Skia'ya geçilmez (Flutter'da kaldırılıyor).
 
-* Referans oyundan görsel ayrışma ilkeleri (kopya/ban riski): HUD dolu mavi çubuk değil, yarı saydam koyu yüzey + ince açık kenar + tema vurgusudur; düşük HP'li hedefler kırmızı/pembe değil turuncu/amber tonundadır; arka planda mavi spot ışığı yoktur; menüde krem hap düğme ve mavi yuvarlak düğmeler kullanılmaz; ad ve mağaza metinlerinde "99 Balls" / "Evo" geçmez.
-* Açılış ekranı tüm oyunlarda ortak marka logosudur (siyah zemin); temadan bağımsızdır. Uygulama ikonu Orbitfall konseptinden türetilmiş tek ana tasarımdır; iOS (1024, alfa yok), Android adaptive (ön plan %78 + dikey degrade arka plan) ve mağaza (Play 512, App Store 1024) dosyaları `tools/icon/make_icon.py` ile bu ana dosyadan üretilir.
+* **Geliştirici araçları (debug ve profile; release'te yok, `kDebugToolsEnabled`):** oyun ekranında tema seçici penceresinin altındaki "Yüksek HP tahtası" seçeneği 99 top, 175. tur ve tüm HP renk duraklarını ile üç haneli değerleri (99–198) içeren sabit bir tahtayı başlatır. Bu oyun kalıcı veriye (en iyi skor, oyun sayısı, öğretici bayrağı) yazmaz; yazım `!game.isDebugGame` koşuluna bağlıdır.
+
+- Referans oyundan görsel ayrışma ilkeleri (kopya/ban riski): HUD dolu mavi çubuk değil, yarı saydam koyu yüzey + ince açık kenar + tema vurgusudur; düşük HP'li hedefler kırmızı/pembe değil turuncu/amber tonundadır; arka planda mavi spot ışığı yoktur; menüde krem hap düğme ve mavi yuvarlak düğmeler kullanılmaz; ad ve mağaza metinlerinde "99 Balls" / "Evo" geçmez.
+- Açılış ekranı tüm oyunlarda ortak marka logosudur (siyah zemin); temadan bağımsızdır. Uygulama ikonu Orbitfall konseptinden türetilmiş tek ana tasarımdır; iOS (1024, alfa yok), Android adaptive (ön plan %78 + dikey degrade arka plan) ve mağaza (Play 512, App Store 1024) dosyaları `tools/icon/make_icon.py` ile bu ana dosyadan üretilir.
 
 ## 8. Ses ve titreşim
 
@@ -561,6 +563,10 @@ Referans videoda ses yoktur; tüm ses varlıkları yapay zeka ile üretilir ve o
 - Ses dosyaları `assets/audio/` altında, SFX için `.wav` (44.1 kHz, 16 bit, mono), müzik için `.wav` (mono, 22.05 kHz, 16 bit, kesintisiz döngü; başı ve sonu sıfır geçişinde) formatındadır. Tema başına ses bütçesi yaklaşık 2 MB'dır. Müzik sıkıştırılmış (OGG vb.) değildir: iOS OGG oynatmaz ve sıkıştırılmış biçimler döngüde boşluk bırakabilir.
 - Her SFX en fazla 1 sn sürer ve tepe seviyesi −3 dBFS'te normalize edilir. Müzik −14 LUFS civarındadır ve SFX'lerden belirgin biçimde alçaktır (müzik oynatıcı ses seviyesi 0.35, SFX 1.0).
 - Aynı SFX 50 ms içinde tekrar tetiklenirse ikincisi çalınmaz (sınırlama, `kSfxMinGapMs`). Aynı anda en fazla 8 SFX çalar; fazlası atlanır.
+- Telefon hoparlörü 200 Hz altını neredeyse hiç çalmaz: hiçbir sesin enerjisi tek başına 200 Hz altında olmaz; alçak seslerde (bas, kalp atışı) güçlü üst harmonikler bulunur. SFX'lerin enerjisinin %80'i yaklaşık 300 Hz–3 kHz bandındadır; müzikte 200 Hz altı toplam enerjinin %6'sını geçmez. Her tema için baskın bantlar `assets/audio/PROMPTS.md` içinde ölçülüp yazılır.
+- Ses başlatmaları sıraya girmez (geç ses yerine sessizlik): bir ses dosyasının en çok 1 başlatması aynı anda sürer (`kSfxMaxPendingPerFile`); toplam `kSfxMaxPendingStarts` (3) başlatma sürerken vuruş, duvar ve atış sesleri atlanır. Kırılma, halka, yıldız, toplama, satır, rekor, oyun sonu ve tık sesleri yalnız kendi dosyası meşgulse atlanır.
+- Havada `kSfxCrowdBalls` (24) ve üstü top varken vuruş ve duvar sesi en az `kSfxCrowdMinGapMs` (100 ms) aralıkla çalar; diğer sesler 50 ms kuralında kalır. Vuruş varyantları yine sırayla döner.
+- Son top yere inince o uçuşa ait vuruş ve duvar sesleri durdurulur (çalma payı `kSfxFlightStopMarginMs` = 50 ms); o uçuş sırasında istenip sonradan başlayan hiçbir ses çalınmaz. Satır, kırılma, halka, yıldız, toplama, rekor, oyun sonu ve tık sesleri kesilmez; müzik etkilenmez.
 - Top vuruşu sesi için 3 adet varyant (perde farkı) tanımlanır ve sırayla (rastgele değil, simülasyon RNG'sinden bağımsız bir sayaçla) döndürülür. Ses seçimi oyun simülasyonunu asla etkilemez.
 - Ses ve titreşim yalnızca `game_core` olaylarına tepki veren sunum katmanında çağrılır; `game_core` içinde ses kodu bulunmaz.
 
@@ -919,6 +925,11 @@ Tüm sayısal değerler `lib/core/config/game_config.dart` ve `lib/game_core/con
 | `kParticlePool` | 64 | Sunum | Parçacık havuzu |
 | `kSfxMinGapMs` | 50 | Ses | Aynı SFX aralığı |
 | `kSfxMaxConcurrent` | 8 | Ses | Eş zamanlı SFX |
+| `kSfxMaxPendingPerFile` | 1 | Ses | Dosya başına eşzamanlı başlatma |
+| `kSfxMaxPendingStarts` | 3 | Ses | Önemsiz seslerin atlandığı toplam başlatma |
+| `kSfxCrowdBalls` | 24 | Ses | Vuruş/duvar seyreltmenin başladığı havadaki top sayısı |
+| `kSfxCrowdMinGapMs` | 100 | Ses | Kalabalıkta vuruş/duvar aralığı (ms) |
+| `kSfxFlightStopMarginMs` | 50 | Ses | Uçuş sonu kesmede çalma payı (ms) |
 | `kMusicVolume` | 0.35 | Ses | Müzik seviyesi |
 | `kMusicPausedFactor` | 0.4 | Ses | Duraklatmada oran |
 | `kHapticMaxPerSec` | 10 | Titreşim | Kırılma titreşimi sınırı |
@@ -984,7 +995,7 @@ Her kilometre taşı sonunda `flutter analyze` sıfır uyarı, `flutter test` he
 - [ ] Geri bildirim gerçek EmailJS üzerinden ulaşır; konu ve alanlar Bölüm 9.8'deki gibi.
 - [ ] Çıkış iki platformda da uygulamayı kapatır.
 - [ ] Küçük (iPhone SE) ve büyük (15 Pro Max) ekranda yerleşim aynı oranda görünür.
-- [ ] 10 dakika sürekli oyunda kare hızı orta segment Android'de (2019 ve sonrası) 60 fps'in altına düşmez, bellek artışı gözlenmez. Alt uç cihazda (Galaxy J8, 2018, Adreno 506) gerçekçi tahtada (≈ 28 hedef, 99 top, 64 kıvılcım) raster süresi en fazla 33 ms (≥ 30 fps), en kötü tahtada (56 hedef) en fazla 50 ms olur. Ölçüm: tools/bench/theme\_bench.dart (profil modu).
+- [ ] 10 dakika sürekli oyunda kare hızı orta segment Android'de (2019 ve sonrası) 60 fps'in altına düşmez, bellek artışı gözlenmez. Alt uç cihazda (Galaxy J8, 2018, Adreno 506) gerçekçi tahtada (≈ 28 hedef, 99 top, 64 kıvılcım) raster süresi en fazla 33 ms (≥ 30 fps), en kötü tahtada (56 hedef) en fazla 50 ms olur. Ölçüm: tools/bench/theme\_bench.dart (profil modu; dört tam tema, 33 aşama; --dart-define=BENCH\_THEME=abyss ile tek tema).
 
 ### 14.3 Elle kabul listesi (Faz 2)
 
