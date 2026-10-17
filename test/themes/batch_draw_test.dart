@@ -5,11 +5,14 @@ import 'package:balls_99/core/config/game_config.dart';
 import 'package:balls_99/game_core/constants.dart';
 import 'package:balls_99/themes/abyss/abyss_renderer.dart';
 import 'package:balls_99/themes/abyss/abyss_theme.dart';
+import 'package:balls_99/themes/inkpaper/inkpaper_renderer.dart';
+import 'package:balls_99/themes/inkpaper/inkpaper_theme.dart';
 import 'package:balls_99/themes/orbitfall/orbitfall_theme.dart';
 import 'package:balls_99/themes/pixeldrop/pixel_atlas.dart';
 import 'package:balls_99/themes/pixeldrop/pixeldrop_renderer.dart';
 import 'package:balls_99/themes/pixeldrop/pixeldrop_theme.dart';
 import 'package:balls_99/themes/render_batches.dart';
+import 'package:balls_99/themes/shared/sprite_atlas.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'logging_canvas.dart';
@@ -241,6 +244,143 @@ void main() {
       final before = atlasWidth();
       abyss.setPixelRatio(_j8PxPerGu * 2);
       expect(atlasWidth(), greaterThan(before));
+    });
+  });
+
+  group('Ink & Paper draws each group in a single drawRawAtlas call', () {
+    late InkPaperRenderer ink;
+
+    setUp(() => ink = InkPaperRenderer(inkPaperTheme)..setPixelRatio(_j8PxPerGu));
+    tearDown(() => ink.dispose());
+
+    test('99 balls (drop + glint) and 64 oriented sparks: one call each', () {
+      final balls = BallBatch();
+      for (var i = 0; i < kMaxBalls; i++) {
+        balls.add(20 + i * 3.7, 300 + i * 1.3);
+      }
+      var canvas = LoggingCanvas();
+      ink.paintBalls(canvas, balls);
+      expect(canvas.calls, hasLength(1));
+      expect(_atlasCall(canvas).$3, hasLength(kMaxBalls * 2));
+
+      final sparks = SparkBatch();
+      for (var i = 0; i < kParticlePool; i++) {
+        sparks.add(10 + i * 5.3, 200, 0, kSparkSpeed, kSparkSize, 0xFF24201D);
+      }
+      canvas = LoggingCanvas();
+      ink.paintSparks(canvas, sparks);
+      expect(canvas.calls, hasLength(1));
+      final (rst, _, colors) = _atlasCall(canvas);
+      expect(colors, hasLength(kParticlePool));
+      // Aşağı uçan damla 90° döndürülmüş: scos ≈ 0, ssin > 0.
+      expect(rst[0], closeTo(0, 1e-6));
+      expect(rst[1], greaterThan(0));
+    });
+
+    test('56 targets: one atlas call (bleed, body, rim, streaks) + one paragraph each', () {
+      final targets = TargetBatch();
+      for (var i = 0; i < kCols * kPlayableRows; i++) {
+        targets.add(30 + (i % kCols) * kPitch, kRow0CenterY + (i ~/ kCols) * kPitch, 1 + i * 3,
+            tscale: i.isEven ? 1 : kHitPulseScale);
+      }
+      final canvas = LoggingCanvas();
+      ink.paintTargets(canvas, targets);
+      expect(canvas.count('drawRawAtlas'), 1);
+      expect(_atlasCall(canvas).$3, hasLength(targets.length * 4));
+      expect(canvas.count('drawParagraph'), targets.length);
+      expect(canvas.count('drawPath') + canvas.count('drawCircle'), 0);
+    });
+
+    test('colours: HP bleed, fill, darker rim, sumi streaks; danger fill', () {
+      final targets = TargetBatch()
+        ..add(100, 200, 7)
+        ..add(200, 200, 150, tfill: inkPaperPalette.danger.toARGB32());
+      final canvas = LoggingCanvas();
+      ink.paintTargets(canvas, targets);
+      final colors = _atlasCall(canvas).$3.map((c) => c.toUnsigned(32)).toList();
+      final hpColor = inkPaperTheme.hpRamp.forHp(7);
+      final sumi = inkPaperPalette.accent;
+      final streak = sumi.withValues(alpha: kInkStreakAlpha).toARGB32();
+      expect(colors.sublist(0, 4), [
+        hpColor.withValues(alpha: kInkBleedAlpha).toARGB32(),
+        hpColor.toARGB32(),
+        InkPaperRenderer.rimColor(hpColor, sumi).toARGB32(),
+        streak,
+      ]);
+      final danger = inkPaperPalette.danger;
+      expect(colors.sublist(4), [
+        danger.withValues(alpha: kInkBleedAlpha).toARGB32(),
+        danger.toARGB32(),
+        InkPaperRenderer.rimColor(danger, sumi).toARGB32(),
+        streak,
+      ]);
+    });
+
+    test('background: one baked paper image + one wash atlas call', () {
+      final canvas = LoggingCanvas();
+      ink.paintBackground(canvas);
+      expect(canvas.count('drawImageRect'), 1);
+      expect(canvas.count('drawRawAtlas'), 1);
+      expect(canvas.calls, hasLength(2));
+      expect(_atlasCall(canvas).$3, hasLength(kInkWashCount));
+    });
+
+    test('atlas is rebuilt at a new pixel ratio', () {
+      int atlasWidth() {
+        final canvas = LoggingCanvas();
+        ink.paintBall(canvas, 100, 100);
+        return (canvas.calls.single.positionalArguments[0] as Image).width;
+      }
+
+      final before = atlasWidth();
+      ink.setPixelRatio(_j8PxPerGu * 2);
+      expect(atlasWidth(), greaterThan(before));
+    });
+  });
+
+  group('SpriteBatch.addRotated', () {
+    // Sprite: çapanın solunda 2, sağında 6, üstünde 1, altında 3 gu.
+    const sprite = AtlasSprite(Rect.fromLTWH(10, 20, 24, 12), Rect.fromLTRB(-2, -1, 6, 3));
+    const pxPerGu = 3.0;
+    late SpriteAtlas atlas;
+    setUpAll(() => atlas = SpriteAtlas.build(pxPerGu, [(sprite.bounds, (_) {})]));
+    tearDownAll(() => atlas.dispose());
+
+    /// Atlas pikselinin (u, v) [rst] dönüşümüyle tuvaldeki yeri.
+    Offset map(Float32List rst, double u, double v) => Offset(
+          rst[0] * u - rst[1] * v + rst[2],
+          rst[1] * u + rst[0] * v + rst[3],
+        );
+
+    Float32List rstOf(void Function(SpriteBatch) add) {
+      final batch = SpriteBatch(1);
+      add(batch);
+      final canvas = LoggingCanvas();
+      batch.flush(canvas, atlas, Paint());
+      return _atlasCall(canvas).$1;
+    }
+
+    test('(cos, sin) = (1, 0) equals add', () {
+      final a = rstOf((b) => b.add(sprite, 50, 60, 1.5, 0xFFFFFFFF, pxPerGu));
+      final r = rstOf((b) => b.addRotated(sprite, 50, 60, 1.5, 1, 0, 0xFFFFFFFF, pxPerGu));
+      expect(r, a);
+    });
+
+    test('the anchor lands on (x, y) at any direction; 90° swaps the axes', () {
+      // Çapa atlas pikselinde: (−left, −top) × pxPerGu.
+      const anchorU = 2 * pxPerGu;
+      const anchorV = 1 * pxPerGu;
+      for (final (cos, sin) in [(1.0, 0.0), (0.0, 1.0), (0.6, 0.8), (-0.8, 0.6)]) {
+        final rst = rstOf((b) => b.addRotated(sprite, 50, 60, 2, cos, sin, 0xFFFFFFFF, pxPerGu));
+        final anchor = map(rst, anchorU, anchorV);
+        expect(anchor.dx, closeTo(50, 1e-4));
+        expect(anchor.dy, closeTo(60, 1e-4));
+      }
+      // 90°: sprite'ın sağ ucu (çapadan +6 gu) çapanın altına (+y) düşer.
+      final rst = rstOf((b) => b.addRotated(sprite, 50, 60, 1, 0, 1, 0xFFFFFFFF, pxPerGu));
+      final rightEnd = map(rst, 8 * pxPerGu, anchorV);
+      expect(rightEnd.dx, closeTo(50, 1e-4));
+      expect(rightEnd.dy, closeTo(66, 1e-4));
     });
   });
 

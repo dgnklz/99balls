@@ -16,6 +16,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import abyss  # noqa: E402
 import candyburst  # noqa: E402
+import inkpaper  # noqa: E402
 import orbitfall  # noqa: E402
 import pixeldrop  # noqa: E402
 from synth import MUSIC_RATE, SFX_RATE, write_wav  # noqa: E402
@@ -23,7 +24,7 @@ from synth import MUSIC_RATE, SFX_RATE, write_wav  # noqa: E402
 ROOT = Path(__file__).resolve().parents[2]
 BUDGET_BYTES = 2 * 1024 * 1024  # tema başına ~2 MB (PRD 7.4.1)
 
-THEMES = [orbitfall, candyburst, pixeldrop, abyss]
+THEMES = [orbitfall, candyburst, pixeldrop, abyss, inkpaper]
 
 
 def build_theme(module) -> int:

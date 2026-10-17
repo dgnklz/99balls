@@ -11,8 +11,8 @@ import 'package:balls_99/game_view/effects/effects_controller.dart';
 import 'package:balls_99/game_view/game_loop.dart';
 import 'package:balls_99/themes/candyburst/candyburst_theme.dart';
 import 'package:balls_99/themes/game_theme.dart';
+import 'package:balls_99/themes/inkpaper/inkpaper_theme.dart';
 import 'package:balls_99/themes/orbitfall/orbitfall_theme.dart';
-import 'package:balls_99/themes/placeholder/placeholder_themes.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../core/audio_service_test.dart' show FakeAudioBackend;

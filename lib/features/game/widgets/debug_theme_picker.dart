@@ -62,13 +62,6 @@ class _ThemeDialog extends ConsumerWidget {
                 ),
                 const SizedBox(width: kOverlayGap),
                 Text(theme.displayName(l10n)),
-                if (theme.isPlaceholder) ...[
-                  const SizedBox(width: kOverlayGap),
-                  Text(
-                    l10n.themePlaceholderTag,
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                ],
               ],
             ),
           ),

@@ -1,12 +1,14 @@
 import 'package:flame/game.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/canvas_fit.dart';
 import '../../app/edge_guard.dart';
 import '../../app/immersive_mode.dart';
 import '../../app/safe_insets.dart';
+import '../../app/system_bar_style.dart';
 import '../../core/config/game_config.dart';
 import '../../core/services/audio_service.dart';
 import '../../core/services/prefs_service.dart';
@@ -152,24 +154,28 @@ class _GameScreenState extends ConsumerState<GameScreen> {
         _fit = fit;
         final guard = EdgeGuard.compute(fit.screenSize, insets);
         _guard = guard;
-        // Material atası: katmanlardaki metinler temadan DefaultTextStyle alır
-        // (yoksa Flutter'ın sarı çift alt çizgili hata stili görünür).
-        return Material(
-          type: MaterialType.transparency,
-          // Boost butonu oyunun tam ekran Listener'ının kardeşidir, çocuğu
-          // değil: butonda başlayan dokunuş nişan akışına hiç ulaşmaz.
-          child: Stack(
-            children: [
-              Positioned.fill(child: _buildLayers(fit, theme.palette)),
-              Positioned.fromRect(
-                rect: boostButtonRect(fit, guard),
-                child: BoostButton(
-                  state: _game.boost,
-                  palette: theme.palette,
-                  onPressed: _game.toggleBoost,
+        // Sistem çubuğu simgeleri köşelerin gerçek rengine göre (açık zemin).
+        return AnnotatedRegion<SystemUiOverlayStyle>(
+          value: systemBarStyle(theme.palette, fit),
+          // Material atası: katmanlardaki metinler temadan DefaultTextStyle alır
+          // (yoksa Flutter'ın sarı çift alt çizgili hata stili görünür).
+          child: Material(
+            type: MaterialType.transparency,
+            // Boost butonu oyunun tam ekran Listener'ının kardeşidir, çocuğu
+            // değil: butonda başlayan dokunuş nişan akışına hiç ulaşmaz.
+            child: Stack(
+              children: [
+                Positioned.fill(child: _buildLayers(fit, theme.palette)),
+                Positioned.fromRect(
+                  rect: boostButtonRect(fit, guard),
+                  child: BoostButton(
+                    state: _game.boost,
+                    palette: theme.palette,
+                    onPressed: _game.toggleBoost,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         );
       },
@@ -199,7 +205,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
                     milliseconds: (kTutorialFadeSec * Duration.millisecondsPerSecond).round(),
                   ),
                   onEnd: () => setState(() => _tutorialVisible = false),
-                  child: TutorialOverlay(color: palette.textPrimary),
+                  child: TutorialOverlay(color: palette.onBackground),
                 ),
               ),
             ),

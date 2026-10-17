@@ -47,6 +47,28 @@ alçak frekans olmamalı: temelin üstünde güçlü harmonikler (200 Hz üstü)
 enerjisi 300 Hz–3 kHz arasındadır; her şey 4 kHz alçak geçirenden geçer. Baskın bantlar
 `assets/audio/PROMPTS.md` tablosundadır (FFT ile ölçüldü: enerjinin %80'inin bulunduğu aralık).
 
+Ölçüm (M3e'den itibaren) `bands.py` ile yapılır (salt okuma, dosya yazmaz):
+
+```sh
+tools/.venv/Scripts/python tools/audio/bands.py assets/audio/inkpaper
+```
+
+Her WAV için baskın bandı (birikimli enerjinin %10 ve %90 noktaları), 200 Hz altı payı ve
+300 Hz–3 kHz payını Markdown satırı olarak yazar. Windows konsolunda Türkçe karakterler için
+`PYTHONIOENCODING=utf-8` gerekebilir.
+
+## Diğer temaların bayt bayt aynılığı
+
+`build_all.py` tüm temaları yeniden yazar. Yeni tema eklerken önce mevcut dosyaların özetini alın,
+üretimden sonra karşılaştırın:
+
+```sh
+sha256sum assets/audio/{orbitfall,candyburst,pixeldrop,abyss}/*.wav > /tmp/before.sha256
+tools/.venv/Scripts/python tools/audio/build_all.py
+sha256sum -c /tmp/before.sha256        # hepsi OK
+git status --porcelain assets/audio    # yalnızca yeni klasör
+```
+
 ## Dosyalar
 
 - `synth.py`: ortak DSP (osilatör, zarf, filtre, normalize, döngü, WAV yazma)
@@ -54,9 +76,12 @@ enerjisi 300 Hz–3 kHz arasındadır; her şey 4 kHz alçak geçirenden geçer.
 - `candyburst.py`: Candy Burst ses kimliği (müzik + 13 SFX)
 - `pixeldrop.py`: Pixel Drop ses kimliği (müzik + 13 SFX)
 - `abyss.py`: Abyss ses kimliği (müzik + 13 SFX)
+- `inkpaper.py`: Ink & Paper ses kimliği (müzik + 13 SFX)
 - `build_all.py`: tüm temaları üretir
+- `bands.py`: baskın enerji bandı ölçümü (salt okuma)
 
-Yeni tema (M3e): `<tema>.py` yazın (aynı `THEME_ID`, `render_sfx()`, `music_loop()`
-arayüzü), `build_all.py`'deki `THEMES` listesine ekleyin, pubspec'e
-`assets/audio/<tema>/` ekleyin ve temanın `ThemeSounds` süre tablosunu güncelleyin.
-Sentez tarifleri `assets/audio/PROMPTS.md` dosyasına yazılır.
+Yeni tema: `<tema>.py` yazın (aynı `THEME_ID`, `render_sfx()`, `music_loop()`
+arayüzü; temaya özgü yardımcılar o dosyada kalır, `synth.py` değişmez), `build_all.py`'deki
+`THEMES` listesine ekleyin, pubspec'e `assets/audio/<tema>/` ekleyin, temanın `ThemeSounds`
+süre tablosunu güncelleyin, diğer temaların bayt bayt aynılığını doğrulayın ve `bands.py` ile
+bantları ölçün. Sentez tarifleri `assets/audio/PROMPTS.md` dosyasına yazılır.

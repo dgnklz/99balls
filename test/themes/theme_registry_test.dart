@@ -7,8 +7,9 @@ import 'package:balls_99/themes/game_theme.dart';
 import 'package:balls_99/themes/theme_registry.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-/// PRD 7.4.1: beş tema, benzersiz id. Orbitfall ücretsiz ve tam; Candy Burst
-/// (M3b), Pixel Drop (M3c) ve Abyss (M3d) tam ve ücretli; Ink & Paper yer tutucu.
+/// PRD 7.4.1: beş tema, benzersiz id, hepsi tam ve kendi ses kimliğiyle.
+/// Orbitfall ücretsiz; Candy Burst (M3b), Pixel Drop (M3c), Abyss (M3d) ve
+/// Ink & Paper (M3e) ücretli.
 void main() {
   const expectedIds = {'orbitfall', 'candyburst', 'pixeldrop', 'abyss', 'inkpaper'};
 
@@ -19,29 +20,25 @@ void main() {
     expect(ids.toSet(), expectedIds);
   });
 
-  test('Orbitfall is free and complete; Candy Burst, Pixel Drop and Abyss complete; one placeholder',
-      () {
+  test('Orbitfall is the free default; every theme has its own sound identity', () {
     final orbitfall = ThemeRegistry.byId('orbitfall')!;
     expect(orbitfall.isFree, isTrue);
-    expect(orbitfall.isPlaceholder, isFalse);
     expect(orbitfall.id, kDefaultThemeId);
-    final candy = ThemeRegistry.byId('candyburst')!;
-    expect(candy.isPlaceholder, isFalse);
-    expect(candy.isFree, isFalse);
-    expect(candy.sounds.music, startsWith('candyburst/'), reason: 'own sound identity');
-    final pixel = ThemeRegistry.byId('pixeldrop')!;
-    expect(pixel.isPlaceholder, isFalse);
-    expect(pixel.isFree, isFalse);
-    expect(pixel.sounds.music, startsWith('pixeldrop/'), reason: 'own sound identity');
-    final abyss = ThemeRegistry.byId('abyss')!;
-    expect(abyss.isPlaceholder, isFalse);
-    expect(abyss.isFree, isFalse);
-    expect(abyss.sounds.music, startsWith('abyss/'), reason: 'own sound identity');
-    final placeholders = ThemeRegistry.all.where((t) => t.isPlaceholder).map((t) => t.id);
-    expect(placeholders.toSet(), {'inkpaper'});
-    for (final theme in ThemeRegistry.all.where((t) => t.id != 'orbitfall')) {
-      expect(theme.isFree, isFalse, reason: theme.id);
+    for (final theme in ThemeRegistry.all) {
+      expect(theme.sounds.music, startsWith('${theme.id}/'), reason: 'own sound identity');
+      for (final file in theme.sounds.sfxFiles) {
+        expect(file, startsWith('${theme.id}/'), reason: file);
+      }
+      if (theme.id != 'orbitfall') expect(theme.isFree, isFalse, reason: theme.id);
     }
+    // Her temanın kendi çizicisi var (yer tutucu yok).
+    final rendererTypes = <Type>{};
+    for (final theme in ThemeRegistry.all) {
+      final renderer = theme.createRenderer(theme);
+      rendererTypes.add(renderer.runtimeType);
+      renderer.dispose();
+    }
+    expect(rendererTypes, hasLength(ThemeRegistry.all.length));
   });
 
   test('resolve falls back to Orbitfall for null or unknown ids', () {

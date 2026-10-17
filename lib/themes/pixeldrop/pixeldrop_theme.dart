@@ -109,7 +109,6 @@ const ThemeSounds pixelDropSounds = ThemeSounds(
 final GameTheme pixelDropTheme = GameTheme(
   id: kPixelDropId,
   isFree: false,
-  isPlaceholder: false,
   displayName: (l10n) => l10n.themePixelDrop,
   palette: pixelDropPalette,
   hpRamp: HpRamp(pixelDropHpStops),

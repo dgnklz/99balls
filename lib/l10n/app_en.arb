@@ -49,10 +49,6 @@
   "@themePickerTitle": {
     "description": "Title of the theme picker (debug build only until M4)"
   },
-  "themePlaceholderTag": "placeholder",
-  "@themePlaceholderTag": {
-    "description": "Marks a theme that is not finished yet"
-  },
   "boostLabel": "Speed up",
   "@boostLabel": {
     "description": "Accessibility label of the in-game speed-up (boost) button"

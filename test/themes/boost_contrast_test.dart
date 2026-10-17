@@ -6,8 +6,9 @@ import 'package:flutter_test/flutter_test.dart';
 
 /// Boost butonu her temada okunur ve referans maviye benzemez
 /// (reference_distinction_test'in eşi). Açıkken dolgu `hudAccent`, "»" rengi
-/// `bgTop`'tur (lib/features/game/widgets/boost_button.dart); kapalıyken "»"
-/// `hudAccent` rengindedir ve zemin üstündedir.
+/// `onAccent`'tir (verilmezse `bgTop`; lib/features/game/widgets/boost_button.dart);
+/// kapalıyken "»" `hudAccent` rengindedir ve zeminin üstündeki yarı saydam
+/// `hudBar` dairesinin üstündedir (bileşik renk ölçülür).
 const Color _referenceBar = Color(0xFF3F5AA6);
 const double _minRgbDistanceFromReference = 100;
 const double _minContrast = 3;
@@ -36,13 +37,14 @@ void main() {
     group(theme.id, () {
       final p = theme.palette;
 
-      test('boost "on": dark chevron on the accent fill has ≥ 3:1 contrast', () {
-        expect(_contrast(p.hudAccent, p.bgTop), greaterThanOrEqualTo(_minContrast));
+      test('boost "on": chevron on the accent fill has ≥ 3:1 contrast', () {
+        expect(_contrast(p.hudAccent, p.onAccent), greaterThanOrEqualTo(_minContrast));
       });
 
-      test('boost "off": accent chevron stands out from the background (≥ 3:1)', () {
+      test('boost "off": accent chevron stands out from the translucent disc (≥ 3:1)', () {
         for (final bg in [p.bgTop, p.bgBottom]) {
-          expect(_contrast(p.hudAccent, bg), greaterThanOrEqualTo(_minContrast));
+          final disc = Color.alphaBlend(p.hudBar, bg);
+          expect(_contrast(p.hudAccent, disc), greaterThanOrEqualTo(_minContrast));
         }
       });
 
@@ -52,4 +54,14 @@ void main() {
       });
     });
   }
+
+  test('dark themes keep the original chevron and tutorial colours', () {
+    for (final id in ['orbitfall', 'candyburst', 'pixeldrop', 'abyss']) {
+      final p = ThemeRegistry.byId(id)!.palette;
+      expect(p.onAccentColor, isNull, reason: id);
+      expect(p.onBackgroundColor, isNull, reason: id);
+      expect(p.onAccent, p.bgTop, reason: id);
+      expect(p.onBackground, p.textPrimary, reason: id);
+    }
+  });
 }

@@ -1,13 +1,12 @@
 import 'dart:math' as math;
 import 'dart:ui';
 
-import 'package:balls_99/themes/orbitfall/orbitfall_theme.dart';
 import 'package:balls_99/themes/theme_registry.dart';
 import 'package:flutter/painting.dart' show HSLColor;
 import 'package:flutter_test/flutter_test.dart';
 
 /// Referans oyundan görsel ayrışma (ASSUMPTIONS): düşük HP kırmızı/pembe değil,
-/// HUD çubukları dolu mavi değil. Tüm temalar (yer tutucular dahil) için.
+/// HUD çubukları dolu mavi değil. Tüm temalar için.
 const Color _referenceLowHp = Color(0xFFFF3B4E);
 const Color _referenceBar = Color(0xFF3F5AA6);
 
@@ -65,12 +64,4 @@ void main() {
       });
     });
   }
-
-  test('placeholder hue shifts never touch the HUD surface', () {
-    for (final theme in ThemeRegistry.all.where((t) => t.isPlaceholder)) {
-      expect(theme.palette.hudBar, orbitfallPalette.hudBar, reason: theme.id);
-      expect(theme.palette.floorBar, orbitfallPalette.floorBar, reason: theme.id);
-      expect(theme.palette.hudEdge, orbitfallPalette.hudEdge, reason: theme.id);
-    }
-  });
 }

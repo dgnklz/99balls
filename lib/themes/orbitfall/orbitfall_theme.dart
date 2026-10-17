@@ -94,7 +94,6 @@ const ThemeSounds orbitfallSounds = ThemeSounds(
 final GameTheme orbitfallTheme = GameTheme(
   id: kOrbitfallId,
   isFree: true,
-  isPlaceholder: false,
   displayName: (l10n) => l10n.themeOrbitfall,
   palette: orbitfallPalette,
   hpRamp: HpRamp(orbitfallHpStops),

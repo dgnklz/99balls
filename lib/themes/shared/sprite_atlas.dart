@@ -115,6 +115,27 @@ class SpriteBatch {
     length++;
   }
 
+  /// [add] gibi, ama sprite çapa çevresinde (cos, sin) birim yönüne döndürülür
+  /// (yönlü parçacıklar; açı yerine yön vektörü verilir, trig gerekmez).
+  /// (cos, sin) = (1, 0) iken [add] ile aynıdır.
+  void addRotated(AtlasSprite sprite, double x, double y, double scale, double cos, double sin,
+      int argb, double pxPerGu) {
+    if (length >= capacity) return;
+    final i = length * 4;
+    final b = sprite.bounds;
+    _rst[i] = scale * cos / pxPerGu;
+    _rst[i + 1] = scale * sin / pxPerGu;
+    _rst[i + 2] = x + scale * (cos * b.left - sin * b.top);
+    _rst[i + 3] = y + scale * (sin * b.left + cos * b.top);
+    final src = sprite.src;
+    _rects[i] = src.left;
+    _rects[i + 1] = src.top;
+    _rects[i + 2] = src.right;
+    _rects[i + 3] = src.bottom;
+    _colors[length] = argb;
+    length++;
+  }
+
   /// Toplananları tek çağrıda çizer ve boşaltır.
   void flush(Canvas canvas, SpriteAtlas atlas, Paint paint) {
     if (length == 0) return;

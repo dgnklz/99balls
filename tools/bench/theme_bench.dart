@@ -27,7 +27,7 @@ const double _frameBudgetMs = 16;
 /// R gerçekçi (28 hedef, 4 halka, 1 yıldız, 99 top, 64 kıvılcım, HUD).
 /// Bileşen aşamaları en kötü tahtadan tek parça çizer: b zemin, t hedef,
 /// r halka + yıldız, o top, k kıvılcım, h HUD. '' boş kare (düzeneğin kendi payı).
-const List<String> _allThemes = ['orbitfall', 'candyburst', 'pixeldrop', 'abyss'];
+const List<String> _allThemes = ['orbitfall', 'candyburst', 'pixeldrop', 'abyss', 'inkpaper'];
 const List<String> _parts = ['W', 'R', 'b', 't', 'o', 'r', 'k', 'h'];
 
 /// `--dart-define=BENCH_THEME=<id>` ile yalnızca o tema ölçülür; boşsa hepsi.

@@ -81,3 +81,27 @@ Baskın enerji bandı = enerjinin %80'inin bulunduğu aralık.
 | `sfx_record` | 850 ms | Çan arpeji C♯5–E5–G♯5–C♯6 + C♯m akor kabarması | 415–1110 Hz |
 | `sfx_click` | 30 ms | Küçük kabarcık 900 → 1500 Hz | 1000–1200 Hz |
 | `music_loop` | 32.0 sn | 75 BPM, 10 ölçü, F♯ minör (dorian renkli), F♯m9–Dmaj7–Bm9–C♯m7–Amaj7 (her biri 2 ölçü): ayrık sinüs + üçgen pad (filtre 900 ↔ 2200 Hz, 2 ölçüde bir nefes), bir oktav yukarıda harmonikli bas (147–277 Hz, 1. ve 3. vuruş), 1. vuruşta boğuk "lub-dub" kalp atışı (260 → 150 Hz, 2. harmonik baskın + tıkırtı), seyrek pentatonik damla melodisi + noktalı sekizlik yankı, seyrek kabarcık tıkırtıları; dairesel kuyruk, 4 kHz alçak geçiren, sıfır geçişinde başlar/biter. 200 Hz altı %5.5, 300 Hz–3 kHz %60; RMS −16.7 dBFS (tepe −3 dBFS sınırında) | 220–555 Hz |
+
+## Ink & Paper (`tools/audio/inkpaper.py`, tohum 0x1A4B50)
+
+Sumi-e atölyesi: koto koparması (6 hafif uyumsuz kısmi, üstler hızlı söner, kısa koparma gürültüsü; uzun
+notalarda oshide = yarım ton bastırıp bırakma), sho benzeri kamış kümesi (bant sınırlı kare dalga, yavaş
+kabarma), nefesli shakuhachi (meri ile girme, gecikmeli vibrato, filtreli nefes), mokugyo (içi boş tahta
+"tok") ve hyoshigi (kuru tahta "tak"). Gam D in-sen (D–E♭–G–A–C). Telefon hoparlörü kuralı: bas bir oktav
+yukarıda, 2. harmonik baskın; gürültüler iki kez alçak geçirenden geçer (üstte dik iniş); her şey 4 kHz
+alçak geçirenden geçer. Baskın bant `tools/audio/bands.py` ile ölçüldü (birikimli enerjinin %10–%90 noktaları).
+
+| Dosya | Süre | Tarif | Baskın bant |
+|---|---|---|---|
+| `sfx_shoot` | 70 ms | Fırçanın kâğıtta "fiş"i: 1.5 → 2.6 kHz süpürmeli bant gürültüsü (1.1 kHz altı çıkarılır) + 1.2 kHz minik tık, τ 25 ms | 571 Hz–2.49 kHz |
+| `sfx_wall` | 40 ms | Kâğıda dokunuş: 900 Hz üçgen "tok" (τ 5 ms) + 3 kHz altı hışırtı | 850–975 Hz |
+| `sfx_hit_1..3` | 100 ms | Kısa koto koparması A4 / C5 / D5 (in-sen), τ 60 ms; sırayla döner | 430–880 Hz / 520 Hz–1.05 kHz / 580 Hz–1.18 kHz |
+| `sfx_break` | 380 ms | Mürekkep lekesi "şlap": 450–900 Hz ıslak gürültü patlaması (τ 50 ms) + 620 Hz mokugyo + 5 sıçrayan damlacık tıkı (1.4–2.2 kHz) + 1–2.5 kHz fırça kuyruğu | 479 Hz–2.01 kHz |
+| `sfx_pickup` | 360 ms | Hanko "tok"u (700 Hz tahta) + yukarı koto süpürmesi D5–G5–A5 (50 ms aralık) | 586 Hz–1.57 kHz |
+| `sfx_star` | 420 ms | Tek orin vuruşu C6 (≈ 1047 Hz), kısmi ×2.71, 3–4 Hz vuruşma, τ 200 ms | 1.04–1.05 kHz |
+| `sfx_collect` | 200 ms | Kâğıtta fırça süpürmesi: kabaran 800 Hz–2 kHz "şşş" + 900 Hz tahta tık | 585 Hz–2.81 kHz |
+| `sfx_advance` | 260 ms | Hyoshigi çift "tak-tak": 1.1 kHz, 90 ms sonra 1.3 kHz | 1.08–1.48 kHz |
+| `sfx_gameover` | 950 ms | İnen shakuhachi cümlesi D5–A4–E♭4 (meri girişli, son nota %6 aşağı süzülür), filtre 3 kHz → 600 Hz kapanır | 307–588 Hz |
+| `sfx_record` | 850 ms | Koto sukui arpeji D4–G4–A4–C5–D5 (70 ms aralık) + 400 ms'de orin D6 | 294 Hz–1.18 kHz |
+| `sfx_click` | 30 ms | Minik mokugyo tıkı 1.4 kHz, τ 4 ms | 1.33–1.50 kHz |
+| `music_loop` | 31.4 sn | 84 BPM, 11 ölçü, D in-sen: A (0–3) + A′ (4–7) + "ma" kodası (8–10). Sho kümesi bölümlerde D / G / D+E♭ / C / D; her ölçü başında bir oktav yukarıda alçak koto teli (130–196 Hz kök, 2. harmonik baskın); özgün seyrek koto melodisi (oshide süslemeli); kodada shakuhachi; çift ölçülerde 2. ve 4. vuruşta mokugyo, cümle başlarında hyoshigi. Dairesel kuyruk, 4 kHz alçak geçiren, yumuşak tepe sınırlayıcı (tanh, −2 dBFS tavan), sıfır geçişinde başlar/biter. 200 Hz altı %0, 300 Hz–3 kHz %90.6; RMS −17.5 dBFS (tepe −3 dBFS) | 391 Hz–1.05 kHz |

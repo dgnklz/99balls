@@ -11,14 +11,18 @@ Gerçek cihazda, profil modunda (debug ölçümü anlamsızdır):
 flutter run --profile -d <cihaz> -t tools/bench/theme_bench.dart
 # Skia ile karşılaştırma (yalnızca ölçüm bayrağı; uygulamada ayar yok):
 flutter run --profile -d <cihaz> -t tools/bench/theme_bench.dart --no-enable-impeller
-# Yalnızca bir tema (id: orbitfall, candyburst, pixeldrop, abyss):
-flutter run --profile -d <cihaz> -t tools/bench/theme_bench.dart --dart-define=BENCH_THEME=abyss
+# Yalnızca bir tema (id: orbitfall, candyburst, pixeldrop, abyss, inkpaper):
+flutter run --profile -d <cihaz> -t tools/bench/theme_bench.dart --dart-define=BENCH_THEME=inkpaper
 ```
 
-- Varsayılan (BENCH_THEME verilmezse) dört tam temanın hepsi ölçülür: ~3,9 dk (33 aşama × 7 sn).
+- Varsayılan (BENCH_THEME verilmezse) beş temanın hepsi ölçülür: ~4,8 dk (41 aşama × 7 sn).
   Tek tema ~1 dk sürer (9 aşama). Ekran zaman aşımı koşudan uzun olmalı.
 - Ekran açık ve kilitsiz olmalı; kapalı ekranda kare çizilmez.
 - Sonuçlar konsolda ve logcat'te `BENCH` satırlarıdır; sonda `BENCH DONE`. Ardından `q` ile çık.
+- İlk çalıştırma sonrası tekrar ölçüm yapın; kesin sonuç olarak tekrarı kullanın. Kurulumdan sonraki ilk
+  çalıştırmada telefon ısınırken (GPU/saat) değerler şişebilir: J8'de Ink & Paper'ın ilk çalıştırmasında
+  boş kare (`-`) 16.48 ms, tekrarında 2.74 ms çıktı. Boş kare düzeneğin payıdır; belirgin yüksekse
+  ölçümü tekrarlayın.
 
 ## Aşamalar
 

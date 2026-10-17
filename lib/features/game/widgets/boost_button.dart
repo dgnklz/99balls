@@ -189,7 +189,7 @@ class _BoostPainter extends CustomPainter {
       ..strokeWidth = kBoostIconStrokeDp
       ..strokeCap = StrokeCap.round
       ..strokeJoin = StrokeJoin.round
-      ..color = on ? palette.bgTop : palette.hudAccent;
+      ..color = on ? palette.onAccent : palette.hudAccent;
     final path = Path();
     for (var i = 0; i < 2; i++) {
       final left = center.dx - width + i * width;

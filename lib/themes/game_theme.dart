@@ -46,6 +46,17 @@ class ThemePalette {
   /// Arka plandaki yıldız tozu (yoksa saydam).
   final Color dust;
 
+  /// Zeminin doğrudan üstündeki metin ve simge (öğretici). Verilmezse
+  /// [textPrimary]; açık zeminli temada koyu bir renk verilir.
+  final Color? onBackgroundColor;
+
+  /// Vurgu dolgusunun üstündeki simge (boost butonu açıkken "»"). Verilmezse
+  /// [bgTop]; açık zeminli temada koyu bir renk verilir.
+  final Color? onAccentColor;
+
+  Color get onBackground => onBackgroundColor ?? textPrimary;
+  Color get onAccent => onAccentColor ?? bgTop;
+
   const ThemePalette({
     required this.bgTop,
     required this.bgBottom,
@@ -67,6 +78,8 @@ class ThemePalette {
     required this.popupSurface,
     required this.scrim,
     required this.dust,
+    this.onBackgroundColor,
+    this.onAccentColor,
   });
 }
 
@@ -203,9 +216,6 @@ abstract class ThemeRenderer {
 class GameTheme {
   final String id;
   final bool isFree;
-
-  /// M3a'da henüz tamamlanmamış tema (M3b–e'de doldurulacak).
-  final bool isPlaceholder;
   final String Function(AppLocalizations l10n) displayName;
   final ThemePalette palette;
   final HpRamp hpRamp;
@@ -216,7 +226,6 @@ class GameTheme {
   const GameTheme({
     required this.id,
     required this.isFree,
-    required this.isPlaceholder,
     required this.displayName,
     required this.palette,
     required this.hpRamp,

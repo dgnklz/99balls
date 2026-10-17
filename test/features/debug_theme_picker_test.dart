@@ -38,7 +38,7 @@ void main() {
     for (final id in ['orbitfall', 'candyburst', 'pixeldrop', 'abyss', 'inkpaper']) {
       expect(find.byKey(Key('theme_$id')), findsOneWidget, reason: id);
     }
-    expect(find.text('placeholder'), findsOneWidget); // Ink & Paper
+    expect(find.text('placeholder'), findsNothing); // yer tutucu tema kalmadı
 
     await tester.tap(find.byKey(const Key('theme_abyss')));
     await tester.pump();

@@ -164,12 +164,6 @@ abstract class AppLocalizations {
   /// **'Theme'**
   String get themePickerTitle;
 
-  /// Marks a theme that is not finished yet
-  ///
-  /// In en, this message translates to:
-  /// **'placeholder'**
-  String get themePlaceholderTag;
-
   /// Accessibility label of the in-game speed-up (boost) button
   ///
   /// In en, this message translates to:

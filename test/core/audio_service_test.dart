@@ -2,8 +2,8 @@ import 'package:balls_99/core/config/game_config.dart';
 import 'package:balls_99/core/services/audio_service.dart';
 import 'package:balls_99/themes/candyburst/candyburst_theme.dart';
 import 'package:balls_99/themes/game_theme.dart';
+import 'package:balls_99/themes/inkpaper/inkpaper_theme.dart';
 import 'package:balls_99/themes/orbitfall/orbitfall_theme.dart';
-import 'package:balls_99/themes/placeholder/placeholder_themes.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 /// Sahte oynatıcı: çağrıları kaydeder.
@@ -171,14 +171,14 @@ void main() {
       expect(h.backend.calls.skip(1), ['pause', 'resume']);
     });
 
-    test('a placeholder theme shares Orbitfall sounds: no reload', () async {
+    test('Ink & Paper preloads its own set', () async {
       final h = await _ready();
       expect(h.backend.preloads.single, contains('orbitfall/music_loop.wav'));
       h.service.onUserInteraction();
       await h.service.setTheme(inkPaperTheme.sounds);
-      // Yer tutucu tema Orbitfall seslerini paylaşır (aynı nesne): yeniden yükleme yok.
-      expect(identical(inkPaperTheme.sounds, orbitfallSounds), isTrue);
-      expect(h.backend.preloads, hasLength(1));
+      expect(h.backend.preloads, hasLength(2));
+      expect(h.backend.preloads.last, inkPaperSounds.sfxFiles + [inkPaperSounds.music]);
+      expect(h.backend.preloads.last.every((f) => f.startsWith('inkpaper/')), isTrue);
     });
 
     test('Candy Burst preloads its own set and switches the track', () async {

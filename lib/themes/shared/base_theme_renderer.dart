@@ -153,24 +153,9 @@ abstract class BaseThemeRenderer extends ThemeRenderer {
     paintAccentGlow(canvas, kVirtualW / 2, kCeilingY);
     paintAccentGlow(canvas, floorAccentX, kFloorY);
     _paintAccents(canvas, _accentLine, floorAccentX);
-    if (dangerGlow > 0) {
-      _overlay.color = theme.palette.danger.withValues(alpha: kDangerGlowAlpha * dangerGlow);
-      canvas.drawRect(_dangerRect, _overlay);
-    }
-    if (sweep >= 0 && sweep <= 1) {
-      final x = -kAdvanceSweepWidth + (kVirtualW + kAdvanceSweepWidth) * sweep;
-      _overlay.color = theme.palette.accent.withValues(alpha: kSweepAlpha * (1 - sweep));
-      canvas.drawRect(
-        Rect.fromLTWH(x, kFloorY - kSweepHeight / 2, kAdvanceSweepWidth, kSweepHeight),
-        _overlay,
-      );
-    }
-    _icon.color = theme.palette.accent;
-    canvas.drawCircle(
-      const Offset(kHudBallIconX, kHudBallIconY),
-      kHudBallIconDiameter / 2,
-      _icon,
-    );
+    if (dangerGlow > 0) paintDangerGlow(canvas, dangerGlow);
+    if (sweep >= 0 && sweep <= 1) paintAdvanceSweep(canvas, sweep);
+    paintHudBallIcon(canvas);
     if (scoreScale != 1) {
       canvas
         ..save()
@@ -182,6 +167,37 @@ abstract class BaseThemeRenderer extends ThemeRenderer {
       _hudNumbers.paintNumber(canvas, score, kHudScoreX, kHudScoreY);
     }
     _hudNumbers.paintNumber(canvas, counter, kHudCounterX, kHudCounterY);
+  }
+
+  /// 7. satır tehlike nefesi, [glow] ∈ (0, 1]. Varsayılan: zemin kenarının
+  /// hemen üstünde tehlike renginde şerit.
+  @protected
+  void paintDangerGlow(Canvas canvas, double glow) {
+    _overlay.color = theme.palette.danger.withValues(alpha: kDangerGlowAlpha * glow);
+    canvas.drawRect(_dangerRect, _overlay);
+  }
+
+  /// Satır ilerleme süpürmesi, [sweep] ∈ [0, 1] (soldan sağa). Varsayılan:
+  /// zemin kenarında solarak ilerleyen vurgu şeridi.
+  @protected
+  void paintAdvanceSweep(Canvas canvas, double sweep) {
+    final x = -kAdvanceSweepWidth + (kVirtualW + kAdvanceSweepWidth) * sweep;
+    _overlay.color = theme.palette.accent.withValues(alpha: kSweepAlpha * (1 - sweep));
+    canvas.drawRect(
+      Rect.fromLTWH(x, kFloorY - kSweepHeight / 2, kAdvanceSweepWidth, kSweepHeight),
+      _overlay,
+    );
+  }
+
+  /// Zemin çubuğundaki top simgesi. Varsayılan: top renginde dolu daire.
+  @protected
+  void paintHudBallIcon(Canvas canvas) {
+    _icon.color = theme.palette.accent;
+    canvas.drawCircle(
+      const Offset(kHudBallIconX, kHudBallIconY),
+      kHudBallIconDiameter / 2,
+      _icon,
+    );
   }
 
   /// Vurgu çizgisinin parıltısı, (cx, y) merkezli. Varsayılan: bir kez

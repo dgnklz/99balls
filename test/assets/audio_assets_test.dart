@@ -7,8 +7,8 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'wav_reader.dart';
 
-/// Tema sesleri (tools/audio ile üretilir): PRD 8.1 ve M3a kararları. Kendi ses
-/// klasörü olan her tema ayrı denetlenir (yer tutucular Orbitfall'ınkini paylaşır).
+/// Tema sesleri (tools/audio ile üretilir): PRD 8.1 ve M3a kararları. Her
+/// temanın ses klasörü ayrı denetlenir.
 const int _sfxRate = 44100;
 const int _musicRate = 22050;
 const int _int16Max = 32767;
@@ -40,8 +40,8 @@ Map<String, ThemeSounds> _soundSets() {
 void main() {
   final sets = _soundSets();
 
-  test('Orbitfall, Candy Burst, Pixel Drop and Abyss each have their own sound folder', () {
-    expect(sets.keys.toSet(), {'orbitfall', 'candyburst', 'pixeldrop', 'abyss'});
+  test('every theme has its own sound folder', () {
+    expect(sets.keys.toSet(), {'orbitfall', 'candyburst', 'pixeldrop', 'abyss', 'inkpaper'});
   });
 
   for (final MapEntry(key: folder, value: sounds) in sets.entries) {

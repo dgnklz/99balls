@@ -109,7 +109,6 @@ const ThemeSounds abyssSounds = ThemeSounds(
 final GameTheme abyssTheme = GameTheme(
   id: kAbyssId,
   isFree: false,
-  isPlaceholder: false,
   displayName: (l10n) => l10n.themeAbyss,
   palette: abyssPalette,
   hpRamp: HpRamp(abyssHpStops),

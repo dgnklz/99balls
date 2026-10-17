@@ -112,7 +112,6 @@ const ThemeSounds candyBurstSounds = ThemeSounds(
 final GameTheme candyBurstTheme = GameTheme(
   id: kCandyBurstId,
   isFree: false,
-  isPlaceholder: false,
   displayName: (l10n) => l10n.themeCandyBurst,
   palette: candyBurstPalette,
   hpRamp: HpRamp(candyBurstHpStops),

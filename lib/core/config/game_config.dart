@@ -608,3 +608,148 @@ const double kAbyssSparkScale = 1.6;
 
 /// Tek drawRawAtlas çağrısındaki en çok sprite (63 hedef × 4 parça).
 const int kAbyssAtlasBatchCapacity = 260;
+
+// --- Ink & Paper arka planı --------------------------------------------------
+
+/// Kâğıt zemini (degrade + gren + lif) bir kez tek resme pişirilir; en yüksek
+/// çözünürlük (piksel/gu) bellek sınırıdır (J8 ~3.5 MB, en çok ~4.7 MB).
+const double kInkBackdropMaxPxPerGu = 2;
+
+/// Kâğıt greni: sabit tohumlu noktalar (yarısı koyu, yarısı açık).
+const int kInkGrainCount = 2600;
+const double kInkGrainSize = 0.8;
+const double kInkGrainDarkAlpha = 0.06;
+const double kInkGrainLightAlpha = 0.12;
+
+/// Kâğıt lifleri: kısa, ince, hafif kavisli çizgiler.
+const int kInkFiberCount = 140;
+const double kInkFiberMinLength = 6;
+const double kInkFiberMaxLength = 22;
+const double kInkFiberBend = 3;
+const double kInkFiberStroke = 0.5;
+const double kInkFiberAlpha = 0.07;
+
+/// Çok yavaş kayan soluk mürekkep lekeleri (wash): bulanık daire kümesi tek
+/// sprite'ta, düşük çözünürlüklü ayrı bir atlasta (yumuşak içerik); karede
+/// tek drawRawAtlas. Leke başına [kInkWashBlobs] daire, merkezden en çok
+/// [kInkWashSpread] gu.
+const int kInkWashCount = 6;
+const int kInkWashBlobs = 4;
+const double kInkWashRadius = 34;
+const double kInkWashSpread = 22;
+const double kInkWashBlur = 12;
+const double kInkWashAlphaMin = 0.05;
+const double kInkWashAlphaMax = 0.09;
+const double kInkWashMinScale = 1;
+const double kInkWashMaxScale = 1.8;
+const double kInkWashSpeedX = 2.5;
+const double kInkWashSpeedY = 1.2;
+const double kInkWashMaxPxPerGu = 0.75;
+
+/// Leke dairelerinin en küçük yarıçapı (kInkWashRadius oranı).
+const double kInkWashBlobMinRatio = 0.6;
+
+// --- Ink & Paper çizimi (orijin = nesne merkezi, gu) ---------------------------
+
+/// Hedef gövdesi: düzensiz fırça disk, R(θ) = [kInkBodyRadius] + [kInkBodyWobble]
+/// × Σ ağırlık·sin(k·θ + faz); ağırlıklar toplamı 1 → R ≤ 22.7 < kTargetRadius.
+/// Fazlar varyant başına sabit tohumdan. Varyant sütuna göre seçilir.
+const double kInkBodyRadius = 21.5;
+const double kInkBodyWobble = 1.2;
+const List<int> kInkBodyHarmonics = [3, 5, 7];
+const List<double> kInkBodyHarmonicWeights = [0.5, 0.3, 0.2];
+const int kInkBodySegments = 72;
+const int kInkTargetVariants = 3;
+const int kInkGeometrySeed = kVisualRandomSeed + 0x1A4;
+
+/// Enso kenarı: gövdenin içinde, başta bastırılıp ([kInkRimHeadFraction]
+/// boyunca kalınlaşan) sonra incelen fırça halkası; [kInkRimGapDeg] açıklık.
+/// Renk: HP rengi ile sumi (top rengi) karışımı.
+const double kInkRimMinStroke = 1.5;
+const double kInkRimMaxStroke = 3.5;
+const double kInkRimInset = 0.3;
+const double kInkRimGapDeg = 28;
+const double kInkRimHeadFraction = 0.08;
+const List<double> kInkRimStartDeg = [-110, 10, 130];
+const double kInkRimDarkMix = 0.45;
+
+/// Mürekkep yayılması (nijimi): HP renginde, bir kez bulanıklaştırılmış disk;
+/// görünür sınır (r + 2σ) komşu hücreye değmez.
+const double kInkBleedRadius = 22;
+const double kInkBleedBlur = 2.5;
+const double kInkBleedAlpha = 0.2;
+
+/// Kuru fırça dokusu: gövdeye kırpılmış eş merkezli kısa yaylar; sumi
+/// renginde düşük saydamlıkla basılır (yalnızca koyulaştırır).
+const int kInkStreakCount = 9;
+const double kInkStreakMinRadius = 12;
+const double kInkStreakMaxRadius = 20;
+const double kInkStreakMinSweepDeg = 20;
+const double kInkStreakMaxSweepDeg = 60;
+const double kInkStreakStroke = 0.8;
+const double kInkStreakAlpha = 0.14;
+
+/// HP rakamının kapladığı kutu (Roboto Bold metriği, Abyss ile aynı değerler).
+const double kInkDigitBoxHalfW = 14;
+const double kInkDigitBoxHalfH = 9;
+const double kInkDigitBox3HalfW = 17;
+const double kInkDigitBox3HalfH = 8;
+
+/// Atılan top: sumi damlası + sol üstte parlama.
+const double kInkBallRadius = 12.5;
+const double kInkBallGlintX = -4;
+const double kInkBallGlintY = -4.5;
+const double kInkBallGlintRadiusX = 3;
+const double kInkBallGlintRadiusY = 2;
+const double kInkBallGlintAlpha = 0.55;
+
+/// Halka: dış yarıçap kPickupRadius, başta bastırılıp incelen fırça halka;
+/// uçlar [kInkRingOverlapDeg] üst üste biner. İçi boştur. Ortak pişmiş
+/// parıltı kâğıtta pigment yayılması gibi [kInkRingGlowAlpha] ile basılır.
+const double kInkRingMinStroke = 3.5;
+const double kInkRingMaxStroke = 5.5;
+const double kInkRingOverlapDeg = 20;
+const double kInkRingStartDeg = -100;
+const double kInkRingHeadFraction = 0.06;
+const int kInkRingSegments = 96;
+const double kInkRingGlowAlpha = 0.45;
+
+/// Altın yaprak yıldız: koyu ince kenar ve açık altın yaprak lekecikleri
+/// (x, y, yarıçap üçlüleri).
+const double kInkStarEdgeStroke = 1.3;
+const List<double> kInkStarFlecks = [-3, -4, 1.6, 4, 1, 1.2, -1, 5, 1];
+const double kInkStarFleckLightMix = 0.5;
+
+/// Mürekkep damlası kıvılcım: hız yönünde uzamış oval + uydu damlacıklar
+/// (varyant başına x, y, yarıçap üçlüleri; birim = damla yarıçapı). Görünen
+/// boy = kıvılcım boyu × [kInkSparkScale].
+const double kInkDropRadius = 2.2;
+const double kInkDropStretch = 1.8;
+const double kInkDropExtent = 3.6;
+const List<List<double>> kInkDropSatellites = [
+  [-2.6, 0.6, 0.45],
+  [-2.4, -0.7, 0.4, -3.2, 0.4, 0.28],
+  [2.7, 0, 0.35, -2.5, -0.5, 0.38],
+];
+const double kInkSparkScale = 1.6;
+
+/// HUD: top simgesinin arkasındaki kâğıt diski (simgeden bu kadar büyük).
+const double kInkHudIconBacking = 1.5;
+
+/// Satır süpürmesi: kâğıt kenarında incelen kuru fırça darbesi (zemin
+/// kenarının hemen üstünde); [kInkSweepDryLines] ince kuru fırça boşluğu.
+const double kInkSweepHeight = 5;
+const int kInkSweepDryLines = 3;
+const double kInkSweepDryStroke = 0.6;
+const double kInkSweepDryAlpha = 0.6;
+const double kInkSweepTailTaper = 0.3;
+
+/// Tehlike nefesi: zemin kenarından yukarı solan mürekkep sızıntısı.
+const double kInkSeepHeight = 14;
+const int kInkSeepBlobs = 7;
+const double kInkSeepBlobRadius = 9;
+const double kInkSeepBlur = 4;
+const double kInkSeepAlpha = 0.8;
+
+/// Tek drawRawAtlas çağrısındaki en çok sprite (63 hedef × 4 parça).
+const int kInkAtlasBatchCapacity = 260;

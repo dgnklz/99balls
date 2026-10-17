@@ -9,10 +9,7 @@ kurallar, replay, skor ve `stateHash` hiçbir temada değişmez (testle doğrula
 | Candy Burst | **Tam** (M3b) | Şeker/tatlı dünyası |
 | Pixel Drop | **Tam** (M3c) | Kodla çizilen piksel dünyası |
 | Abyss | **Tam** (M3d) | Okyanus dibi, biyolüminesans |
-| Ink & Paper | Yer tutucu | M3e'de |
-
-Yer tutucu (Ink & Paper) kayıtlı ve seçilebilir, ama henüz Orbitfall çizicisini, paletinin ton/doygunluk
-varyantını ve Orbitfall seslerini kullanır (`lib/themes/placeholder/`).
+| Ink & Paper | **Tam** (M3e) | Sumi-e: kâğıt üstünde fırça ve mürekkep (tek açık zeminli tema) |
 
 ## Orbitfall — gerekçe
 
@@ -129,6 +126,50 @@ varyantını ve Orbitfall seslerini kullanır (`lib/themes/placeholder/`).
   benzerlik yok. Telefon hoparlörü için 200 Hz altı tek başına yok (müzikte %5.5); SFX'lerin
   ana enerjisi 300 Hz–3 kHz. Kesin değerlendirme kulakla (cihazda) yapılmalı.
 
+## Ink & Paper — gerekçe
+
+- **Neden mürekkep ve kâğıt:** Diğer dört tema koyu; Ink & Paper bilerek **açık** zeminli tek temadır
+  (sumi-e, el yapımı kâğıt). Sayılı toplar kâğıda düşmüş pigment lekeleri, atılan top bir mürekkep damlası,
+  toplanan halka bir hanko mührüdür. Sakin, el yapımı, sessiz ("ma") bir kimlik. PRD 7.4'ün "koyu zemin"
+  maddesine bilinçli istisnadır (ASSUMPTIONS).
+- **Arka plan:** Sıcak krem ham kâğıt degradesi (#F1E8D6 → #E4D6BC) + bir kez pişirilmiş ince gren ve kâğıt
+  lifleri (tek resim); üstünde çok yavaş kayan, çok soluk mürekkep-yıkama lekeleri. Mavi spot ya da yönlü
+  ışık yok; referansın siyah + mavi zeminine hiç benzemez.
+- **Hedefler:** Mürekkep-yıkama pigment disk: kenarı hafif düzensiz fırça diski (3 varyant, sütuna göre),
+  içinde koyu, incelen, açıklıklı **enso** fırça kenarı (HP + %45 sumi), kuru fırça dokusu ve HP renginde
+  kâğıda yayılma (nijimi). Silüet çarpışma dairesinin içinde (R ≤ 22.7 < 25, testli); gövde rakam
+  bölgesinde tam opak, doku yalnızca koyulaştırır.
+- **HP durakları:** aşı-kehribar → kuchiba hardal → yosun → çam iğnesi → tokusa → seiheki → hanada →
+  ai (çivit) → kikyō → murasaki → koyu gül kurusu. Açık zeminde okunsun diye koyu, doygun pigmentler:
+  beyaz rakam her HP'de ≥ 4.89:1, pigment kâğıda ≥ 3.41:1, enso kenarı ≥ 6.2:1. Düşük HP turuncu-kehribar
+  (33.6°), kırmızı/pembe değil.
+- **Top ve halka:** Top koyu sumi damlası (#1E1B18) + hafif parlak nokta (kâğıda 12–14:1). Halka hanko
+  vermilyonu (#D23A20) fırça halka: içi boş, %38 büyük, uçları üst üste binen kalın-ince fırça izi, kâğıtta
+  pigment yayılması gibi hafif parıltı; toptan (koyu dolu damla) ve hedeflerden (dolu disk) hemen ayrılır.
+  **Yıldız:** altın yaprak beş köşeli, açık altın lekecikli, ince sumi kenarlı (altın tek başına kâğıtta
+  zayıf, kenar 12:1).
+- **HUD:** Açık zeminde de referans ayrışma kuralı: yarı saydam koyu sumi yüzey (#1E1A16, %70; krem
+  üstünde bileşik ≈ #5E5850, beyaz HUD rakamı 7:1), ince krem kenar, altın yaprak vurgu (#E2B65C). Zemin
+  çubuğundaki top simgesi kâğıt diski üstünde sumi damla. Boost açıkken altın dolgu üstünde koyu "»" (9:1);
+  öğretici yazı ve el koyu mürekkep (10.7:1).
+- **Efektler:** Vuruşta mürekkep damlacıkları (sumi, ai, bengara, kincha), kırılmada mürekkep sıçraması +
+  dönen pigment diski; halka/yıldızda kendi renginde damlalar ve büyüyüp solan fırça izi (mürekkep dalgası);
+  damlalar hız yönünde uzamış. Satır ilerlemede kâğıt kenarında kuru fırça darbesi süpürmesi.
+- **Tehlike ve oyun sonu:** Kırmızı yerine **koyu mürekkep**: 7. satırda zemin kenarından yukarı mürekkep
+  sızar (nefes alır), oyun sonunda son satır sumiye boyanır ve sumi şok halkaları yayılır. Gerekçe: kâğıtta
+  en güçlü sinyal koyuluktur (sumi kâğıda 10.7:1, kırmızı 3.4–3.9:1) ve bu temada kırmızı halkanın (ödül)
+  rengidir; tehlike de kırmızı olsa karışırdı.
+- **Sistem çubukları:** Simgeler köşenin gerçek rengine göre seçilir: telefonlarda köşe sumi çubuk → açık
+  simge; yan letterbox'lı geniş ekranlarda köşe krem → koyu simge.
+- **Performans:** Kâğıt tek resim (≤ 2 px/gu), lekeler düşük çözünürlüklü ayrı atlasta, hedef/top/halka/
+  yıldız/damla ortak beyaz maske atlasında; her grup tek `drawRawAtlas`. Bulanıklık yalnızca pişirmede;
+  `BlendMode.multiply` yok (Impeller'da pahalı).
+- **Ses:** Sumi-e atölyesi: koto (oshide süslemeli), sho benzeri kamış kümesi, nefesli shakuhachi, mokugyo
+  ve hyoshigi; fırçanın kâğıtta "fiş"i, mürekkep lekesinin "şlap"ı, tek orin vuruşu (yıldız). 84 BPM,
+  11 ölçü (31.4 sn), D in-sen (D–E♭–G–A–C), A + A′ + sessizliğe açılan koda. Abyss'in perde kaydırmalı
+  damla + yankısı ve F♯ minörü kullanılmadı. Müzikte 200 Hz altı yok; SFX'lerin ana bandı 294 Hz–2.8 kHz.
+  Kesin değerlendirme kulakla (cihazda) yapılmalı.
+
 ## Referans oyundan ayrışma
 
 Referans oyunun görünüşü: siyaha yakın zemin + mavi spot ışığı, kırmızı/pembe dolu hedefler,
@@ -136,7 +177,8 @@ mavi dolu üst/alt çubuklar, krem hap şeklinde oynat düğmesi. Tüm temalar b
 yönlü spot ışığı yok (yalnızca dikey degrade + yıldız tozu), düşük HP turuncu/amber, çubuklar
 yarı saydam koyu yüzey; M4'teki menü düğmeleri krem hap ya da mavi yuvarlak olmayacak. Oyun içi boost butonu da bu
 kurala uyar: kapalıyken yarı saydam koyu yüzey + ince açık kenar + vurgu renginde "»", açıkken
-tema vurgusu dolgu (hiçbir temada mavi değil).
+tema vurgusu dolgu (hiçbir temada mavi değil); açıkken "»" rengi `onAccent`'tir (koyu temalarda zemin
+rengi, Ink & Paper'da sumi).
 `test/themes/reference_distinction_test.dart` bu kuralları her tema için denetler;
-`test/themes/boost_contrast_test.dart` boost butonunun her temada okunur (≥ 3:1) ve maviden
-uzak olduğunu denetler.
+`test/themes/boost_contrast_test.dart` boost butonunun her temada okunur (≥ 3:1; kapalı hal zeminin
+üstündeki yarı saydam daireye göre) ve maviden uzak olduğunu denetler.

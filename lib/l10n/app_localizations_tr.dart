@@ -46,9 +46,6 @@ class AppLocalizationsTr extends AppLocalizations {
   String get themePickerTitle => 'Tema';
 
   @override
-  String get themePlaceholderTag => 'yer tutucu';
-
-  @override
   String get boostLabel => 'Hızlandır';
 
   @override
